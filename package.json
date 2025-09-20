@@ -9,7 +9,7 @@
     "lint": "biome check",
     "format": "biome format --write",
     "format:check": "biome check",
-    "lint:fix": "biome check --apply"
+    "lint:fix": "biome check --write"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
