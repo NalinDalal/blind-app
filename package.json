@@ -13,15 +13,18 @@
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
+    "@reduxjs/toolkit": "^2.9.0",
     "@sendgrid/mail": "^8.1.6",
     "@types/jsonwebtoken": "^9.0.10",
     "bcryptjs": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
+    "motion": "^12.23.16",
     "next": "15.5.3",
     "nodemailer": "^7.0.6",
     "otpauth": "^9.4.1",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-redux": "^9.2.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.0",
