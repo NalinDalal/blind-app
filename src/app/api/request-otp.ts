@@ -1,8 +1,8 @@
 
-import { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '../../generated/prisma';
 import * as OTPAuth from 'otpauth';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { sendEmail } from '../../utils/sendEmail';
 
 const prisma = new PrismaClient();
@@ -71,6 +71,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       html
     );
   } catch (e) {
+    console.log(e);
+    alert(e);
     return res.status(500).json({ error: 'Failed to send OTP email.' });
   }
   return res.status(200).json({ message: 'OTP sent to your email.' });
