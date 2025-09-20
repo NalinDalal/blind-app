@@ -1,3 +1,4 @@
+
 # Blind App
 
 Anonymous Community App for College Students
@@ -12,6 +13,54 @@ some rules:
 easy boy, first create a system design, what features you want to have, really try to think, don't think everything at once, step by step
 layout fucking 1-2-3 steps, then push them step by step
 
+
+## Getting Started
+
+### Running Locally (Without Docker Compose)
+
+1. Install dependencies:
+    ```bash
+    npm install
+    ```
+2. Set up a local PostgreSQL database and update the `DATABASE_URL` in your `.env` file.
+3. Run Prisma migrations:
+    ```bash
+    npx prisma migrate dev --name init
+    ```
+4. Generate Prisma client:
+    ```bash
+    npx prisma generate
+    ```
+5. Start the development server:
+    ```bash
+    npm run dev
+    ```
+
+### Running with Docker Compose
+
+1. Make sure Docker is installed and running.
+2. Start the PostgreSQL database with Docker Compose:
+    ```bash
+    docker compose up -d
+    ```
+3. Update your `.env` file to use the following connection string:
+    ```env
+    DATABASE_URL="postgresql://postgres:postgres@localhost:5432/blindapp"
+    ```
+4. Run Prisma migrations:
+    ```bash
+    npx prisma migrate dev --name init
+    ```
+5. Generate Prisma client:
+    ```bash
+    npx prisma generate
+    ```
+6. Start the development server:
+    ```bash
+    npm run dev
+    ```
+
+---
 work on system design first
 
 ```mermaid
