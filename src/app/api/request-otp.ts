@@ -1,9 +1,13 @@
+declare global {
+  // A record mapping email strings to the last OTP request timestamp
+  var otpLastReq: Record<string, number>;
+}
 
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '../../generated/prisma';
-import * as OTPAuth from 'otpauth';
-import crypto from 'node:crypto';
-import { sendEmail } from '../../utils/sendEmail';
+import crypto from "node:crypto";
+import type { NextApiRequest, NextApiResponse } from "next";
+import * as OTPAuth from "otpauth";
+import { PrismaClient } from "../../generated/prisma";
+import { sendEmail } from "../../utils/sendEmail";
 
 const prisma = new PrismaClient();
 
@@ -11,41 +15,56 @@ async function getOrCreateSecret(email: string) {
   let user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
     // Generate a random 20-byte base32 secret
-    const secret = OTPAuth.Secret.fromHex(crypto.randomBytes(20).toString('hex')).base32;
-    user = await prisma.user.create({ data: { email, password: '', otp: secret } });
+    const secret = OTPAuth.Secret.fromHex(
+      crypto.randomBytes(20).toString("hex"),
+    ).base32;
+    user = await prisma.user.create({
+      data: { email, password: "", otp: secret },
+    });
     return OTPAuth.Secret.fromBase32(secret);
   }
+
   if (!user.otp) {
-    const secret = OTPAuth.Secret.fromHex(crypto.randomBytes(20).toString('hex')).base32;
+    const secret = OTPAuth.Secret.fromHex(
+      crypto.randomBytes(20).toString("hex"),
+    ).base32;
     await prisma.user.update({ where: { email }, data: { otp: secret } });
     return OTPAuth.Secret.fromBase32(secret);
   }
+
   return OTPAuth.Secret.fromBase32(user.otp);
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method !== "POST") {
+    res.setHeader("Allow", ["POST"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ error: 'Email required' });
 
-  // Ensure user exists
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: "Email required" });
+
+  // Ensure global record exists
+  if (!global.otpLastReq) global.otpLastReq = {};
+
   // Basic rate limiting: allow 1 request per 30 seconds per email (in production, use Redis or similar)
   const now = Date.now();
-  const lastReqKey = `otp_last_req_${email}`;
-  if (!(global as any)[lastReqKey]) {
-    (global as any)[lastReqKey] = 0;
+  if (!global.otpLastReq[email]) global.otpLastReq[email] = 0;
+
+  if (now - global.otpLastReq[email] < 30 * 1000) {
+    return res
+      .status(429)
+      .json({ error: "Please wait before requesting another OTP." });
   }
-  if (now - (global as any)[lastReqKey] < 30 * 1000) {
-    return res.status(429).json({ error: 'Please wait before requesting another OTP.' });
-  }
-  (global as any)[lastReqKey] = now;
+
+  global.otpLastReq[email] = now;
 
   const secret = await getOrCreateSecret(email);
   const totp = new OTPAuth.TOTP({
-    issuer: 'BlindApp',
+    issuer: "BlindApp",
     label: email,
     secret,
     digits: 6,
@@ -66,14 +85,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     `;
     await sendEmail(
       email,
-      'Your OTP Code for Blind App',
+      "Your OTP Code for Blind App",
       `Your OTP is: ${otp}\nIt is valid for 2 minutes.`,
-      html
+      html,
     );
   } catch (e) {
     console.log(e);
-    alert(e);
-    return res.status(500).json({ error: 'Failed to send OTP email.' });
+    return res.status(500).json({ error: "Failed to send OTP email." });
   }
-  return res.status(200).json({ message: 'OTP sent to your email.' });
+
+  return res.status(200).json({ message: "OTP sent to your email." });
 }
