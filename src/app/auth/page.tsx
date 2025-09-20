@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-
+export default function AuthPage(){
   const [mode, setMode] = useState<"register" | "login" | "otp" | "anon">("register");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
