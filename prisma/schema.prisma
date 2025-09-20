@@ -51,7 +51,7 @@ model Comment {
 model AnonMapping {
   id        String   @id @default(uuid())
   user      User     @relation(fields: [userId], references: [id])
-  userId    String
+  userId    String  @unique
   anonName  String   @unique
   createdAt DateTime @default(now())
 }
