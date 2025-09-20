@@ -13,6 +13,10 @@ export default async function handler(
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password required" });
     }
+    // Only allow emails from @oriental.ac.in
+    if (!/^\w+@oriental\.ac\.in$/i.test(email)) {
+      return res.status(400).json({ error: "Only college emails (@oriental.ac.in) are allowed." });
+    }
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
       return res.status(409).json({ error: "User already exists" });
