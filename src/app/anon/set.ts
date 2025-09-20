@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (banned.some(word => anonName.toLowerCase().includes(word))) {
     return res.status(400).json({ error: "Inappropriate anon name" });
   }
-  let userId;
+  let userId:string;
   try {
     const decoded = jwt.verify(auth.replace(/^Bearer /, ""), JWT_SECRET) as { id: string };
     userId = decoded.id;
