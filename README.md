@@ -186,3 +186,10 @@ so authentication with 2fa is done
 authentication, anonymity, and mapping of anonName with userId is done
 
 to do: step 6;post, get request for social media post, and comments on them
+
+---
+
+beforce pushing do:
+npx biome format --write
+then push
+

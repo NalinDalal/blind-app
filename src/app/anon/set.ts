@@ -56,11 +56,9 @@ export default async function handler(
     where: { userId: userId },
   });
   if (existingUser) {
-    return res
-      .status(403)
-      .json({
-        error: "You have already set your anon name and cannot change it.",
-      });
+    return res.status(403).json({
+      error: "You have already set your anon name and cannot change it.",
+    });
   }
   const mapping = await prisma.anonMapping.create({
     data: { userId, anonName },
