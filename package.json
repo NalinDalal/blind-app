@@ -12,8 +12,11 @@
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
+    "@sendgrid/mail": "^8.1.6",
     "bcryptjs": "^3.0.2",
     "next": "15.5.3",
+    "nodemailer": "^7.0.6",
+    "otpauth": "^9.4.1",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
