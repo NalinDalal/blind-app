@@ -3,10 +3,10 @@ declare global {
   var __otpLastReq: Record<string, number> | undefined;
 }
 
-import type { NextApiRequest, NextApiResponse } from "next";
-import { PrismaClient } from "../../generated/prisma";
-import * as OTPAuth from "otpauth";
 import crypto from "node:crypto";
+import type { NextApiRequest, NextApiResponse } from "next";
+import * as OTPAuth from "otpauth";
+import { PrismaClient } from "../../generated/prisma";
 import { sendEmail } from "../../utils/sendEmail";
 
 const prisma = new PrismaClient();
