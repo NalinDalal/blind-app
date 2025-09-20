@@ -82,8 +82,8 @@ flowchart TD
     %% Flow: Notifications
     NotifService --> NotifDB
     NotifService --> PushAPI
-    NotifUI <-- API
-    API <-- NotifService
+    API --> NotifUI
+    NotifService --> API
 
     %% Flow: Analytics
     API --> AnalyticsService
