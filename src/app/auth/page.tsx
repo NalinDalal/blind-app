@@ -8,7 +8,7 @@ export default function AuthPage(){
   const [anonName, setAnonName] = useState("");
   const [message, setMessage] = useState("");
   const [jwt, setJwt] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [_userId, setUserId] = useState<string | null>(null);
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -89,7 +89,7 @@ export default function AuthPage(){
     });
     const data = await res.json();
     if (res.ok) {
-      setMessage("Anon name set! You are now anonymous as " + data.anonName);
+      setMessage(`Anon name set! You are now anonymous as ${data.anonName}`);
       setMode("login");
     } else {
       setMessage(data.error || "Error");
