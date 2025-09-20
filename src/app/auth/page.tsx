@@ -8,7 +8,7 @@ export default function AuthPage() {
   const [otp, setOtp] = useState("");
   const [message, setMessage] = useState("");
 
-  async function handleRegister(e: any) {
+  async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setMessage("");
     const res = await fetch("/api/register", {
@@ -21,7 +21,7 @@ export default function AuthPage() {
     else setMessage(data.error || "Error");
   }
 
-  async function handleLogin(e: any) {
+  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setMessage("");
     const res = await fetch("/api/login", {
@@ -34,7 +34,7 @@ export default function AuthPage() {
     else setMessage(data.error || "Error");
   }
 
-  async function handleRequestOtp(e: any) {
+  async function handleRequestOtp(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setMessage("");
     const res = await fetch("/api/request-otp", {
@@ -47,7 +47,7 @@ export default function AuthPage() {
     else setMessage(data.error || "Error");
   }
 
-  async function handleVerifyOtp(e: any) {
+  async function handleVerifyOtp(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setMessage("");
     const res = await fetch("/api/verify-otp", {
@@ -61,41 +61,110 @@ export default function AuthPage() {
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: "2rem auto", padding: 24, border: "1px solid #ccc", borderRadius: 8 }}>
-      <h2>Auth Demo</h2>
-      <div style={{ marginBottom: 16 }}>
-        <button onClick={() => setMode('register')}>Register</button>
-        <button onClick={() => setMode('login')}>Login</button>
-        <button onClick={() => setMode('otp')}>OTP Auth</button>
+    <div className="max-w-md mx-auto my-8 p-8 border border-gray-300 rounded-lg bg-white shadow-md">
+      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Auth Demo</h2>
+      <div className="flex justify-center gap-2 mb-6">
+        <button
+          type="button"
+          className={`px-4 py-2 rounded font-medium border transition-colors duration-150 ${mode === 'register' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-blue-600 border-blue-600 hover:bg-blue-50'}`}
+          onClick={() => setMode('register')}
+        >
+          Register
+        </button>
+        <button
+          type="button"
+          className={`px-4 py-2 rounded font-medium border transition-colors duration-150 ${mode === 'login' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-blue-600 border-blue-600 hover:bg-blue-50'}`}
+          onClick={() => setMode('login')}
+        >
+          Login
+        </button>
+        <button
+          type="button"
+          className={`px-4 py-2 rounded font-medium border transition-colors duration-150 ${mode === 'otp' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-blue-600 border-blue-600 hover:bg-blue-50'}`}
+          onClick={() => setMode('otp')}
+        >
+          OTP Auth
+        </button>
       </div>
       {mode === 'register' && (
-        <form onSubmit={handleRegister}>
-          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
-          <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
-          <button type="submit">Register</button>
+        <form onSubmit={handleRegister} className="flex flex-col gap-4 mb-4">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+            className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+            className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <button type="submit" className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold">Register</button>
         </form>
       )}
       {mode === 'login' && (
-        <form onSubmit={handleLogin}>
-          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
-          <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
-          <button type="submit">Login</button>
+        <form onSubmit={handleLogin} className="flex flex-col gap-4 mb-4">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+            className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+            className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <button type="submit" className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold">Login</button>
         </form>
       )}
       {mode === 'otp' && (
         <>
-          <form onSubmit={handleRequestOtp}>
-            <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
-            <button type="submit">Request OTP</button>
+          <form onSubmit={handleRequestOtp} className="flex flex-col gap-4 mb-4">
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <button type="submit" className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold">Request OTP</button>
           </form>
-          <form onSubmit={handleVerifyOtp}>
-            <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
-            <input type="text" placeholder="OTP" value={otp} onChange={e => setOtp(e.target.value)} required />
-            <button type="submit">Verify OTP</button>
+          <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4 mb-4">
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <input
+              type="text"
+              placeholder="OTP"
+              value={otp}
+              onChange={e => setOtp(e.target.value)}
+              required
+              className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <button type="submit" className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold">Verify OTP</button>
           </form>
         </>
       )}
-      <div style={{ marginTop: 16, color: 'green' }}>{message}</div>
+      {message && (
+        <div className="mt-4 text-green-600 text-center font-medium">{message}</div>
+      )}
     </div>
   );
 }

@@ -1,4 +1,5 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+
+import type { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '../../generated/prisma';
 import bcrypt from 'bcryptjs';
 

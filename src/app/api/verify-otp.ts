@@ -1,5 +1,6 @@
 
-import { NextApiRequest, NextApiResponse } from 'next';
+
+import type { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '../../generated/prisma';
 
 import * as OTPAuth from 'otpauth';

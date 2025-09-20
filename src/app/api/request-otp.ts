@@ -1,4 +1,5 @@
 
+
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '../../generated/prisma';
 import * as OTPAuth from 'otpauth';
@@ -6,6 +7,14 @@ import crypto from 'node:crypto';
 import { sendEmail } from '../../utils/sendEmail';
 
 const prisma = new PrismaClient();
+
+// Properly type a global object for rate limiting
+type RateLimitGlobal = typeof global & { __otpLastReq?: Record<string, number> };
+const getRateLimitStore = () => {
+  const g = global as RateLimitGlobal;
+  if (!g.__otpLastReq) g.__otpLastReq = {};
+  return g.__otpLastReq;
+};
 
 async function getOrCreateSecret(email: string) {
   let user = await prisma.user.findUnique({ where: { email } });
@@ -34,14 +43,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Ensure user exists
   // Basic rate limiting: allow 1 request per 30 seconds per email (in production, use Redis or similar)
   const now = Date.now();
-  const lastReqKey = `otp_last_req_${email}`;
-  if (!(global as any)[lastReqKey]) {
-    (global as any)[lastReqKey] = 0;
-  }
-  if (now - (global as any)[lastReqKey] < 30 * 1000) {
+  const store = getRateLimitStore();
+  if (!store[email]) store[email] = 0;
+  if (now - store[email] < 30 * 1000) {
     return res.status(429).json({ error: 'Please wait before requesting another OTP.' });
   }
-  (global as any)[lastReqKey] = now;
+  store[email] = now;
 
   const secret = await getOrCreateSecret(email);
   const totp = new OTPAuth.TOTP({
