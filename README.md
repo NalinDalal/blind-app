@@ -12,9 +12,7 @@ some rules:
 easy boy, first create a system design, what features you want to have, really try to think, don't think everything at once, step by step
 layout fucking 1-2-3 steps, then push them step by step
 
-
 ## Getting Started
-
 
 ### Email/OTP Setup
 
@@ -30,10 +28,10 @@ EMAIL_FROM=Blind App <noreply@example.com>
 
 You can use any SMTP provider (Gmail, Outlook, custom, etc). For local testing, services like [Mailtrap](https://mailtrap.io/) or [Ethereal Email](https://ethereal.email/) are recommended.
 
-
 The app will send OTP codes to the user's email using these credentials.
 
 ---
+
 ### How to Test OTP Email Delivery
 
 1. Make sure you have set your SENDGRID_API_KEY and EMAIL_FROM in your `.env` file.
@@ -46,62 +44,64 @@ The app will send OTP codes to the user's email using these credentials.
 8. If successful, you will see a confirmation message.
 
 **Troubleshooting:**
+
 - If you do not receive the email, check your SendGrid dashboard for errors or quota issues.
 - Make sure your `EMAIL_FROM` is a verified sender in SendGrid.
 - Check your server logs for any errors related to email sending.
 
 ---
+
 ### Running Locally (Without Docker Compose)
 
 1. Install dependencies:
-    ```bash
-    npm install
-    ```
+   ```bash
+   npm install
+   ```
 2. Set up a local PostgreSQL database and update the `DATABASE_URL` in your `.env` file.
 3. Run Prisma migrations:
-    ```bash
-    npx prisma migrate dev --name init
-    ```
+   ```bash
+   npx prisma migrate dev --name init
+   ```
 4. Generate Prisma client:
-    ```bash
-    npx prisma generate
-    ```
+   ```bash
+   npx prisma generate
+   ```
 5. Start the development server:
-    ```bash
-    npm run dev
-    ```
-
+   ```bash
+   npm run dev
+   ```
 
 ### Running with Docker Compose
 
 1. Make sure Docker is installed and running.
 2. Start the PostgreSQL database with Docker Compose (required!):
-    ```bash
-    docker compose up -d
-    ```
-    This will start the database in the background. You must keep it running while you use the app.
+   ```bash
+   docker compose up -d
+   ```
+   This will start the database in the background. You must keep it running while you use the app.
 3. Ensure your `.env` file contains:
-    ```env
-    DATABASE_URL="postgresql://postgres:postgres@localhost:5432/blindapp"
-    ```
+   ```env
+   DATABASE_URL="postgresql://postgres:postgres@localhost:5432/blindapp"
+   ```
 4. Run Prisma migrations to set up the database tables:
-    ```bash
-    npx prisma migrate dev --name init
-    ```
+   ```bash
+   npx prisma migrate dev --name init
+   ```
 5. Generate the Prisma client:
-    ```bash
-    npx prisma generate
-    ```
+   ```bash
+   npx prisma generate
+   ```
 6. Start the development server:
-    ```bash
-    npm run dev
-    ```
+   ```bash
+   npm run dev
+   ```
 7. To stop the database, run:
-    ```bash
-    docker compose down
-    ```
+   ```bash
+   docker compose down
+   ```
 
 ---
+
 work on system design first
 
 ```mermaid
@@ -183,3 +183,5 @@ flowchart TD
 
 note something here, we have implemented authentication with help of ai, the db needs to be accounted still, we actually are not using any real db, also the otp is implemented for now
 so authentication with 2fa is done
+
+to do: impletement user auth from step3
