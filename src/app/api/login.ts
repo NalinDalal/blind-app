@@ -1,8 +1,10 @@
 import bcrypt from "bcryptjs";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { PrismaClient } from "../../../src/generated/prisma";
+import { PrismaClient } from "../../generated/prisma";
+import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
+const JWT_SECRET = process.env.JWT_SECRET || "devsecret";
 
 export default async function handler(
   req: NextApiRequest,
@@ -21,8 +23,9 @@ export default async function handler(
     if (!valid) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
-    // For simplicity, just return user id and email (no JWT/session)
-    return res.status(200).json({ id: user.id, email: user.email });
+    // Return JWT token for authenticated requests
+    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "2h" });
+    return res.status(200).json({ token, id: user.id, email: user.email });
   } else {
     res.setHeader("Allow", ["POST"]);
     res.status(405).end(`Method ${req.method} Not Allowed`);

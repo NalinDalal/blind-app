@@ -1,12 +1,14 @@
 "use client";
 import { useState } from "react";
 
-export default function AuthPage() {
-  const [mode, setMode] = useState<"register" | "login" | "otp">("register");
+  const [mode, setMode] = useState<"register" | "login" | "otp" | "anon">("register");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
+  const [anonName, setAnonName] = useState("");
   const [message, setMessage] = useState("");
+  const [jwt, setJwt] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -29,7 +31,13 @@ export default function AuthPage() {
       body: JSON.stringify({ email, password }),
     });
     const data = await res.json();
-    setMessage(res.ok ? "Logged in!" : data.error || "Error");
+    if (res.ok && data.token && data.id) {
+      setJwt(data.token);
+      setUserId(data.id);
+      setMessage("Logged in! Now verify OTP or set anon name.");
+    } else {
+      setMessage(data.error || "Error");
+    }
   };
 
   const handleRequestOtp = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -55,7 +63,37 @@ export default function AuthPage() {
       body: JSON.stringify({ email, otp }),
     });
     const data = await res.json();
-    setMessage(res.ok ? "OTP verified!" : data.error || "Error");
+    if (res.ok && data.id) {
+      setUserId(data.id);
+      setMessage("OTP verified! Now choose your anonymous name.");
+      setMode("anon");
+    } else {
+      setMessage(data.error || "Error");
+    }
+  };
+
+  const handleSetAnonName = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setMessage("");
+    if (!jwt) {
+      setMessage("You must be logged in to set anon name.");
+      return;
+    }
+    const res = await fetch("/anon/set", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${jwt}`,
+      },
+      body: JSON.stringify({ anonName }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setMessage("Anon name set! You are now anonymous as " + data.anonName);
+      setMode("login");
+    } else {
+      setMessage(data.error || "Error");
+    }
   };
 
   const inputClasses =
@@ -199,6 +237,22 @@ export default function AuthPage() {
             </button>
           </form>
         </>
+      )}
+
+      {mode === "anon" && (
+        <form onSubmit={handleSetAnonName} className="flex flex-col gap-4 mb-4">
+          <input
+            type="text"
+            placeholder="Choose your anonymous name"
+            value={anonName}
+            onChange={e => setAnonName(e.target.value)}
+            required
+            className={inputClasses}
+          />
+          <button type="submit" className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold">
+            Set Anon Name
+          </button>
+        </form>
       )}
 
       {message && (
