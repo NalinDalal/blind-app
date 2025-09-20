@@ -1,20 +1,26 @@
 declare global {
   // A record mapping email strings to the last OTP request timestamp
-  var otpLastReq: Record<string, number>;
+  var __otpLastReq: Record<string, number> | undefined;
 }
 
-import crypto from "node:crypto";
 import type { NextApiRequest, NextApiResponse } from "next";
-import * as OTPAuth from "otpauth";
 import { PrismaClient } from "../../generated/prisma";
+import * as OTPAuth from "otpauth";
+import crypto from "node:crypto";
 import { sendEmail } from "../../utils/sendEmail";
 
 const prisma = new PrismaClient();
 
+// Helper to get a global store for rate limiting
+const getRateLimitStore = (): Record<string, number> => {
+  if (!global.__otpLastReq) global.__otpLastReq = {};
+  return global.__otpLastReq;
+};
+
 async function getOrCreateSecret(email: string) {
   let user = await prisma.user.findUnique({ where: { email } });
+
   if (!user) {
-    // Generate a random 20-byte base32 secret
     const secret = OTPAuth.Secret.fromHex(
       crypto.randomBytes(20).toString("hex"),
     ).base32;
@@ -47,20 +53,17 @@ export default async function handler(
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: "Email required" });
 
-  // Ensure global record exists
-  if (!global.otpLastReq) global.otpLastReq = {};
-
-  // Basic rate limiting: allow 1 request per 30 seconds per email (in production, use Redis or similar)
+  const store = getRateLimitStore();
   const now = Date.now();
-  if (!global.otpLastReq[email]) global.otpLastReq[email] = 0;
+  if (!store[email]) store[email] = 0;
 
-  if (now - global.otpLastReq[email] < 30 * 1000) {
+  if (now - store[email] < 30 * 1000) {
     return res
       .status(429)
       .json({ error: "Please wait before requesting another OTP." });
   }
 
-  global.otpLastReq[email] = now;
+  store[email] = now;
 
   const secret = await getOrCreateSecret(email);
   const totp = new OTPAuth.TOTP({
@@ -72,7 +75,6 @@ export default async function handler(
   });
   const otp = totp.generate();
 
-  // Send OTP via email provider
   try {
     const html = `
       <div style="font-family:Arial,sans-serif;max-width:400px;margin:2rem auto;padding:2rem;border-radius:10px;background:#f9f9f9;border:1px solid #eee;">
@@ -90,7 +92,7 @@ export default async function handler(
       html,
     );
   } catch (e) {
-    console.log(e);
+    console.error(e);
     return res.status(500).json({ error: "Failed to send OTP email." });
   }
 

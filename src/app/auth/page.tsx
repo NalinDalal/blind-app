@@ -8,7 +8,7 @@ export default function AuthPage() {
   const [otp, setOtp] = useState("");
   const [message, setMessage] = useState("");
 
-  async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMessage("");
     const res = await fetch("/api/register", {
@@ -17,11 +17,10 @@ export default function AuthPage() {
       body: JSON.stringify({ email, password }),
     });
     const data = await res.json();
-    if (res.ok) setMessage("Registered! Now login.");
-    else setMessage(data.error || "Error");
-  }
+    setMessage(res.ok ? "Registered! Now login." : data.error || "Error");
+  };
 
-  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMessage("");
     const res = await fetch("/api/login", {
@@ -30,11 +29,10 @@ export default function AuthPage() {
       body: JSON.stringify({ email, password }),
     });
     const data = await res.json();
-    if (res.ok) setMessage("Logged in!");
-    else setMessage(data.error || "Error");
-  }
+    setMessage(res.ok ? "Logged in!" : data.error || "Error");
+  };
 
-  async function handleRequestOtp(e: React.FormEvent<HTMLFormElement>) {
+  const handleRequestOtp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMessage("");
     const res = await fetch("/api/request-otp", {
@@ -43,11 +41,12 @@ export default function AuthPage() {
       body: JSON.stringify({ email }),
     });
     const data = await res.json();
-    if (res.ok) setMessage(`OTP sent! (mock: ${data.otp})`);
-    else setMessage(data.error || "Error");
-  }
+    setMessage(
+      res.ok ? `OTP sent! (mock: ${data.otp})` : data.error || "Error",
+    );
+  };
 
-  async function handleVerifyOtp(e: React.FormEvent<HTMLFormElement>) {
+  const handleVerifyOtp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMessage("");
     const res = await fetch("/api/verify-otp", {
@@ -56,40 +55,58 @@ export default function AuthPage() {
       body: JSON.stringify({ email, otp }),
     });
     const data = await res.json();
-    if (res.ok) setMessage("OTP verified!");
-    else setMessage(data.error || "Error");
-  }
+    setMessage(res.ok ? "OTP verified!" : data.error || "Error");
+  };
+
+  const inputClasses =
+    "px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400";
+
+  const buttonClasses = (active: boolean) =>
+    `px-4 py-2 rounded font-medium border transition-colors duration-150 ${
+      active
+        ? "bg-blue-600 text-white border-blue-600"
+        : "bg-white text-blue-600 border-blue-600 hover:bg-blue-50"
+    }`;
 
   return (
-    <div
-      style={{
-        maxWidth: 400,
-        margin: "2rem auto",
-        padding: 24,
-        border: "1px solid #ccc",
-        borderRadius: 8,
-      }}
-    >
-      <h2>Auth Demo</h2>
-      <div style={{ marginBottom: 16 }}>
-        <button type="button" onClick={() => setMode("register")}>
+    <div className="max-w-md mx-auto my-8 p-8 border border-gray-300 rounded-lg bg-white shadow-md">
+      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+        Auth Demo
+      </h2>
+
+      <div className="flex justify-center gap-2 mb-6">
+        <button
+          type="button"
+          className={buttonClasses(mode === "register")}
+          onClick={() => setMode("register")}
+        >
           Register
         </button>
-        <button type="button" onClick={() => setMode("login")}>
+        <button
+          type="button"
+          className={buttonClasses(mode === "login")}
+          onClick={() => setMode("login")}
+        >
           Login
         </button>
-        <button type="button" onClick={() => setMode("otp")}>
+        <button
+          type="button"
+          className={buttonClasses(mode === "otp")}
+          onClick={() => setMode("otp")}
+        >
           OTP Auth
         </button>
       </div>
+
       {mode === "register" && (
-        <form onSubmit={handleRegister}>
+        <form onSubmit={handleRegister} className="flex flex-col gap-4 mb-4">
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            className={inputClasses}
           />
           <input
             type="password"
@@ -97,18 +114,26 @@ export default function AuthPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className={inputClasses}
           />
-          <button type="submit">Register</button>
+          <button
+            type="submit"
+            className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold"
+          >
+            Register
+          </button>
         </form>
       )}
+
       {mode === "login" && (
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleLogin} className="flex flex-col gap-4 mb-4">
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            className={inputClasses}
           />
           <input
             type="password"
@@ -116,29 +141,47 @@ export default function AuthPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className={inputClasses}
           />
-          <button type="submit">Login</button>
+          <button
+            type="submit"
+            className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold"
+          >
+            Login
+          </button>
         </form>
       )}
+
       {mode === "otp" && (
         <>
-          <form onSubmit={handleRequestOtp}>
+          <form
+            onSubmit={handleRequestOtp}
+            className="flex flex-col gap-4 mb-4"
+          >
             <input
               type="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className={inputClasses}
             />
-            <button type="submit">Request OTP</button>
+            <button
+              type="submit"
+              className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold"
+            >
+              Request OTP
+            </button>
           </form>
-          <form onSubmit={handleVerifyOtp}>
+
+          <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4 mb-4">
             <input
               type="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className={inputClasses}
             />
             <input
               type="text"
@@ -146,12 +189,23 @@ export default function AuthPage() {
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
               required
+              className={inputClasses}
             />
-            <button type="submit">Verify OTP</button>
+            <button
+              type="submit"
+              className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold"
+            >
+              Verify OTP
+            </button>
           </form>
         </>
       )}
-      <div style={{ marginTop: 16, color: "green" }}>{message}</div>
+
+      {message && (
+        <div className="mt-4 text-green-600 text-center font-medium">
+          {message}
+        </div>
+      )}
     </div>
   );
 }
