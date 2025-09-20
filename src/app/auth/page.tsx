@@ -1,7 +1,9 @@
 "use client";
 import { useState } from "react";
-export default function AuthPage(){
-  const [mode, setMode] = useState<"register" | "login" | "otp" | "anon">("register");
+export default function AuthPage() {
+  const [mode, setMode] = useState<"register" | "login" | "otp" | "anon">(
+    "register",
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
@@ -245,11 +247,14 @@ export default function AuthPage(){
             type="text"
             placeholder="Choose your anonymous name"
             value={anonName}
-            onChange={e => setAnonName(e.target.value)}
+            onChange={(e) => setAnonName(e.target.value)}
             required
             className={inputClasses}
           />
-          <button type="submit" className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold">
+          <button
+            type="submit"
+            className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold"
+          >
             Set Anon Name
           </button>
         </form>

@@ -54,7 +54,9 @@ export default async function handler(
   if (!email) return res.status(400).json({ error: "Email required" });
   // Only allow emails from @oriental.ac.in
   if (!/^\w+@oriental\.ac\.in$/i.test(email)) {
-    return res.status(400).json({ error: "Only college emails (@oriental.ac.in) are allowed." });
+    return res
+      .status(400)
+      .json({ error: "Only college emails (@oriental.ac.in) are allowed." });
   }
 
   const store = getRateLimitStore();

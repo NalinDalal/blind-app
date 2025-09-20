@@ -24,7 +24,9 @@ export default async function handler(
       return res.status(401).json({ error: "Invalid credentials" });
     }
     // Return JWT token for authenticated requests
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "2h" });
+    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
+      expiresIn: "2h",
+    });
     return res.status(200).json({ token, id: user.id, email: user.email });
   } else {
     res.setHeader("Allow", ["POST"]);

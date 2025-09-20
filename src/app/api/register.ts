@@ -15,7 +15,9 @@ export default async function handler(
     }
     // Only allow emails from @oriental.ac.in
     if (!/^\w+@oriental\.ac\.in$/i.test(email)) {
-      return res.status(400).json({ error: "Only college emails (@oriental.ac.in) are allowed." });
+      return res
+        .status(400)
+        .json({ error: "Only college emails (@oriental.ac.in) are allowed." });
     }
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
