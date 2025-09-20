@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
+    "bcryptjs": "^3.0.2",
     "next": "15.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0"
