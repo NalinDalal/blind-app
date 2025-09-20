@@ -183,5 +183,6 @@ flowchart TD
 
 note something here, we have implemented authentication with help of ai, the db needs to be accounted still, we actually are not using any real db, also the otp is implemented for now
 so authentication with 2fa is done
+authentication, anonymity, and mapping of anonName with userId is done
 
-to do: impletement user auth from step3
+to do: step 6;post, get request for social media post, and comments on them
