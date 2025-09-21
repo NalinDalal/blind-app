@@ -51,6 +51,13 @@ export async function POST(req: NextRequest) {
       );
     }
     if (isContentToxic(content)) {
+      // Log moderation action
+      await prisma.log.create({
+        data: {
+          action: 'moderation_block_post',
+          details: `Blocked post by user ${authorId} (college: ${college}): ${content}`,
+        },
+      });
       return NextResponse.json(
         { error: "Content flagged as toxic/abusive. Please revise your post." },
         { status: 403 },

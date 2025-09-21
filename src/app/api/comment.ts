@@ -1,3 +1,7 @@
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 // Advanced profanity filter with regex patterns
 function isContentToxic(content: string): boolean {
   // Convert to lowercase for case-insensitive matching
@@ -142,6 +146,13 @@ export async function POST(req: NextRequest) {
     
     // Use the advanced toxicity check
     if (isContentToxic(content)) {
+      // Log moderation action
+      await prisma.log.create({
+        data: {
+          action: 'moderation_block_comment',
+          details: `Blocked comment by user ${authorId} on post ${postId}: ${content}`,
+        },
+      });
       return NextResponse.json(
         { error: "Content flagged as inappropriate. Please revise your comment." },
         { status: 403 },
