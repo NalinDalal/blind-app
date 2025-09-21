@@ -16,6 +16,16 @@ export async function POST(req: NextRequest) {
     const comment = await prisma.comment.create({
       data: { content, postId, authorId },
     });
+    // Notify post author (if not self)
+    const post = await prisma.post.findUnique({ where: { id: postId } });
+    if (post && post.authorId !== authorId) {
+      await prisma.notification.create({
+        data: {
+          userId: post.authorId,
+          message: `Your post received a new comment.`,
+        },
+      });
+    }
     return NextResponse.json(comment);
   } catch (error) {
     return NextResponse.json(
