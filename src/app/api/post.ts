@@ -6,15 +6,15 @@ const prisma = new PrismaClient();
 // Create a new post
 export async function POST(req: NextRequest) {
   try {
-    const { content, authorId } = await req.json();
-    if (!content || !authorId) {
+    const { content, authorId, college } = await req.json();
+    if (!content || !authorId || !college) {
       return NextResponse.json(
-        { error: "Missing content or authorId" },
+        { error: "Missing content, authorId, or college" },
         { status: 400 },
       );
     }
     const post = await prisma.post.create({
-      data: { content, authorId },
+      data: { content, authorId, college },
     });
     return NextResponse.json(post);
   } catch (error) {
