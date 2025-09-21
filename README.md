@@ -185,11 +185,11 @@ note something here, we have implemented authentication with help of ai, the db 
 so authentication with 2fa is done
 authentication, anonymity, and mapping of anonName with userId is done
 
-to do: step 6;post, get request for social media post, and comments on them
+to do : step 11
+add the ui part
 
 ---
 
 beforce pushing do:
 npx biome format --write
 then push
-
