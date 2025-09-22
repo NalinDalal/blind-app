@@ -22,13 +22,11 @@ A step-by-step breakdown for building the Blind App:
    - Add AI-based toxicity/abuse filter to moderate posts and comments before publishing.
 10. **Implement content moderation logging**
     - Log moderation actions and flagged content to the audit database.
-11. **Develop analytics and logging service**
-    - Track user activity, post engagement, and system events for analytics and reporting.
-12. **Set up frontend authentication UI**
+11. **Set up frontend authentication UI**
     - Build login and verification screens for the client app.
-13. **Develop main feed and post UI**
+12. **Develop main feed and post UI**
     - Create the main discussion feed and post/comment UI for the client app.
-14. **Integrate notification UI**
+13. **Integrate notification UI**
     - Add notification panel and real-time updates to the client app.
-15. **Testing, deployment, and documentation**
+14. **Testing, deployment, and documentation**
     - Test all features, deploy the app, and write documentation for usage and contribution.
