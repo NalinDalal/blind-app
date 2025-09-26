@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -8,14 +8,20 @@ export async function POST(req: NextRequest) {
   try {
     const { userId, message } = await req.json();
     if (!userId || !message) {
-      return NextResponse.json({ error: 'Missing userId or message' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing userId or message" },
+        { status: 400 },
+      );
     }
     const notification = await prisma.notification.create({
       data: { userId, message },
     });
     return NextResponse.json(notification);
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : String(error) },
+      { status: 500 },
+    );
   }
 }
 
@@ -23,17 +29,20 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('userId');
+    const userId = searchParams.get("userId");
     if (!userId) {
-      return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+      return NextResponse.json({ error: "Missing userId" }, { status: 400 });
     }
     const notifications = await prisma.notification.findMany({
       where: { userId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
     return NextResponse.json(notifications);
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : String(error) },
+      { status: 500 },
+    );
   }
 }
 
@@ -42,7 +51,10 @@ export async function PATCH(req: NextRequest) {
   try {
     const { notificationId } = await req.json();
     if (!notificationId) {
-      return NextResponse.json({ error: 'Missing notificationId' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing notificationId" },
+        { status: 400 },
+      );
     }
     const notification = await prisma.notification.update({
       where: { id: notificationId },
@@ -50,6 +62,9 @@ export async function PATCH(req: NextRequest) {
     });
     return NextResponse.json(notification);
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : String(error) },
+      { status: 500 },
+    );
   }
 }
