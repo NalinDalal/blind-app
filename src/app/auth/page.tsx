@@ -1,9 +1,11 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Auth, AuthSchema } from "@/Schema/Auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
   clearMessage,
@@ -14,9 +16,7 @@ import {
   verifyOtp,
 } from "@/redux/slices/AuthSlice";
 import { AuthMessageType } from "@/redux/types";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { type Auth, AuthSchema } from "@/Schema/Auth";
 
 type AuthMode = "register" | "login" | "otp" | "anon";
 

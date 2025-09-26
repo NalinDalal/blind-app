@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { type NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 // Advanced profanity filter with regex patterns
@@ -56,7 +56,7 @@ function isContentToxic(content: string): boolean {
     };
 
     // Build flexible pattern
-    let flexiblePattern = escaped
+    const flexiblePattern = escaped
       .split("")
       .map((char) => {
         if (charMap[char]) {

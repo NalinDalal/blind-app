@@ -2,16 +2,20 @@
  Auth SLick to maintain authentication related state across the app
  */
 
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
-  AuthMessage,
+  createAsyncThunk,
+  createSlice,
+  type PayloadAction,
+} from "@reduxjs/toolkit";
+import {
+  type AuthMessage,
   AuthMessageType,
-  AuthState,
+  type AuthState,
   AuthStatus,
-  LoginCredentials,
-  SuccessLoginResponse,
+  type LoginCredentials,
+  type SuccessLoginResponse,
 } from "@/redux/types";
-import { RootState } from "../store";
+import type { RootState } from "../store";
 
 const initialState: AuthState = {
   isAuthenticated: false,

@@ -38,7 +38,7 @@ function isContentToxic(content: string): boolean {
       g: "[g9]",
       l: "[l1]",
     };
-    let flexiblePattern = escaped
+    const flexiblePattern = escaped
       .split("")
       .map((char) => {
         if (charMap[char as string]) return charMap[char as string] + "+";
@@ -67,8 +67,9 @@ function isContentToxic(content: string): boolean {
   const hasToxicPatterns = toxicPatterns.some((pattern) => pattern.test(text));
   return suspiciousMatches || hasToxicPatterns;
 }
-import { NextRequest, NextResponse } from "next/server";
+
 import { PrismaClient } from "@prisma/client";
+import { type NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 

@@ -1,6 +1,6 @@
-import type { NextApiRequest, NextApiResponse } from "next";
 //import { PrismaClient } from "../../generated/prisma";
 import jwt from "jsonwebtoken";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 //const _prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || "devsecret";
