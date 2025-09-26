@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 // This is a placeholder for authentication. Replace with your actual auth logic.
 async function getAuthenticatedUserId(
-  req: NextRequest,
+  _req: NextRequest,
 ): Promise<string | null> {
   // Example: get userId from a session/cookie/header
   // Return null if not authenticated

@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import type { ThemeProviderProps } from "next-themes";
-import * as React from "react";
 
 const NextThemesProvider = dynamic(
   () => import("next-themes").then((e) => e.ThemeProvider),

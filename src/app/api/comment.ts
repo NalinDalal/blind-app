@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { type NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
+
 // Advanced profanity filter with regex patterns
 function isContentToxic(content: string): boolean {
   // Convert to lowercase for case-insensitive matching
@@ -60,9 +61,9 @@ function isContentToxic(content: string): boolean {
       .split("")
       .map((char) => {
         if (charMap[char]) {
-          return charMap[char] + "+"; // Allow repeating
+          return `${charMap[char]}+`; // Allow repeating
         }
-        return char + "+"; // Allow repeating of any character
+        return `${char}+`; // Allow repeating of any character
       })
       .join("[\\s\\-_\\.]*"); // Allow separators between characters
 
@@ -111,13 +112,13 @@ function isContentToxic(content: string): boolean {
 }
 
 // Alternative: More sophisticated word-boundary aware function
-function isContentToxicAdvanced(content: string): boolean {
+function _isContentToxicAdvanced(content: string): boolean {
   const text = content.toLowerCase().replace(/[^\w\s]/g, " ");
 
   // Comprehensive profanity list with severity levels
   const severeProfanity = ["fuck", "shit", "bitch", "nigger", "faggot"];
   const moderateProfanity = ["damn", "hell", "crap", "ass", "piss"];
-  const mildProfanity = ["stupid", "dumb", "idiot"];
+  const _mildProfanity = ["stupid", "dumb", "idiot"];
 
   // Create word boundary regex for each category
   const createWordBoundaryRegex = (words: string[]) => {
@@ -141,7 +142,7 @@ function isContentToxicAdvanced(content: string): boolean {
               case "u":
                 return "[u]+";
               default:
-                return char + "+";
+                return `${char}+`;
             }
           })
           .join("[\\s\\-_]*"); // Allow separators

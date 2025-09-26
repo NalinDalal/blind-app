@@ -2,8 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
@@ -44,7 +45,7 @@ export default function AuthPage() {
     },
   });
 
-  const emailValue = watch("email");
+  const _emailValue = watch("email");
   const otpValue = watch("otp");
   const isLoading = status === "loading";
 
@@ -58,12 +59,24 @@ export default function AuthPage() {
     // The 'mode' is now part of the form data
     switch (data.mode) {
       case "register":
-        dispatch(register({ email: data.email, password: data.password! }))
+        if (!data.password) {
+          toast.error("Passowrd is Required", {
+            duration: 3000,
+          });
+          break;
+        }
+        dispatch(register({ email: data.email, password: data.password }))
           .unwrap()
           .then(() => setMode("login"));
         break;
       case "login":
-        dispatch(login({ email: data.email, password: data.password! }));
+        if (!data.password) {
+          toast.error("Passowrd is Required", {
+            duration: 3000,
+          });
+          break;
+        }
+        dispatch(login({ email: data.email, password: data.password }));
         break;
       case "otp":
         // If the user has typed an OTP, verify it. Otherwise, request one.

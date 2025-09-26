@@ -41,8 +41,8 @@ function isContentToxic(content: string): boolean {
     const flexiblePattern = escaped
       .split("")
       .map((char) => {
-        if (charMap[char as string]) return charMap[char as string] + "+";
-        return char + "+";
+        if (charMap[char as string]) return `${charMap[char as string]}+`;
+        return `${char}+`;
       })
       .join("[\\s\\-_\\.]*");
     return `\\b${flexiblePattern}\\b`;

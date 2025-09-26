@@ -44,8 +44,11 @@ export const login = createAsyncThunk(
         setMessage({ text: "Login Successful", type: AuthMessageType.SUCCESS }),
       );
       return data;
-    } catch (err: any) {
-      return rejectWithValue({ error: err.message });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        return rejectWithValue({ error: err.message });
+      }
+      return rejectWithValue({ error: "An Unknown Error Occurred" });
     }
   },
 );
@@ -71,8 +74,11 @@ export const register = createAsyncThunk(
         }),
       );
       return data;
-    } catch (err: any) {
-      return rejectWithValue({ error: err.message });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        return rejectWithValue({ error: err.message });
+      }
+      return rejectWithValue({ error: "An Unknown Error Occurred" });
     }
   },
 );
@@ -98,8 +104,9 @@ export const requestOtp = createAsyncThunk(
         }),
       );
       return data;
-    } catch (err: any) {
-      return rejectWithValue({ error: err.message });
+    } catch (err: unknown) {
+      if (err instanceof Error) return rejectWithValue({ error: err.message });
+      return rejectWithValue({ error: "An Unknown Error Occurred" });
     }
   },
 );
@@ -144,8 +151,9 @@ export const verifyOtp = createAsyncThunk<
       id: verifyData.id,
       email: verifyData.email,
     };
-  } catch (err: any) {
-    return rejectWithValue({ error: err.message });
+  } catch (err: unknown) {
+    if (err instanceof Error) return rejectWithValue({ error: err.message });
+    return rejectWithValue({ error: "An Unexpected Error Occured" });
   }
 });
 
@@ -183,8 +191,9 @@ export const setAnonName = createAsyncThunk(
         }),
       );
       return data;
-    } catch (err: any) {
-      return rejectWithValue({ error: err.message });
+    } catch (err: unknown) {
+      if (err instanceof Error) return rejectWithValue({ error: err.message });
+      return rejectWithValue({ error: "An Unknown Error" });
     }
   },
 );
