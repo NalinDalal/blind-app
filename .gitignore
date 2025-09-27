@@ -44,3 +44,5 @@ next-env.d.ts
 
 # IDE related directories
 .idea
+
+*.log
