@@ -1,270 +1,226 @@
 "use client";
-import { useState } from "react";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import {
+  clearMessage,
+  login,
+  register,
+  requestOtp,
+  setAnonName,
+  verifyOtp,
+} from "@/redux/slices/AuthSlice";
+import { AuthMessageType } from "@/redux/types";
+import { type Auth, AuthSchema } from "@/Schema/Auth";
+
+type AuthMode = "register" | "login" | "otp" | "anon";
+
 export default function AuthPage() {
-  const [mode, setMode] = useState<"register" | "login" | "otp" | "anon">(
-    "register",
+  const [mode, setMode] = useState<AuthMode>("register");
+  const dispatch = useAppDispatch();
+  const { message, status, isAuthenticated } = useAppSelector(
+    (state) => state.auth,
   );
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [otp, setOtp] = useState("");
-  const [anonName, setAnonName] = useState("");
-  const [message, setMessage] = useState("");
-  const [jwt, setJwt] = useState<string | null>(null);
-  const [_userId, setUserId] = useState<string | null>(null);
 
-  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setMessage("");
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await res.json();
-    setMessage(res.ok ? "Registered! Now login." : data.error || "Error");
-  };
+  const {
+    register: formRegister,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm<Auth>({
+    resolver: zodResolver(AuthSchema),
+    // Set mode in default values to help with conditional validation
+    defaultValues: {
+      mode: "register",
+      email: "",
+      password: "",
+      otp: "",
+      anonName: "",
+    },
+  });
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setMessage("");
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await res.json();
-    if (res.ok && data.token && data.id) {
-      setJwt(data.token);
-      setUserId(data.id);
-      setMessage("Logged in! Now verify OTP or set anon name.");
-    } else {
-      setMessage(data.error || "Error");
-    }
-  };
+  const _emailValue = watch("email");
+  const otpValue = watch("otp");
+  const isLoading = status === "loading";
 
-  const handleRequestOtp = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setMessage("");
-    const res = await fetch("/api/request-otp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-    const data = await res.json();
-    setMessage(
-      res.ok ? `OTP sent! (mock: ${data.otp})` : data.error || "Error",
-    );
-  };
-
-  const handleVerifyOtp = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setMessage("");
-    const res = await fetch("/api/verify-otp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, otp }),
-    });
-    const data = await res.json();
-    if (res.ok && data.id) {
-      setUserId(data.id);
-      setMessage("OTP verified! Now choose your anonymous name.");
+  useEffect(() => {
+    if (isAuthenticated) {
       setMode("anon");
-    } else {
-      setMessage(data.error || "Error");
+    }
+  }, [isAuthenticated]);
+
+  const onSubmit = (data: Auth) => {
+    // The 'mode' is now part of the form data
+    switch (data.mode) {
+      case "register":
+        if (!data.password) {
+          toast.error("Passowrd is Required", {
+            duration: 3000,
+          });
+          break;
+        }
+        dispatch(register({ email: data.email, password: data.password }))
+          .unwrap()
+          .then(() => setMode("login"));
+        break;
+      case "login":
+        if (!data.password) {
+          toast.error("Passowrd is Required", {
+            duration: 3000,
+          });
+          break;
+        }
+        dispatch(login({ email: data.email, password: data.password }));
+        break;
+      case "otp":
+        // If the user has typed an OTP, verify it. Otherwise, request one.
+        if (data.otp) {
+          dispatch(verifyOtp({ email: data.email, otp: data.otp }));
+        } else {
+          dispatch(requestOtp({ email: data.email }));
+        }
+        break;
+      case "anon":
+        if (data.anonName) {
+          dispatch(setAnonName({ anonName: data.anonName }))
+            .unwrap()
+            .then(() => alert("You are all set!")); // Or redirect
+        }
+        break;
     }
   };
 
-  const handleSetAnonName = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setMessage("");
-    if (!jwt) {
-      setMessage("You must be logged in to set anon name.");
-      return;
-    }
-    const res = await fetch("/anon/set", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${jwt}`,
-      },
-      body: JSON.stringify({ anonName }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setMessage(`Anon name set! You are now anonymous as ${data.anonName}`);
-      setMode("login");
-    } else {
-      setMessage(data.error || "Error");
-    }
+  const handleModeChange = (newMode: AuthMode) => {
+    setMode(newMode);
+    dispatch(clearMessage());
   };
 
-  const inputClasses =
-    "px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400";
-
-  const buttonClasses = (active: boolean) =>
-    `px-4 py-2 rounded font-medium border transition-colors duration-150 ${
-      active
-        ? "bg-blue-600 text-white border-blue-600"
-        : "bg-white text-blue-600 border-blue-600 hover:bg-blue-50"
-    }`;
+  const getButtonText = () => {
+    if (isLoading) return "Loading...";
+    switch (mode) {
+      case "register":
+        return "Create Account";
+      case "login":
+        return "Sign In";
+      case "otp":
+        // The button text changes based on whether the OTP field is filled
+        return otpValue ? "Verify OTP & Login" : "Send OTP";
+      case "anon":
+        return "Set Anonymous Name";
+    }
+  };
 
   return (
-    <div className="max-w-md mx-auto my-8 p-8 border border-gray-300 rounded-lg bg-white shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-        Auth Demo
-      </h2>
+    <div className="flex min-h-screen flex-col items-center justify-center p-4 font-sans bg-gray-100/50 dark:bg-black">
+      <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-8 shadow-lg dark:border-gray-800 dark:bg-gray-950">
+        <h2 className="text-2xl font-bold mb-2 text-center text-gray-800 dark:text-gray-200">
+          Welcome to Blind App
+        </h2>
+        <p className="text-sm text-gray-500 text-center mb-6">
+          {mode === "register" && "Create an account to join the community."}
+          {mode === "login" && "Sign in to your account."}
+          {mode === "otp" && "Verify with a one-time password."}
+          {mode === "anon" && "Secure your identity."}
+        </p>
 
-      <div className="flex justify-center gap-2 mb-6">
-        <button
-          type="button"
-          className={buttonClasses(mode === "register")}
-          onClick={() => setMode("register")}
-        >
-          Register
-        </button>
-        <button
-          type="button"
-          className={buttonClasses(mode === "login")}
-          onClick={() => setMode("login")}
-        >
-          Login
-        </button>
-        <button
-          type="button"
-          className={buttonClasses(mode === "otp")}
-          onClick={() => setMode("otp")}
-        >
-          OTP Auth
-        </button>
-      </div>
-
-      {mode === "register" && (
-        <form onSubmit={handleRegister} className="flex flex-col gap-4 mb-4">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className={inputClasses}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className={inputClasses}
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold"
+        <div className="flex justify-center gap-2 mb-6">
+          <Button
+            variant={mode === "register" ? "default" : "outline"}
+            onClick={() => handleModeChange("register")}
           >
             Register
-          </button>
-        </form>
-      )}
-
-      {mode === "login" && (
-        <form onSubmit={handleLogin} className="flex flex-col gap-4 mb-4">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className={inputClasses}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className={inputClasses}
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold"
+          </Button>
+          <Button
+            variant={mode === "login" ? "default" : "outline"}
+            onClick={() => handleModeChange("login")}
           >
             Login
-          </button>
-        </form>
-      )}
-
-      {mode === "otp" && (
-        <>
-          <form
-            onSubmit={handleRequestOtp}
-            className="flex flex-col gap-4 mb-4"
+          </Button>
+          <Button
+            variant={mode === "otp" ? "default" : "outline"}
+            onClick={() => handleModeChange("otp")}
           >
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className={inputClasses}
-            />
-            <button
-              type="submit"
-              className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold"
-            >
-              Request OTP
-            </button>
-          </form>
-
-          <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4 mb-4">
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className={inputClasses}
-            />
-            <input
-              type="text"
-              placeholder="OTP"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              required
-              className={inputClasses}
-            />
-            <button
-              type="submit"
-              className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold"
-            >
-              Verify OTP
-            </button>
-          </form>
-        </>
-      )}
-
-      {mode === "anon" && (
-        <form onSubmit={handleSetAnonName} className="flex flex-col gap-4 mb-4">
-          <input
-            type="text"
-            placeholder="Choose your anonymous name"
-            value={anonName}
-            onChange={(e) => setAnonName(e.target.value)}
-            required
-            className={inputClasses}
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold"
-          >
-            Set Anon Name
-          </button>
-        </form>
-      )}
-
-      {message && (
-        <div className="mt-4 text-green-600 text-center font-medium">
-          {message}
+            OTP
+          </Button>
         </div>
-      )}
+
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          {/* Hidden input to track the current mode for validation */}
+          <Input type="hidden" value={mode} {...formRegister("mode")} />
+
+          {/* Email Field (Used in multiple modes) */}
+          <div className={mode === "anon" ? "hidden" : ""}>
+            <Input
+              {...formRegister("email")}
+              placeholder="college-email@oriental.ac.in"
+            />
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
+
+          {/* Password Field */}
+          <div
+            className={mode === "login" || mode === "register" ? "" : "hidden"}
+          >
+            <Input
+              {...formRegister("password")}
+              type="password"
+              placeholder="Password"
+            />
+            {errors.password && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+
+          {/* OTP Field */}
+          <div className={mode === "otp" ? "" : "hidden"}>
+            <Input
+              {...formRegister("otp")}
+              placeholder="Enter OTP (if you have one)"
+            />
+            {errors.otp && (
+              <p className="text-red-500 text-xs mt-2">{errors.otp.message}</p>
+            )}
+          </div>
+
+          {/* Anon Name Field */}
+          <div className={mode === "anon" ? "" : "hidden"}>
+            <Input
+              {...formRegister("anonName")}
+              placeholder="Choose your anonymous name"
+            />
+            {errors.anonName && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.anonName.message}
+              </p>
+            )}
+          </div>
+
+          <Button type="submit" disabled={isLoading} className="mt-2">
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {getButtonText()}
+          </Button>
+        </form>
+
+        {message && (
+          <p
+            className={`mt-4 text-center text-sm font-medium ${message.type === AuthMessageType.ERROR ? "text-red-500" : "text-green-500"}`}
+          >
+            {message.text}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

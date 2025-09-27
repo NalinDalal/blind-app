@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient } from "../../generated/prisma";
-import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || "devsecret";

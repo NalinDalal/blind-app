@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { type NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
 // This is a placeholder for authentication. Replace with your actual auth logic.
 async function getAuthenticatedUserId(
-  req: NextRequest,
+  _req: NextRequest,
 ): Promise<string | null> {
   // Example: get userId from a session/cookie/header
   // Return null if not authenticated
@@ -42,7 +42,9 @@ export async function POST(req: NextRequest) {
         data: { commentId, userId },
       });
       // Notify comment author (if not self)
-      const comment = await prisma.comment.findUnique({ where: { id: commentId } });
+      const comment = await prisma.comment.findUnique({
+        where: { id: commentId },
+      });
       if (comment && comment.authorId !== userId) {
         await prisma.notification.create({
           data: {
