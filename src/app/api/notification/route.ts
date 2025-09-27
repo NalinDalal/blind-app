@@ -1,5 +1,5 @@
-import { PrismaClient } from "@prisma/client";
 import { type NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@/generated/prisma";
 
 const prisma = new PrismaClient();
 
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 // Get notifications for a user
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    const searchParams = req.nextUrl.searchParams;
     const userId = searchParams.get("userId");
     if (!userId) {
       return NextResponse.json({ error: "Missing userId" }, { status: 400 });
