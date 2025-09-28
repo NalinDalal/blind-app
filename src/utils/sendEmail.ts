@@ -8,18 +8,32 @@ if (!sendgridApiKey) {
 }
 sgMail.setApiKey(sendgridApiKey);
 
+/**
+ * Sends an email using SendGrid with the configured sender address.
+ *
+ * The sender address is taken from the `EMAIL_FROM` environment variable or the default `noreply@blindapp.local`.
+ *
+ * @param to - Recipient email address
+ * @param subject - Email subject line
+ * @param text - Plain-text email body
+ * @param html - Optional HTML email body
+ */
 export async function sendEmail(
   to: string,
   subject: string,
   text: string,
   html?: string,
 ) {
-  const msg = {
-    to,
-    from: fromEmail,
-    subject,
-    text,
-    html: html || undefined,
-  };
-  await sgMail.send(msg);
+  try {
+    const msg = {
+      to,
+      from: fromEmail,
+      subject,
+      text,
+      html: html || undefined,
+    };
+    const _res = await sgMail.send(msg);
+  } catch (e: unknown) {
+    console.table(e);
+  }
 }

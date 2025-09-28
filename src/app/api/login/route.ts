@@ -6,6 +6,18 @@ import { PrismaClient } from "@/generated/prisma";
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || "devsecret";
 
+/**
+ * Authenticate a user using email and password and return a JWT and associated user info.
+ *
+ * Attempts to read `email` and `password` from the request body, verifies credentials,
+ * and responds with a JSON payload containing a JWT, the user's id and email, and the
+ * associated `anonName` when available.
+ *
+ * @returns On success (200): an object with `token` (JWT string), `id` (user id), `email` (user email), and `anonName` (string or `null`).
+ * On bad request (400): `{ error: "Email and password required" }`.
+ * On authentication failure (401): `{ error: "Invalid credentials" }`.
+ * On server error (500): `{ error: "Login Failed" }`.
+ */
 export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json();
@@ -16,6 +28,9 @@ export async function POST(req: NextRequest) {
       );
     }
     const user = await prisma.user.findUnique({ where: { email } });
+    const anonMapping = await prisma.anonMapping.findUnique({
+      where: { userId: user?.id },
+    });
     if (!user) {
       return NextResponse.json(
         { error: "Invalid credentials" },
@@ -34,7 +49,12 @@ export async function POST(req: NextRequest) {
       expiresIn: "2h",
     });
     return NextResponse.json(
-      { token, id: user.id, email: user.email },
+      {
+        token,
+        id: user.id,
+        email: user.email,
+        anonName: anonMapping ? anonMapping.anonName : null,
+      },
       { status: 200 },
     );
   } catch (error) {

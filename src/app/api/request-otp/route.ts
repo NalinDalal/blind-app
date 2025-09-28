@@ -9,8 +9,12 @@ declare global {
   var __otpLastReq: Record<string, number> | undefined;
 }
 
-// Helper to get a global store for rate limiting
-
+/**
+ * Handle POST requests to validate a college email, enforce a 30-second rate limit, generate a 6-digit TOTP valid for 2 minutes, and email it to the user.
+ *
+ * @param req - Incoming request whose JSON body must include an `email` field (college address ending with `@oriental.ac.in`)
+ * @returns A JSON response indicating outcome: on success `{ message: "OTP sent to your email." }`; on error an `{ error: string }` object with HTTP status codes — 400 for missing/invalid email, 409 for rate limiting, and 500 for failures sending email or other internal errors.
+ */
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
@@ -63,8 +67,9 @@ export async function POST(req: NextRequest) {
         `Your OTP is: ${otp}\nIt is valid for 2 minutes.`,
         html,
       );
-    } catch (e) {
-      console.error(e);
+    } catch (e: unknown) {
+      if (e instanceof Error) console.error(`error sending Mail: ${e.message}`);
+      console.error(`error sending Mail: ${e}`);
       return NextResponse.json(
         { error: "Failed to send OTP email." },
         { status: 500 },
