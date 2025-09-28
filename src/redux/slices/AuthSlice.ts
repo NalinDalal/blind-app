@@ -24,10 +24,11 @@ const initialState: AuthState = {
   userId: null,
   message: null,
   status: AuthStatus.IDLE,
+  anonName: null,
 };
 
 // Login with email and password
-export const login = createAsyncThunk(
+export const login = createAsyncThunk<SuccessLoginResponse, LoginCredentials>(
   "auth/login",
   async (credentials: LoginCredentials, { dispatch, rejectWithValue }) => {
     try {
@@ -54,7 +55,7 @@ export const login = createAsyncThunk(
 );
 
 // Register a new user
-export const register = createAsyncThunk(
+export const register = createAsyncThunk<any, LoginCredentials>(
   "auth/register",
   async (credentials: LoginCredentials, { dispatch, rejectWithValue }) => {
     try {
@@ -84,7 +85,7 @@ export const register = createAsyncThunk(
 );
 
 // Request an OTP code
-export const requestOtp = createAsyncThunk(
+export const requestOtp = createAsyncThunk<any, { email: string }>(
   "auth/requestOtp",
   async ({ email }: { email: string }, { dispatch, rejectWithValue }) => {
     try {
@@ -150,6 +151,7 @@ export const verifyOtp = createAsyncThunk<
       token: tokenData.token,
       id: verifyData.id,
       email: verifyData.email,
+      anonName: verifyData.anonName,
     };
   } catch (err: unknown) {
     if (err instanceof Error) return rejectWithValue({ error: err.message });
@@ -228,6 +230,7 @@ const authSlice = createSlice({
       state.jwt = action.payload.token;
       state.userId = action.payload.id;
       state.email = action.payload.email;
+      state.anonName = action.payload.anonName;
       state.status = AuthStatus.SUCCEEDED;
     };
     const handleFailure = (state: AuthState, action: any) => {
@@ -272,7 +275,8 @@ const authSlice = createSlice({
       .addCase(verifyOtp.rejected, handleFailure)
       // Set Anon Name
       .addCase(setAnonName.pending, handlePending)
-      .addCase(setAnonName.fulfilled, (state) => {
+      .addCase(setAnonName.fulfilled, (state, action) => {
+        state.anonName = action.payload.anonName;
         state.status = AuthStatus.SUCCEEDED;
       })
       .addCase(setAnonName.rejected, handleFailure);

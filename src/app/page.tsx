@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { logout } from "@/redux/slices/AuthSlice";
 
+
 /**
  * Render the platform's welcome landing page with an authentication-aware primary action.
  *
@@ -13,6 +14,7 @@ import { logout } from "@/redux/slices/AuthSlice";
  *
  * @returns The React element representing the home landing page.
  */
+
 export default function Home() {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();

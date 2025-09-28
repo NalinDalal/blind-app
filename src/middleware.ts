@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
+
 /**
  * Enforces authentication-based routing by redirecting users between auth pages, protected pages, and public pages.
  *
@@ -9,6 +10,7 @@ import { NextResponse } from "next/server";
  * @param request - The incoming Next.js request
  * @returns A NextResponse that performs a redirect when a routing rule matches, or a response that allows the request to continue otherwise
  */
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const authToken = request.cookies.get("auth-token")?.value;

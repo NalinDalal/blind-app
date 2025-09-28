@@ -3,6 +3,7 @@ export interface AuthState {
   jwt: string | null;
   userId: string | null;
   email: string | null;
+  anonName: string | null;
   message: AuthMessage | null;
   status: AuthStatus;
 }
@@ -34,6 +35,7 @@ export interface SuccessLoginResponse {
   token: string;
   id: string;
   email: string;
+  anonName: string | null;
 }
 
 export interface FailureLoginResponse {
