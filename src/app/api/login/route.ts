@@ -16,6 +16,9 @@ export async function POST(req: NextRequest) {
       );
     }
     const user = await prisma.user.findUnique({ where: { email } });
+    const anonMapping = await prisma.anonMapping.findUnique({
+      where: { userId: user?.id },
+    });
     if (!user) {
       return NextResponse.json(
         { error: "Invalid credentials" },
@@ -34,7 +37,12 @@ export async function POST(req: NextRequest) {
       expiresIn: "2h",
     });
     return NextResponse.json(
-      { token, id: user.id, email: user.email },
+      {
+        token,
+        id: user.id,
+        email: user.email,
+        anonName: anonMapping ? anonMapping.anonName : null,
+      },
       { status: 200 },
     );
   } catch (error) {

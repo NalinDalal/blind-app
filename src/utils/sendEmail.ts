@@ -14,12 +14,16 @@ export async function sendEmail(
   text: string,
   html?: string,
 ) {
-  const msg = {
-    to,
-    from: fromEmail,
-    subject,
-    text,
-    html: html || undefined,
-  };
-  await sgMail.send(msg);
+  try {
+    const msg = {
+      to,
+      from: fromEmail,
+      subject,
+      text,
+      html: html || undefined,
+    };
+    const _res = await sgMail.send(msg);
+  } catch (e: unknown) {
+    console.table(e);
+  }
 }

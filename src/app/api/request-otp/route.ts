@@ -9,8 +9,6 @@ declare global {
   var __otpLastReq: Record<string, number> | undefined;
 }
 
-// Helper to get a global store for rate limiting
-
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
@@ -63,8 +61,9 @@ export async function POST(req: NextRequest) {
         `Your OTP is: ${otp}\nIt is valid for 2 minutes.`,
         html,
       );
-    } catch (e) {
-      console.error(e);
+    } catch (e: unknown) {
+      if (e instanceof Error) console.error(`error sending Mail: ${e.message}`);
+      console.error(`error sending Mail: ${e}`);
       return NextResponse.json(
         { error: "Failed to send OTP email." },
         { status: 500 },
