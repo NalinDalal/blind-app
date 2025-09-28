@@ -1,16 +1,8 @@
-import { PrismaClient } from "@prisma/client";
 import { type NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@/generated/prisma";
+import { getAuthenticatedUserId } from "@/helpers/auth/user";
 
 const prisma = new PrismaClient();
-
-// This is a placeholder for authentication. Replace with your actual auth logic.
-async function getAuthenticatedUserId(
-  _req: NextRequest,
-): Promise<string | null> {
-  // Example: get userId from a session/cookie/header
-  // Return null if not authenticated
-  return null;
-}
 
 // Like a comment (requires authentication)
 export async function POST(req: NextRequest) {

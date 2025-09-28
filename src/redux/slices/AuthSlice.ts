@@ -172,7 +172,7 @@ export const setAnonName = createAsyncThunk(
     }
 
     try {
-      const response = await fetch("/anon/set", {
+      const response = await fetch("/api/anon/set", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
