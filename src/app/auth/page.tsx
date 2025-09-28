@@ -22,6 +22,13 @@ import { type Auth, AuthSchema } from "@/Schema/Auth"; // Make sure path is corr
 
 type AuthMode = "register" | "login" | "otp" | "anon";
 
+/**
+ * Renders the multi-mode authentication page and manages registration, login, OTP, and anonymous-name flows.
+ *
+ * This component provides a single form whose behavior changes based on an internal `mode` state ("register" | "login" | "otp" | "anon"), validates input with Zod, dispatches authentication-related Redux actions (register, login, request/verify OTP, set anonymous name), displays success/error messages, shows toast notifications for key events, and redirects authenticated users to the home page when appropriate.
+ *
+ * @returns The rendered authentication page JSX element.
+ */
 export default function AuthPage() {
   const router = useRouter();
   // 1. Single Source of Truth: This state now correctly drives the entire component's UI.

@@ -4,6 +4,12 @@ import { PrismaClient } from "@/generated/prisma";
 
 const prisma = new PrismaClient();
 
+/**
+ * Handle POST requests to verify a user's time-based one-time password (OTP) and mark the user as verified.
+ *
+ * @param req - Incoming NextRequest whose JSON body must include `email` and `otp` string fields.
+ * @returns On success: a JSON object with `message` set to "OTP verified", `id` (user id), `email`, and `anonName` (string or `null`). On failure: a JSON object with an `error` message and an appropriate HTTP status (400, 401, or 500).
+ */
 export async function POST(req: NextRequest) {
   try {
     const { email, otp } = await req.json();
