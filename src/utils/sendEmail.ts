@@ -22,7 +22,7 @@ export async function sendEmail(
       text,
       html: html || undefined,
     };
-    const res = await sgMail.send(msg);
+    const _res = await sgMail.send(msg);
   } catch (e: unknown) {
     console.table(e);
   }
