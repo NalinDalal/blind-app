@@ -191,5 +191,5 @@ add the ui part
 ---
 
 beforce pushing do:
-npx biome format --write
+`npx biome format --write`
 then push
