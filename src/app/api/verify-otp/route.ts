@@ -19,8 +19,11 @@ export async function POST(req: NextRequest) {
         }
 
         // Ensure the secret is a non-empty string before proceeding
-        if (typeof user.otp !== 'string' || user.otp.length === 0) {
-            return NextResponse.json({error: "Invalid OTP secret format"}, {status: 400});
+        if (typeof user.otp !== "string" || user.otp.length === 0) {
+            return NextResponse.json(
+                {error: "Invalid OTP secret format"},
+                {status: 400},
+            );
         }
 
         if (!user.otp) {
@@ -44,10 +47,12 @@ export async function POST(req: NextRequest) {
             );
         }
         await prisma.user.update({where: {email}, data: {verified: true}});
+        const anonMap = await prisma.anonMapping.findUnique({where: {userId: user.id}})
         return NextResponse.json({
             message: "OTP verified",
             id: user.id,
             email: user.email,
+            anonName: anonMap ? anonMap.anonName : null
         });
     } catch (err) {
         console.error(`Failed to verify OTP`, err);

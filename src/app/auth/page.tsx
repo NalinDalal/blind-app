@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {useAppDispatch, useAppSelector} from "@/redux/hooks";
+import {useRouter} from "next/navigation";
 import {
     clearMessage,
     login,
@@ -22,10 +23,11 @@ import {type Auth, AuthSchema} from "@/Schema/Auth"; // Make sure path is correc
 type AuthMode = "register" | "login" | "otp" | "anon";
 
 export default function AuthPage() {
+    const router = useRouter();
     // 1. Single Source of Truth: This state now correctly drives the entire component's UI.
     const [mode, setMode] = useState<AuthMode>("register");
     const dispatch = useAppDispatch();
-    const {message, status, isAuthenticated} = useAppSelector(
+    const {message, status, isAuthenticated,anonName} = useAppSelector(
         (state) => state.auth,
     );
 
@@ -54,16 +56,21 @@ export default function AuthPage() {
     // 3. Robust State Synchronization: This effect ensures the form's mode
     // always matches the component's state, and handles auth state changes.
     useEffect(() => {
-        // If the user becomes authenticated, switch to the anon setup mode.
+        // If the user is authenticated, decide where to go
         if (isAuthenticated) {
-            setMode("anon");
+            if (anonName) {
+                // If anonName is set, redirect to the home page
+                toast.success("Welcome back!");
+                router.push("/");
+            } else {
+                // If anonName is NOT set, switch to 'anon' mode to prompt the user
+                setMode("anon");
+            }
         }
 
-        // CRITICAL: Sync react-hook-form's internal 'mode' with the component's state.
-        // This ensures the correct validation schema is used on submit.
-        // The email is preserved when switching between login/register/otp.
-        setValue("mode", mode, {shouldValidate: true});
-    }, [mode, isAuthenticated, setValue]);
+        // This part remains to sync the form's mode for validation
+        setValue("mode", mode, { shouldValidate: true });
+    }, [mode, isAuthenticated, anonName, setValue, router]);
 
     // 4. Clean & Asynchronous Submit Handler
     const onSubmit = async (data: Auth) => {
@@ -99,10 +106,9 @@ export default function AuthPage() {
                     break;
 
                 case "anon":
-                    await dispatch(
-                        setAnonName({anonName: data.anonName!}),
-                    ).unwrap();
+                    await dispatch(setAnonName({anonName: data.anonName!})).unwrap();
                     toast.success("You are all set!");
+                    router.push("/")
                     // Here you would typically redirect the user, e.g., router.push('/dashboard')
                     break;
             }
@@ -125,7 +131,7 @@ export default function AuthPage() {
                 email: currentEmail!,
                 password: "",
                 otp: "",
-                anonName: ""
+                anonName: "",
             }, // Keep email, reset other fields
             {keepErrors: false},
         );
