@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { logout } from "@/redux/slices/AuthSlice";
 
-
 /**
  * Render the platform's welcome landing page with an authentication-aware primary action.
  *
@@ -22,9 +21,9 @@ export default function Home() {
   const handlePush = () => {
     router.push(`/auth`);
   };
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     try {
-      dispatch(logout());
+      await dispatch(logout()).unwrap?.();
       toast.success("Logout successfully");
     } catch (err) {
       toast.error(`Failed to logout`);

@@ -12,6 +12,7 @@ import {
   persistStore,
   REGISTER,
   REHYDRATE,
+  createTransform,
 } from "redux-persist";
 import { authSyncMiddleware } from "@/redux/middleware/authSyncMiddleware";
 import authReducer from "@/redux/slices/AuthSlice";
@@ -26,7 +27,20 @@ const rootReducer = combineReducers({
   auth: authReducer,
 });
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+// Strip sensitive fields from persisted auth state
+const authSanitizer = createTransform(
+  (inboundState: any) => {
+    const { jwt, ...rest } = inboundState ?? {};
+    return rest;
+  },
+  (outboundState: any) => outboundState,
+  { whitelist: ["auth"] },
+);
+
+const persistedReducer = persistReducer(
+  { ...persistConfig, transforms: [authSanitizer] },
+  rootReducer,
+);
 
 export const store = configureStore({
   reducer: persistedReducer,

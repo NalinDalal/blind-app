@@ -9,7 +9,6 @@ declare global {
   var __otpLastReq: Record<string, number> | undefined;
 }
 
-
 /**
  * Handle POST requests to validate a college email, enforce a 30-second rate limit, generate a 6-digit TOTP valid for 2 minutes, and email it to the user.
  *
@@ -70,8 +69,10 @@ export async function POST(req: NextRequest) {
         html,
       );
     } catch (e: unknown) {
-      if (e instanceof Error) console.error(`error sending Mail: ${e.message}`);
-      console.error(`error sending Mail: ${e}`);
+      // Undo rate-limit on failure
+      store[email] = 0;
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error(`error sending mail: ${msg}`);
       return NextResponse.json(
         { error: "Failed to send OTP email." },
         { status: 500 },

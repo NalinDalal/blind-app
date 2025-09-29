@@ -11,12 +11,13 @@ export const authSyncMiddleware: Middleware = (store) => (next) => (action) => {
   if (typeof action === "object" && action !== null && "type" in action) {
     if (action.type === "auth/login/fulfilled") {
       // Use a type cast to tell TypeScript the shape of the state
-      const token = (store.getState() as RootState).auth.jwt;
-      if (token) {
-        Cookies.set("auth-token", token, {
+      const hasToken = Boolean((store.getState() as RootState).auth.jwt);
+      if (hasToken) {
+        Cookies.set("auth-token", "1", {
           expires: 7,
-          secure: true,
-          sameSite: "strict",
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
         });
       }
     }

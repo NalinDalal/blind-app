@@ -28,15 +28,16 @@ export async function POST(req: NextRequest) {
       );
     }
     const user = await prisma.user.findUnique({ where: { email } });
-    const anonMapping = await prisma.anonMapping.findUnique({
-      where: { userId: user?.id },
-    });
     if (!user) {
       return NextResponse.json(
         { error: "Invalid credentials" },
         { status: 401 },
       );
     }
+    const anonMapping = await prisma.anonMapping.findUnique({
+      where: { userId: user?.id },
+    });
+
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) {
       return NextResponse.json(

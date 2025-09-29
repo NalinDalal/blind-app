@@ -21,7 +21,6 @@
     "@reduxjs/toolkit": "^2.9.0",
     "@sendgrid/mail": "^8.1.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/redux-persist": "^4.0.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
@@ -39,7 +38,6 @@
     "react-hook-form": "^7.63.0",
     "react-hot-toast": "^2.6.0",
     "react-redux": "^9.2.0",
-    "redux-persist": "^6.0.0",
     "tailwind-merge": "^3.3.1",
     "zod": "^4.1.11"
   },

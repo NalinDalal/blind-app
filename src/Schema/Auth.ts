@@ -6,10 +6,10 @@ import { z } from "zod";
 const baseSchema = z.object({
   email: z
     .email({ message: "Please enter a valid email address." })
-    .refine(
-      (email) => email.endsWith("oriental.ac.in"),
-      "Please use your official college email.",
-    ),
+    .refine((email) => {
+      const host = email.split("@")[1]?.toLowerCase();
+      return host === "oriental.ac.in" || host?.endsWith(".oriental.ac.in");
+    }, "Please use your official college email."),
 });
 
 // Define a schema for each mode
