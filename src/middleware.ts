@@ -2,38 +2,12 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 /**
- * Next.js middleware for authentication-based route protection and redirection.
+ * Enforces simple authentication routing by redirecting based on the request path and auth cookie.
  *
- * @middleware
- * @param {NextRequest} request - Incoming Next.js request object
- * @returns {NextResponse} Response with potential redirects
+ * Redirects unauthenticated requests targeting protected routes (paths starting with `/dashboard` or `/profile`) to `/auth`, redirects authenticated requests visiting auth-related pages (`/auth`, `/login`, `/register`) to `/`, and otherwise allows the request to proceed.
  *
- * @description
- * Enforces authentication rules across the application:
- * - Redirects unauthenticated users from protected routes to /auth
- * - Redirects authenticated users from auth routes to /
- * - Allows requests that don't match routing rules to continue
- *
- * @routeProtection
- * - Auth Pages: `/auth`, `/login`, `/register`
- * - Protected Pages: `/dashboard/*`, `/profile/*`
- * - Public Pages: `/`, API routes, static assets
- *
- * @authDetection
- * Uses `auth-token` cookie to determine authentication status
- *
- * @configuration
- * Matcher excludes API routes and Next.js static assets for optimal performance
+ * @returns A NextResponse that redirects to `/auth` for unauthenticated access to protected pages, redirects to `/` for authenticated access to auth pages, or `NextResponse.next()` to continue the request flow.
  */
-/**
- * Enforces authentication-based routing by redirecting users between auth pages, protected pages, and public pages.
- *
- * Redirects unauthenticated requests targeting protected routes to `/auth`, and redirects authenticated requests targeting auth routes to `/`. If no routing rule applies, allows the request to continue.
- *
- * @param request - The incoming Next.js request
- * @returns A NextResponse that performs a redirect when a routing rule matches, or a response that allows the request to continue otherwise
- */
-
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const authToken = request.cookies.get("auth-token")?.value;

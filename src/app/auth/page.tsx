@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { initialState } from "@/redux/slices/AuthSlice";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -24,65 +23,23 @@ import { type Auth, AuthSchema } from "@/Schema/Auth"; // Make sure path is corr
 type AuthMode = "register" | "login" | "otp" | "anon";
 
 /**
- * Renders the multi-mode authentication page and manages registration, login, OTP, and anonymous-name flows.
+ * Render the multi-mode authentication page that manages register, login, OTP, and anonymous-name flows.
  *
- * This component provides a single form whose behavior changes based on an internal `mode` state ("register" | "login" | "otp" | "anon"), validates input with Zod, dispatches authentication-related Redux actions (register, login, request/verify OTP, set anonymous name), displays success/error messages, shows toast notifications for key events, and redirects authenticated users to the home page when appropriate.
+ * Uses react-hook-form with Zod validation to manage form state and validation, synchronizes a local
+ * mode state with form values, dispatches authentication actions (register, login, request/verify OTP,
+ * set anonymous name), shows toast feedback, and navigates on successful authentication.
  *
- * @returns The rendered authentication page JSX element.
+ * @returns The rendered authentication page UI as JSX
  */
 export default function AuthPage() {
   const router = useRouter();
   // 1. Single Source of Truth: This state now correctly drives the entire component's UI.
   const [mode, setMode] = useState<AuthMode>("register");
   const dispatch = useAppDispatch();
-  const authState = useAppSelector((state) => state.auth) ?? initialState;
-  const { message, status, isAuthenticated, anonName } = authState;
+  const { message, status, isAuthenticated, anonName } = useAppSelector(
+    (state) => state.auth,
+  );
 
-/**
- * Multi-modal authentication component supporting registration, login, OTP verification, and anonymous name setup.
- *
- * @component
- * @example
- * // Used automatically by Next.js routing at /auth
- * <AuthPage />
- *
- * @description
- * This component manages the complete authentication flow:
- * - Register Mode: Create new user accounts with college email validation
- * - Login Mode: Authenticate existing users with email/password
- * - OTP Mode: Request and verify time-based one-time passwords
- * - Anonymous Mode: Set anonymous display names for verified users
- *
- * @features
- * - Form validation using Zod schema and React Hook Form
- * - Redux state management for authentication
- * - Toast notifications for user feedback
- * - Responsive design with dark mode support
- * - Automatic navigation based on authentication state
- *
- * @hooks
- * - useForm - Form state management and validation
- * - useAppSelector - Redux authentication state
- * - useAppDispatch - Redux action dispatching
- * - useRouter - Navigation control
- * - useEffect - Side effects and state synchronization
- *
- * @state
- * - mode: AuthMode - Current authentication mode ("register" | "login" | "otp" | "anon")
- *
- * @reduxActions
- * - registerUser - Create new user account
- * - login - Authenticate user
- * - requestOtp - Send OTP via email
- * - verifyOtp - Verify OTP code
- * - setAnonName - Set anonymous display name
- * - clearMessage - Clear status messages
- *
- * @accessibility
- * - Proper form labels and ARIA attributes
- * - Keyboard navigation support
- * - Screen reader compatible
- */
   const {
     register, // Renamed to avoid conflict with the action
     handleSubmit,
