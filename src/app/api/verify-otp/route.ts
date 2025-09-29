@@ -5,10 +5,15 @@ import { PrismaClient } from "@/generated/prisma";
 const prisma = new PrismaClient();
 
 /**
- * Handle POST requests to verify a user's time-based one-time password (OTP) and mark the user as verified.
+ * Verify a user's time-based one-time password (TOTP) from a POST request and mark the user verified.
  *
- * @param req - Incoming NextRequest whose JSON body must include `email` and `otp` string fields.
- * @returns On success: a JSON object with `message` set to "OTP verified", `id` (user id), `email`, and `anonName` (string or `null`). On failure: a JSON object with an `error` message and an appropriate HTTP status (400, 401, or 500).
+ * Validates the request body for `email` and `otp`, ensures the stored OTP secret is present and well-formed,
+ * constructs a TOTP validator, and, on successful verification, marks the user as verified and returns user info.
+ *
+ * @param req - The incoming NextRequest containing a JSON body with `email` and `otp`
+ * @returns On success: a JSON object with `message: "OTP verified"`, `id`, `email`, and `anonName` (or `null`).
+ *          On failure: a JSON object with an `error` message and an appropriate HTTP status code
+ *          (`400` for missing/invalid input, `401` for not found or invalid/expired OTP, `500` for server errors).
  */
 export async function POST(req: NextRequest) {
   try {

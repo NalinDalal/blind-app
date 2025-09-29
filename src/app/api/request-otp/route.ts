@@ -10,12 +10,17 @@ declare global {
 }
 
 /**
- * Handle POST requests to validate a college email, enforce a 30-second rate limit, generate a 6-digit TOTP valid for 2 minutes, and email it to the user.
+ * Generate a time-limited OTP for a college email, send it by email, and enforce per-email rate limiting.
  *
- * @param req - Incoming request whose JSON body must include an `email` field (college address ending with `@oriental.ac.in`)
- * @returns A JSON response indicating outcome: on success `{ message: "OTP sent to your email." }`; on error an `{ error: string }` object with HTTP status codes — 400 for missing/invalid email, 409 for rate limiting, and 500 for failures sending email or other internal errors.
+ * Validates that the JSON body contains an `email` ending with `@oriental.ac.in`, enforces a 30-second
+ * resend cooldown per email, creates a 6-digit OTP valid for 2 minutes, and emails the code to the address.
+ *
+ * @param req - Incoming POST request whose JSON body must include an `email` string (must end with `@oriental.ac.in`)
+ * @returns A NextResponse containing JSON:
+ *          - Success: `{ message: "OTP sent to your email." }` (200)
+ *          - Validation errors: `{ error: "Email required" }` or `{ error: "Only college emails (@oriental.ac.in) are allowed." }` (400), or `{ error: "Please wait before requesting another OTP." }` (409)
+ *          - Failure to send email or other server errors: `{ error: "Failed to send OTP email." }` or `{ error: "Internal Server Error" }` (500)
  */
-
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
@@ -69,10 +74,8 @@ export async function POST(req: NextRequest) {
         html,
       );
     } catch (e: unknown) {
-      // Undo rate-limit on failure
-      store[email] = 0;
-      const msg = e instanceof Error ? e.message : String(e);
-      console.error(`error sending mail: ${msg}`);
+      if (e instanceof Error) console.error(`error sending Mail: ${e.message}`);
+      console.error(`error sending Mail: ${e}`);
       return NextResponse.json(
         { error: "Failed to send OTP email." },
         { status: 500 },

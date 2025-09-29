@@ -1,6 +1,5 @@
 "use client";
 import { ArrowRight, Info } from "lucide-react";
-import { initialState } from "@/redux/slices/AuthSlice";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
@@ -8,52 +7,20 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { logout } from "@/redux/slices/AuthSlice";
 
 /**
- * Main landing page component with authentication-aware navigation.
+ * Renders the home hero for the Blind Platform with authentication-aware actions.
  *
- * @component
- * @example
- * // Used automatically by Next.js routing at /
- * <Home />
+ * Displays a title, descriptive subtitle, and two call-to-action controls. The primary control navigates to the authentication route when the user is not authenticated and dispatches sign-out when the user is authenticated; the secondary control is a static "Learn More" button.
  *
- * @description
- * Renders the platform's welcome page with contextual actions:
- * - Unauthenticated: Shows "Get Started" button linking to /auth
- * - Authenticated: Shows "Sign Out" button with logout functionality
- *
- * @features
- * - Responsive gradient design with glass morphism effects
- * - Dark mode support with theme-aware styling
- * - Toast notifications for user actions
- * - Smooth animations and hover effects
- *
- * @hooks
- * - useAppSelector - Access authentication state
- * - useAppDispatch - Dispatch logout actions
- * - useRouter - Navigate to authentication page
- *
- * @styling
- * - Tailwind CSS with custom gradient backgrounds
- * - Glass morphism effects with backdrop blur
- * - Responsive typography scaling
- * - Dark mode compatible color schemes
+ * @returns The Home page React element.
  */
-/**
- * Render the platform's welcome landing page with an authentication-aware primary action.
- *
- * The primary button navigates the user to `/auth` when unauthenticated; when authenticated it dispatches a logout action and shows success or error toast notifications. The component also displays a secondary "Learn More" button and themed responsive UI.
- *
- * @returns The React element representing the home landing page.
- */
-
 export default function Home() {
-  const authState = useAppSelector((state) => state.auth) ?? initialState;
-  const { isAuthenticated } = authState;
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const handlePush = () => {
     router.push(`/auth`);
   };
-  const handleSignOut = async () => {
+  const handleSignOut = () => {
     try {
       dispatch(logout());
       toast.success("Logout successfully");
