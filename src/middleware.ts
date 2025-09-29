@@ -1,7 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-
 /**
  * Enforces authentication-based routing by redirecting users between auth pages, protected pages, and public pages.
  *
