@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { initialState } from "@/redux/slices/AuthSlice";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -34,9 +35,8 @@ export default function AuthPage() {
   // 1. Single Source of Truth: This state now correctly drives the entire component's UI.
   const [mode, setMode] = useState<AuthMode>("register");
   const dispatch = useAppDispatch();
-  const { message, status, isAuthenticated, anonName } = useAppSelector(
-    (state) => state.auth,
-  );
+  const authState = useAppSelector((state) => state.auth) ?? initialState;
+  const { message, status, isAuthenticated, anonName } = authState;
 
   const {
     register, // Renamed to avoid conflict with the action

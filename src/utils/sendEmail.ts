@@ -34,7 +34,7 @@ export async function sendEmail(
     };
     await sgMail.send(msg);
   } catch (error) {
-    console.table("Failed to send email", error);
+    console.error("Failed to send email", error);
     throw error;
   }
 }

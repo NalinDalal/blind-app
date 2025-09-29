@@ -1,5 +1,6 @@
 "use client";
 import { ArrowRight, Info } from "lucide-react";
+import { initialState } from "@/redux/slices/AuthSlice";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,8 @@ import { logout } from "@/redux/slices/AuthSlice";
  */
 
 export default function Home() {
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const authState = useAppSelector((state) => state.auth) ?? initialState;
+  const { isAuthenticated } = authState;
   const dispatch = useAppDispatch();
   const router = useRouter();
   const handlePush = () => {
@@ -23,7 +25,7 @@ export default function Home() {
   };
   const handleSignOut = async () => {
     try {
-      await dispatch(logout()).unwrap?.();
+      dispatch(logout());
       toast.success("Logout successfully");
     } catch (err) {
       toast.error(`Failed to logout`);

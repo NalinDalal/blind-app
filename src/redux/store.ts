@@ -3,6 +3,7 @@
  */
 
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import type { PersistPartial } from "redux-persist/es/persistReducer";
 import {
   FLUSH,
   PAUSE,
@@ -15,7 +16,7 @@ import {
   createTransform,
 } from "redux-persist";
 import { authSyncMiddleware } from "@/redux/middleware/authSyncMiddleware";
-import authReducer from "@/redux/slices/AuthSlice";
+import authReducer, { initialState } from "@/redux/slices/AuthSlice";
 import storage from "./storage";
 
 const persistConfig = {
@@ -23,9 +24,11 @@ const persistConfig = {
   storage,
 };
 
-const rootReducer = combineReducers({
-  auth: authReducer,
-});
+const rootReducer = (state: { auth: typeof initialState } | undefined, action: any) => {
+  return {
+    auth: authReducer(state?.auth ?? initialState, action),
+  };
+};
 
 // Strip sensitive fields from persisted auth state
 const authSanitizer = createTransform(
@@ -56,4 +59,4 @@ export const store = configureStore({
 
 export const persistor = persistStore(store);
 export type AppDispatch = typeof store.dispatch;
-export type RootState = ReturnType<typeof store.getState>;
+export type RootState = ReturnType<typeof rootReducer> & PersistPartial;

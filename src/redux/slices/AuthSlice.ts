@@ -17,7 +17,7 @@ import {
 } from "@/redux/types";
 import type { RootState } from "../store";
 
-const initialState: AuthState = {
+export const initialState: AuthState = {
   isAuthenticated: false,
   jwt: null,
   email: null,
@@ -166,8 +166,8 @@ export const setAnonName = createAsyncThunk(
     { anonName }: { anonName: string },
     { getState, dispatch, rejectWithValue },
   ) => {
-    const state = getState() as RootState;
-    const jwt = state.auth.jwt;
+  const state = getState() as RootState;
+  const jwt = state.auth?.jwt ?? null;
 
     if (!jwt) {
       return rejectWithValue({ error: "Authentication token not found." });
