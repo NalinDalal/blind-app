@@ -8,6 +8,36 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { logout } from "@/redux/slices/AuthSlice";
 
 /**
+ * Main landing page component with authentication-aware navigation.
+ *
+ * @component
+ * @example
+ * // Used automatically by Next.js routing at /
+ * <Home />
+ *
+ * @description
+ * Renders the platform's welcome page with contextual actions:
+ * - Unauthenticated: Shows "Get Started" button linking to /auth
+ * - Authenticated: Shows "Sign Out" button with logout functionality
+ *
+ * @features
+ * - Responsive gradient design with glass morphism effects
+ * - Dark mode support with theme-aware styling
+ * - Toast notifications for user actions
+ * - Smooth animations and hover effects
+ *
+ * @hooks
+ * - useAppSelector - Access authentication state
+ * - useAppDispatch - Dispatch logout actions
+ * - useRouter - Navigate to authentication page
+ *
+ * @styling
+ * - Tailwind CSS with custom gradient backgrounds
+ * - Glass morphism effects with backdrop blur
+ * - Responsive typography scaling
+ * - Dark mode compatible color schemes
+ */
+/**
  * Render the platform's welcome landing page with an authentication-aware primary action.
  *
  * The primary button navigates the user to `/auth` when unauthenticated; when authenticated it dispatches a logout action and shows success or error toast notifications. The component also displays a secondary "Learn More" button and themed responsive UI.

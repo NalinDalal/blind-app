@@ -2,6 +2,30 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 /**
+ * Next.js middleware for authentication-based route protection and redirection.
+ *
+ * @middleware
+ * @param {NextRequest} request - Incoming Next.js request object
+ * @returns {NextResponse} Response with potential redirects
+ *
+ * @description
+ * Enforces authentication rules across the application:
+ * - Redirects unauthenticated users from protected routes to /auth
+ * - Redirects authenticated users from auth routes to /
+ * - Allows requests that don't match routing rules to continue
+ *
+ * @routeProtection
+ * - Auth Pages: `/auth`, `/login`, `/register`
+ * - Protected Pages: `/dashboard/*`, `/profile/*`
+ * - Public Pages: `/`, API routes, static assets
+ *
+ * @authDetection
+ * Uses `auth-token` cookie to determine authentication status
+ *
+ * @configuration
+ * Matcher excludes API routes and Next.js static assets for optimal performance
+ */
+/**
  * Enforces authentication-based routing by redirecting users between auth pages, protected pages, and public pages.
  *
  * Redirects unauthenticated requests targeting protected routes to `/auth`, and redirects authenticated requests targeting auth routes to `/`. If no routing rule applies, allows the request to continue.

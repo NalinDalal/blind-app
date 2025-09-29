@@ -1,108 +1,66 @@
 # Blind App
 
-Anonymous Community App for College Students
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/NalinDalal/blind-app/ci.yml?branch=main)](https://github.com/NalinDalal/blind-app/actions)
+[![Open Issues](https://img.shields.io/github/issues/NalinDalal/blind-app)](https://github.com/NalinDalal/blind-app/issues)
 
-- **Project:** Create an app similar to Blind for anonymous discussions among verified college students.
+> Anonymous Community App for College Students
 
-some rules:
+---
 
-- work on ui with ai, but not like directly gave it to handle
-- ui needs to be like not ai generated
+## Table of Contents
+- [Features](#features)
+- [Quickstart](#quickstart)
+- [Tech Stack](#tech-stack)
+- [System Design](#system-design)
+- [Documentation](#documentation)
+- [Community & Contributing](#community--contributing)
+- [License](#license)
 
-easy boy, first create a system design, what features you want to have, really try to think, don't think everything at once, step by step
-layout fucking 1-2-3 steps, then push them step by step
+---
 
-## Getting Started
+## Features
+- Anonymous posting and commenting
+- College-verified community (only `@oriental.ac.in` emails)
+- OTP-based authentication (2FA)
+- Real-time notifications (planned)
+- Content moderation (AI filter planned)
+- Responsive, accessible UI (dark/light mode)
+- Progressive Web App support
 
-### Email/OTP Setup
+## Quickstart
+```bash
+# Clone the repo
+$ git clone https://github.com/NalinDalal/blind-app.git
+$ cd blind-app
 
-To enable OTP delivery via email, set the following environment variables in your `.env` file:
+# Install dependencies
+$ npm install
 
+# Setup environment variables
+$ cp .env.example .env.local
+# Edit .env.local with your credentials
+
+# Setup database
+$ npx prisma generate
+$ npx prisma db push
+$ npm run db:seed
+
+# Start development server
+$ npm run dev
 ```
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_USER=your_smtp_username
-SMTP_PASS=your_smtp_password
-EMAIL_FROM=Blind App <noreply@example.com>
-```
 
-You can use any SMTP provider (Gmail, Outlook, custom, etc). For local testing, services like [Mailtrap](https://mailtrap.io/) or [Ethereal Email](https://ethereal.email/) are recommended.
+## Tech Stack
+- **Frontend:** Next.js 15, React 19, TypeScript, Tailwind CSS
+- **Backend:** Next.js API Routes, Prisma ORM, PostgreSQL
+- **Auth:** JWT, bcryptjs, OTPAuth
+- **State:** Redux Toolkit
+- **Forms:** React Hook Form, Zod
+- **Email:** SendGrid
+- **Deployment:** Vercel
 
-The app will send OTP codes to the user's email using these credentials.
-
----
-
-### How to Test OTP Email Delivery
-
-1. Make sure you have set your SENDGRID_API_KEY and EMAIL_FROM in your `.env` file.
-2. Start your app and database as described above.
-3. Open your browser and go to `/auth` (e.g., http://localhost:3000/auth).
-4. Switch to the "OTP Auth" tab.
-5. Enter your email and click "Request OTP".
-6. Check your email inbox for a message from Blind App with your OTP code (check spam if not found).
-7. Enter the OTP code in the form and click "Verify OTP".
-8. If successful, you will see a confirmation message.
-
-**Troubleshooting:**
-
-- If you do not receive the email, check your SendGrid dashboard for errors or quota issues.
-- Make sure your `EMAIL_FROM` is a verified sender in SendGrid.
-- Check your server logs for any errors related to email sending.
-
----
-
-### Running Locally (Without Docker Compose)
-
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-2. Set up a local PostgreSQL database and update the `DATABASE_URL` in your `.env` file.
-3. Run Prisma migrations:
-   ```bash
-   npx prisma migrate dev --name init
-   ```
-4. Generate Prisma client:
-   ```bash
-   npx prisma generate
-   ```
-5. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-### Running with Docker Compose
-
-1. Make sure Docker is installed and running.
-2. Start the PostgreSQL database with Docker Compose (required!):
-   ```bash
-   docker compose up -d
-   ```
-   This will start the database in the background. You must keep it running while you use the app.
-3. Ensure your `.env` file contains:
-   ```env
-   DATABASE_URL="postgresql://postgres:postgres@localhost:5432/blindapp"
-   ```
-4. Run Prisma migrations to set up the database tables:
-   ```bash
-   npx prisma migrate dev --name init
-   ```
-5. Generate the Prisma client:
-   ```bash
-   npx prisma generate
-   ```
-6. Start the development server:
-   ```bash
-   npm run dev
-   ```
-7. To stop the database, run:
-   ```bash
-   docker compose down
-   ```
-
----
-
-work on system design first
+## System Design
+The following diagram illustrates the overall architecture of Blind App:
 
 ```mermaid
 flowchart TD
@@ -178,18 +136,21 @@ flowchart TD
     %% Flow: Analytics
     API --> AnalyticsService
     AnalyticsService --> LogDB
-
 ```
 
-note something here, we have implemented authentication with help of ai, the db needs to be accounted still, we actually are not using any real db, also the otp is implemented for now
-so authentication with 2fa is done
-authentication, anonymity, and mapping of anonName with userId is done
+## Documentation
+- [API Reference](docs/API.md)
+- [System Architecture](docs/ARCHITECTURE.md)
+- [Component Docs](docs/COMPONENTS.md)
+- [Contributing Guide](docs/CONTRIBUTING.md)
+- [Roadmap](docs/ROADMAP.md)
+- [OpenAPI Spec](docs/OPENAPI.yaml)
 
-to do : step 11
-add the ui part
+## Community & Contributing
+We welcome contributions! Please read our [Contributing Guide](docs/CONTRIBUTING.md) and [Roadmap](docs/ROADMAP.md) for details.
 
----
+- [Open Issues](https://github.com/NalinDalal/blind-app/issues)
+- [Discussions](https://github.com/NalinDalal/blind-app/discussions)
 
-beforce pushing do:
-`npx biome format --write`
-then push
+## License
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.

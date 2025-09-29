@@ -38,6 +38,51 @@ export default function AuthPage() {
   const authState = useAppSelector((state) => state.auth) ?? initialState;
   const { message, status, isAuthenticated, anonName } = authState;
 
+/**
+ * Multi-modal authentication component supporting registration, login, OTP verification, and anonymous name setup.
+ *
+ * @component
+ * @example
+ * // Used automatically by Next.js routing at /auth
+ * <AuthPage />
+ *
+ * @description
+ * This component manages the complete authentication flow:
+ * - Register Mode: Create new user accounts with college email validation
+ * - Login Mode: Authenticate existing users with email/password
+ * - OTP Mode: Request and verify time-based one-time passwords
+ * - Anonymous Mode: Set anonymous display names for verified users
+ *
+ * @features
+ * - Form validation using Zod schema and React Hook Form
+ * - Redux state management for authentication
+ * - Toast notifications for user feedback
+ * - Responsive design with dark mode support
+ * - Automatic navigation based on authentication state
+ *
+ * @hooks
+ * - useForm - Form state management and validation
+ * - useAppSelector - Redux authentication state
+ * - useAppDispatch - Redux action dispatching
+ * - useRouter - Navigation control
+ * - useEffect - Side effects and state synchronization
+ *
+ * @state
+ * - mode: AuthMode - Current authentication mode ("register" | "login" | "otp" | "anon")
+ *
+ * @reduxActions
+ * - registerUser - Create new user account
+ * - login - Authenticate user
+ * - requestOtp - Send OTP via email
+ * - verifyOtp - Verify OTP code
+ * - setAnonName - Set anonymous display name
+ * - clearMessage - Clear status messages
+ *
+ * @accessibility
+ * - Proper form labels and ARIA attributes
+ * - Keyboard navigation support
+ * - Screen reader compatible
+ */
   const {
     register, // Renamed to avoid conflict with the action
     handleSubmit,
