@@ -15,11 +15,10 @@ export const UserSchema = createSchema(
     createdAt: DateTime,
     verified: z.boolean().default(false),
     otp: z.string().nullable().optional(),
-  }),
-  { title: "User", description: "A user of the system" },
+  })
 );
 
-export type User = z.infer<typeof UserSchema.shape>;
+export type User = z.infer<typeof UserSchema>;
 
 // ========== Post ==========
 export const PostSchema = createSchema(
@@ -30,11 +29,10 @@ export const PostSchema = createSchema(
     createdAt: DateTime,
     authorId: UUID,
     isFlagged: z.boolean().default(false),
-  }),
-  { title: "Post", description: "A post created by a user" },
+  })
 );
 
-export type Post = z.infer<typeof PostSchema.shape>;
+export type Post = z.infer<typeof PostSchema>;
 
 // ========== Comment ==========
 export const CommentSchema = createSchema(
@@ -45,11 +43,10 @@ export const CommentSchema = createSchema(
     postId: UUID,
     authorId: UUID,
     isFlagged: z.boolean().default(false),
-  }),
-  { title: "Comment", description: "A comment on a post" },
+  })
 );
 
-export type Comment = z.infer<typeof CommentSchema.shape>;
+export type Comment = z.infer<typeof CommentSchema>;
 
 // ========== CommentLike ==========
 export const CommentLikeSchema = createSchema(
@@ -58,11 +55,10 @@ export const CommentLikeSchema = createSchema(
     commentId: UUID,
     userId: UUID,
     createdAt: DateTime,
-  }),
-  { title: "CommentLike", description: "A like on a comment" },
+  })
 );
 
-export type CommentLike = z.infer<typeof CommentLikeSchema.shape>;
+export type CommentLike = z.infer<typeof CommentLikeSchema>;
 
 // ========== AnonMapping ==========
 export const AnonMappingSchema = createSchema(
@@ -71,11 +67,10 @@ export const AnonMappingSchema = createSchema(
     userId: UUID,
     anonName: z.string(),
     createdAt: DateTime,
-  }),
-  { title: "AnonMapping", description: "Anonymous mapping for a user" },
+  })
 );
 
-export type AnonMapping = z.infer<typeof AnonMappingSchema.shape>;
+export type AnonMapping = z.infer<typeof AnonMappingSchema>;
 
 // ========== Notification ==========
 export const NotificationSchema = createSchema(
@@ -85,11 +80,10 @@ export const NotificationSchema = createSchema(
     message: z.string(),
     read: z.boolean().default(false),
     createdAt: DateTime,
-  }),
-  { title: "Notification", description: "A notification for a user" },
+  })
 );
 
-export type Notification = z.infer<typeof NotificationSchema.shape>;
+export type Notification = z.infer<typeof NotificationSchema>;
 
 // ========== Log ==========
 export const LogSchema = createSchema(
@@ -98,8 +92,7 @@ export const LogSchema = createSchema(
     action: z.string(),
     details: z.string().nullable().optional(),
     createdAt: DateTime,
-  }),
-  { title: "Log", description: "A system log entry" },
+  })
 );
 
-export type Log = z.infer<typeof LogSchema.shape>;
+export type Log = z.infer<typeof LogSchema>;
