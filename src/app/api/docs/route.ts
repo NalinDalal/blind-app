@@ -1,4 +1,4 @@
-import { openApiSpec } from "../../../../lib/";
+import { openApiSpec } from "../../../../lib/schema";
 
 export async function GET() {
   return new Response(JSON.stringify(openApiSpec, null, 2), {
