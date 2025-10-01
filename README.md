@@ -1,7 +1,7 @@
 # Blind App
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/NalinDalal/blind-app/ci.yml?branch=main)](https://github.com/NalinDalal/blind-app/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/NalinDalal/blind-app/.github/workflows/ci-cd.yml?branch=main)](https://github.com/NalinDalal/blind-app/actions)
 [![Open Issues](https://img.shields.io/github/issues/NalinDalal/blind-app)](https://github.com/NalinDalal/blind-app/issues)
 
 > Anonymous Community App for College Students
