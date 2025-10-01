@@ -32,3 +32,10 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Build Docker image
+        run: docker build -t blind-app .
+      - name: Push Docker image (example)
+        run: echo "Add Docker Hub or registry push step here"
+      - name: Deploy (example)
+        run: echo "Add deployment step here"
+
