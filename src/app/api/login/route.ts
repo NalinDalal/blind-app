@@ -22,9 +22,11 @@ export async function POST(req: NextRequest) {
                 {status: 400},
             );
         }
-        const user = await prisma.user.findUnique({where: {email}});
-        const anonMapping = await prisma.anonMapping.findUnique({
-            where: {userId: user?.id},
+        const user = await prisma.user.findUnique({
+            where: {email},
+            include: {
+                anonMappings: true
+            }
         });
         if (!user) {
             return NextResponse.json(
@@ -48,14 +50,16 @@ export async function POST(req: NextRequest) {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             path: "/",
-            sameSite: 'strict'
+            sameSite: 'strict',
+            maxAge: 60 * 60 * 2,
         })
+        const anonName = user.anonMappings.length > 0 ? user.anonMappings[0].anonName : null;
+
         return NextResponse.json(
             {
-                token,
                 id: user.id,
                 email: user.email,
-                anonName: anonMapping ? anonMapping.anonName : null,
+                anonName,
             },
             {status: 200},
         );

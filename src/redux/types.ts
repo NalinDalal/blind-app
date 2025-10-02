@@ -1,6 +1,5 @@
 export interface AuthState {
   isAuthenticated: boolean;
-  jwt: string | null;
   userId: string | null;
   email: string | null;
   anonName: string | null;
@@ -32,7 +31,6 @@ export interface LoginCredentials {
 }
 
 export interface SuccessLoginResponse {
-  token: string;
   id: string;
   email: string;
   anonName: string | null;
