@@ -20,18 +20,20 @@
 ---
 
 ## Features
-- Anonymous posting and commenting
-- College-verified community (only `@oriental.ac.in` emails)
-- OTP-based authentication (2FA)
-- Real-time notifications (planned)
-- Content moderation (AI filter planned)
-- Responsive, accessible UI (dark/light mode)
-- Progressive Web App support
+-   **Anonymous Interaction:** Post, comment, and reply without revealing your real identity.
+-   **College-Verified Community:** Exclusively for students with a valid `@oriental.ac.in` email address.
+-   **Secure Authentication:** Custom JWT-based authentication flow with an OTP (One-Time Password) verification system.
+-   **Content Moderation:** Built-in filter to detect and block inappropriate content in posts and comments.
+-   **Replies & Likes:** Supports nested comment replies and liking comments.
+-   **Theming:** Dark and light mode support.
+-   **Real-time Notifications (Planned):** Functionality to receive push notifications for interactions.
+
 
 ## Quickstart
 ```bash
 # Clone the repo
 $ git clone https://github.com/NalinDalal/blind-app.git
+ 
 $ cd blind-app
 
 # Install dependencies
@@ -39,7 +41,7 @@ $ npm install
 
 # Setup environment variables
 $ cp .env.example .env.local
-# Edit .env.local with your credentials
+# Edit .env.local with your PostgreSQL and SendGrid credentials
 
 # Setup database
 $ npx prisma generate
@@ -51,91 +53,91 @@ $ npm run dev
 ```
 
 ## Tech Stack
-- **Frontend:** Next.js 15, React 19, TypeScript, Tailwind CSS
-- **Backend:** Next.js API Routes, Prisma ORM, PostgreSQL
-- **Auth:** JWT, bcryptjs, OTPAuth
-- **State:** Redux Toolkit
-- **Forms:** React Hook Form, Zod
-- **Email:** SendGrid
-- **Deployment:** Vercel
+ 
+- **Framework:** Next.js (App Router)
+- **Language:** Typescript
+- **Backend:** Next.js API Routes
+- **Database:** PostgreSQL with Prisma ORM
+- **Authentication:**
+    - `bcryptjs` - password hashing
+    - `OTPauth` - TOTP/OTP generation & verification
+    - `jsonwebtoken` - issue and verify JWT access & refresh tokens
+- **State Management:**
+  - **Client State:** [Redux Toolkit](https://redux-toolkit.js.org/) (for auth state)
+  - **Server State:** [TanStack Query](https://tanstack.com/query/latest) (for data fetching, caching, and mutations)
+- **UI:** [React 19](https://react.dev/), [TailwindCSS](https://tailwindcss.com/)
+- **Form Handling:** React Hook Form with Zod for validation
+- **Email Service:** SendGrid
+- **Deployment:** Docker
 
 ## System Design
 The following diagram illustrates the overall architecture of Blind App:
 
 ```mermaid
 flowchart TD
-    subgraph Client["📱 Client (Mobile/Web App)"]
-        U[User Interface]
-        AuthUI[Login & Verification Screen]
-        FeedUI[Discussion Feed]
-        PostUI[Post/Comment Screen]
-        NotifUI[Notification Panel]
-    end
+  subgraph Client["📱 Client (Web App)"]
+    U[User Interface]
+    AuthUI[Login & Verification Screen]
+    FeedUI[Discussion Feed]
+    PostUI[Post/Comment Screen]
+    NotifUI[Notification Panel]
+  end
 
-    subgraph Backend["☁️ Backend (App Server)"]
-        API[API Gateway]
-        AuthService[Authentication Service]
-        AnonService[Anonymity Layer]
-        FeedService[Feed & Post Service]
-        NotifService[Notification Service]
-        ModerationService[Content Moderation]
-        AnalyticsService[Analytics/Logs]
-    end
+  subgraph Backend["☁️ Backend (Next.js API Routes)"]
+    API[API Gateway]
+    AuthService[Authentication Service]
+    AnonService[Anonymity Layer]
+    FeedService[Feed & Post Service]
+    NotifService[Notification Service]
+    ModerationService[Content Moderation]
+  end
 
-    subgraph Verification["🎓 Student Verification"]
-        EmailCheck[College Email Verification]
-        IDCheck[Optional Student ID Verification]
-    end
+  subgraph Verification["🎓 Student Verification"]
+    EmailCheck[College Email Verification]
+  end
 
-    subgraph DataStore["🗄️ Data Stores"]
-        UserDB[(User Database)]
-        PostDB[(Posts & Comments DB)]
-        AnonMapDB[(Anon Identity Mapping - Ephemeral)]
-        NotifDB[(Notification Store)]
-        LogDB[(Audit & Reports)]
-    end
+  subgraph DataStore["🗄️ Data Stores (PostgreSQL)"]
+    UserDB[(User Database)]
+    PostDB[(Posts & Comments DB)]
+    AnonMapDB[(Anon Identity Mapping)]
+    NotifDB[(Notification Store)]
+    LogDB[(Audit Logs)]
+  end
 
-    subgraph Ext["🌐 External Services"]
-        EmailAPI[Email/OTP Provider]
-        PushAPI[Push Notifications Service]
-        AIAPI[AI-based Toxicity/Abuse Filter]
-    end
+subgraph Ext["🌐 External Services"]
+EmailAPI[Email/OTP Provider]
+end
 
-    %% Client connections
-    U --> AuthUI
-    U --> FeedUI
-    U --> PostUI
-    U --> NotifUI
+%% Client connections
+U --> AuthUI
+U --> FeedUI
+U --> PostUI
+U --> NotifUI
 
-    %% Flow: Auth & Verification
-    AuthUI --> API --> AuthService --> Verification
-    Verification --> EmailCheck --> EmailAPI
-    Verification --> IDCheck
-    AuthService --> UserDB
+%% Flow: Auth & Verification
+AuthUI --> API --> AuthService
+AuthService --> Verification
+Verification --> EmailCheck --> EmailAPI
+AuthService --> UserDB
 
-    %% Flow: Anonymity
-    PostUI --> API --> AnonService
-    AnonService --> AnonMapDB
-    AnonService --> FeedService
+%% Flow: Anonymity
+PostUI --> API --> AnonService
+AnonService --> AnonMapDB
+AnonService --> FeedService
 
-    %% Flow: Feed & Posts
-    FeedUI --> API --> FeedService
-    FeedService --> PostDB
+%% Flow: Feed & Posts
+FeedUI --> API --> FeedService
+FeedService --> PostDB
 
-    %% Flow: Moderation
-    FeedService --> ModerationService
-    ModerationService --> AIAPI
-    ModerationService --> LogDB
+%% Flow: Moderation
+FeedService --> ModerationService
+ModerationService --> LogDB
 
-    %% Flow: Notifications
-    NotifService --> NotifDB
-    NotifService --> PushAPI
-    API --> NotifUI
-    NotifService --> API
+%% Flow: Notifications
+NotifService --> NotifDB
+API --> NotifUI
+NotifService --> API
 
-    %% Flow: Analytics
-    API --> AnalyticsService
-    AnalyticsService --> LogDB
 ```
 
 ## Documentation
@@ -153,4 +155,4 @@ We welcome contributions! Please read our [Contributing Guide](docs/CONTRIBUTING
 - [Discussions](https://github.com/NalinDalal/blind-app/discussions)
 
 ## License
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+This project is licensed under the MIT License. See [LICENSE](LICENSE.md) for details.
