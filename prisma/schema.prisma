@@ -40,14 +40,15 @@ model User {
 }
 
 model Post {
-  id        String    @id @default(uuid())
-  content   String
-  college   String
-  createdAt DateTime  @default(now())
-  author    User      @relation(fields: [authorId], references: [id])
-  authorId  String
-  comments  Comment[]
-  isFlagged Boolean   @default(false)
+  id              String    @id @default(uuid())
+  content         String
+  college         String
+  createdAt       DateTime  @default(now())
+  author          User      @relation(fields: [authorId], references: [id])
+  authorId        String
+  comments        Comment[]
+  isFlagged       Boolean   @default(false)
+  engagementScore Int       @default(0)
 }
 
 model Comment {
