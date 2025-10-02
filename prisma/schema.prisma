@@ -60,6 +60,11 @@ model Comment {
   authorId    String
   isFlagged   Boolean       @default(false)
   CommentLike CommentLike[]
+
+  // self relationship for replies
+  parentId String? // null for the comments
+  parent   Comment?  @relation("Replies", fields: [parentId], references: [id])
+  replies  Comment[] @relation("Replies")
 }
 
 model AnonMapping {
@@ -85,4 +90,3 @@ model Log {
   details   String?
   createdAt DateTime @default(now())
 }
-
