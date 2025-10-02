@@ -1,15 +1,16 @@
 // helpers/auth/user.ts
-import type { NextRequest } from "next/server";
-import { decodeToken } from "./token";
+import {decodeToken} from "./token";
+import {cookies} from "next/headers";
 
-export async function getAuthenticatedUserId(
-  req: NextRequest,
-): Promise<string | null> {
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) return null;
+export async function getAuthenticatedUserId(): Promise<string | null> {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
 
-  const token = authHeader.split(" ")[1];
-  const decoded = decodeToken(token);
+    if (!token) {
+        return null;
+    }
 
-  return decoded?.userId ?? null;
+    const decoded = decodeToken(token);
+
+    return decoded?.userId ?? null;
 }
