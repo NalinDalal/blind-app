@@ -1,58 +1,99 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@/generated/prisma";
-import { analyzeToxicity } from "@/helpers/contentModeration";
-
-const prisma = new PrismaClient();
+import {type NextRequest, NextResponse} from "next/server";
+import {analyzeToxicity} from "@/helpers/contentModeration";
+import {prisma} from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
-  try {
-    const { content, postId, authorId } = await req.json();
+    try {
+        const {content, postId, authorId} = await req.json();
 
-    if (!content || !postId || !authorId) {
-      return NextResponse.json(
-        { error: "Missing content, postId, or authorId" },
-        { status: 400 },
-      );
+        if (!content || !postId || !authorId) {
+            return NextResponse.json(
+                {error: "Missing content, postId, or authorId"},
+                {status: 400}
+            );
+        }
+
+        const comment = await prisma.$transaction(async (tx) => {
+            // 1. Check toxicity first (fast, no DB call)
+            const toxicityResult = analyzeToxicity(content);
+            if (toxicityResult.isToxic) {
+                await tx.log.create({
+                    data: {
+                        action: "moderation_block_comment",
+                        details: `Blocked comment by user ${authorId} on post ${postId} for ${toxicityResult.matchedValue}. Content length: ${content.length} chars`,
+                    },
+                });
+                throw new Error("TOXIC_COMMENT");
+            }
+
+            // 2. Validate post and user exist (parallel for performance)
+            const [post, user] = await Promise.all([
+                tx.post.findUnique({where: {id: postId}}),
+                tx.user.findUnique({where: {id: authorId}})
+            ]);
+
+            if (!post) {
+                throw new Error("POST_NOT_FOUND");
+            }
+
+            if (!user) {
+                throw new Error("USER_NOT_FOUND");
+            }
+
+            // 3. Create the comment (now we know everything is valid)
+            const comment = await tx.comment.create({
+                data: {content, postId, authorId},
+            });
+
+            // 4. Create notification if commenting on someone else's post
+            if (post.authorId !== authorId) {
+                await tx.notification.create({
+                    data: {
+                        userId: post.authorId,
+                        message: `Your post received a new comment.`,
+                    },
+                });
+            }
+
+            // 5. Increment engagement score
+            await tx.post.update({
+                where: {id: postId},
+                data: {
+                    engagementScore: {increment: 5}
+                }
+            });
+
+            return comment;
+        });
+
+        return NextResponse.json(comment, {status: 201});
+
+    } catch (error) {
+        if (error instanceof Error) {
+            if (error.message === "TOXIC_COMMENT") {
+                return NextResponse.json(
+                    {error: "Content flagged as inappropriate. Please revise your comment."},
+                    {status: 403}
+                );
+            }
+            if (error.message === "POST_NOT_FOUND") {
+                return NextResponse.json(
+                    {error: "Post not found"},
+                    {status: 404}
+                );
+            }
+            if (error.message === "USER_NOT_FOUND") {
+                return NextResponse.json(
+                    {error: "User not found"},
+                    {status: 404}
+                );
+            }
+        }
+
+        console.error("Comment creation error:", error);
+        return NextResponse.json(
+            {error: "An internal server error occurred"},
+            {status: 500}
+        );
     }
-
-    // Use the advanced toxicity check
-    if (analyzeToxicity(content).isToxic) {
-      // Log moderation action
-      await prisma.log.create({
-        data: {
-          action: "moderation_block_comment",
-          details: `Blocked comment by user ${authorId} on post ${postId}: ${content} for ${analyzeToxicity(content).matchedValue}`,
-        },
-      });
-      return NextResponse.json(
-        {
-          error:
-            "Content flagged as inappropriate. Please revise your comment.",
-        },
-        { status: 403 },
-      );
-    }
-
-    const comment = await prisma.comment.create({
-      data: { content, postId, authorId },
-    });
-
-    // Notification logic...
-    const post = await prisma.post.findUnique({ where: { id: postId } });
-    if (post && post.authorId !== authorId) {
-      await prisma.notification.create({
-        data: {
-          userId: post.authorId,
-          message: `Your post received a new comment.`,
-        },
-      });
-    }
-
-    return NextResponse.json(comment);
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : String(error) },
-      { status: 500 },
-    );
-  }
 }
