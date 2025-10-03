@@ -40,14 +40,15 @@ model User {
 }
 
 model Post {
-  id        String    @id @default(uuid())
-  content   String
-  college   String
-  createdAt DateTime  @default(now())
-  author    User      @relation(fields: [authorId], references: [id])
-  authorId  String
-  comments  Comment[]
-  isFlagged Boolean   @default(false)
+  id              String    @id @default(uuid())
+  content         String
+  college         String
+  createdAt       DateTime  @default(now())
+  author          User      @relation(fields: [authorId], references: [id])
+  authorId        String
+  comments        Comment[]
+  isFlagged       Boolean   @default(false)
+  engagementScore Int       @default(0)
 }
 
 model Comment {
@@ -60,6 +61,11 @@ model Comment {
   authorId    String
   isFlagged   Boolean       @default(false)
   CommentLike CommentLike[]
+
+  // self relationship for replies
+  parentId String? // null for the comments
+  parent   Comment?  @relation("Replies", fields: [parentId], references: [id])
+  replies  Comment[] @relation("Replies")
 }
 
 model AnonMapping {
@@ -85,4 +91,3 @@ model Log {
   details   String?
   createdAt DateTime @default(now())
 }
-
