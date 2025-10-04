@@ -4,6 +4,10 @@ import toast from "react-hot-toast";
 import {useAppDispatch, useAppSelector} from "@/redux/hooks";
 import {logout} from "@/redux/slices/AuthSlice";
 import PostFeed from "@/components/PostFeed";
+import React from "react";
+import {POSTS_QUERY_KEY, useInfinitePosts, useNewPostsNotifier} from "@/lib/tanstack/posts";
+import {useQueryClient} from "@tanstack/react-query";
+import {Button} from "@/components/ui/button";
 
 /**
  * Renders the home hero for the Blind Platform with authentication-aware actions.
@@ -19,6 +23,32 @@ export default function Home() {
     const handlePush = () => {
         router.push(`/auth`);
     };
+
+    const queryClient = useQueryClient();
+
+    const {
+        data,
+    } = useInfinitePosts();
+
+
+    // Get the ID of the very first post in our feed
+    const firstPostId = data?.pages?.[0]?.posts?.[0]?.id;
+
+    // Use the notifier hook, passing it the ID of the post at the top of our feed
+    const {data: newPostsData} = useNewPostsNotifier(firstPostId);
+
+    const handleShowNewPosts = async () => {
+        // 1. Reset the notifier query. This will immediately remove the stale
+        //    `hasNewPosts: true` state, hiding the button.
+        await queryClient.resetQueries({queryKey: ["latestPost"]});
+
+        // 2. Invalidate the main posts query to fetch the new content.
+        await queryClient.invalidateQueries({queryKey: POSTS_QUERY_KEY});
+
+        // 3. Scroll the user to the top to see the new posts.
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    };
+
     const handleSignOut = () => {
         try {
             dispatch(logout());
@@ -28,12 +58,24 @@ export default function Home() {
         }
     };
     return (
-        <main
-            className="flex min-h-screen w-full items-center justify-center p-4
+        <main className="relative">
+            <section>
+                {newPostsData?.hasNewPosts && (
+                    <div className={"absolute top-4 left-1/2 -translate-x-1/2 z-10"}>
+                        <Button type={"button"} variant={"default"} onClick={handleShowNewPosts}
+                                className="shadow-lg">
+                            New posts available
+                        </Button>
+                    </div>
+                )}
+            </section>
+            <section
+                className="flex min-h-screen w-full items-center justify-center p-4
                  bg-gray-50 text-gray-800
                  dark:bg-gradient-to-br dark:from-[#020024] dark:via-[#090979] dark:to-[#00d4ff] dark:text-gray-200"
-        >
-            <PostFeed/>
+            >
+                <PostFeed/>
+            </section>
         </main>
     );
 }

@@ -4,6 +4,7 @@ import {CommentForm} from "@/components/CommentForm";
 import {CommentList} from "@/components/CommentList";
 
 const PostFeed = () => {
+
     const {
         data,
         error,
@@ -13,6 +14,7 @@ const PostFeed = () => {
         status
     } = useInfinitePosts();
 
+
     if (status === "pending")
         return <p>Loading...</p>;
     if (status === "error")
@@ -20,6 +22,7 @@ const PostFeed = () => {
 
     return (
         <section>
+
             {
                 data.pages.map((page, index) => (
                     <React.Fragment key={index}>

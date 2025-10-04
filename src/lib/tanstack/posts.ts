@@ -1,7 +1,7 @@
-import {InfiniteData, useInfiniteQuery, useMutation, useQueryClient,} from "@tanstack/react-query";
+import {InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryClient,} from "@tanstack/react-query";
 import {InfinitePostsData, NewCommentPayload} from "./types"
 // Define a unique key for the posts query to manage its cache
-const POSTS_QUERY_KEY = ["posts"];
+export const POSTS_QUERY_KEY = ["posts"];
 
 
 // --- 1. FETCHER FUNCTIONS ---
@@ -57,9 +57,49 @@ export const useInfinitePosts = () => {
         queryFn: fetchPosts,
         initialPageParam: null, // Start with no cursor
         getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-        refetchOnMount:true,
-        refetchOnWindowFocus:true,
-        refetchInterval:1000*5*60
+    });
+};
+
+// --- FETCHER for the new endpoint ---
+const fetchLatestPostId = async (): Promise<{ latestPostId: string | null }> => {
+    const res = await fetch('/api/post/latest');
+    if (!res.ok) {
+        throw new Error("Failed to fetch latest post ID");
+    }
+    return res.json();
+};
+
+/**
+ * Custom hook to periodically check for new posts.
+ * It does NOT fetch the post data, only the ID of the latest post.
+ *
+ * @param firstPostId The ID of the first post currently visible in the user's feed.
+ */
+export const useNewPostsNotifier = (firstPostId: string | undefined) => {
+    return useQuery({
+        queryKey: ["latestPost"],
+        queryFn: fetchLatestPostId,
+        // Poll every 30 seconds
+        refetchInterval: 30000,
+        // This query is only enabled if we have a firstPostId to compare against
+        // enabled: !!firstPostId, // disabled for the empty feed
+
+        select: (data) => {
+            const latestPostIdFromServer = data.latestPostId;
+
+            // If the server has no posts, there are no new posts.
+            if (!latestPostIdFromServer) {
+                return { hasNewPosts: false };
+            }
+
+            // If the user's feed is empty but the server has a post, it's a new post.
+            if (!firstPostId && latestPostIdFromServer) {
+                return { hasNewPosts: true };
+            }
+
+            // If the latest post on the server is different from the one the user sees, there are new posts.
+            return { hasNewPosts: latestPostIdFromServer !== firstPostId };
+        },
     });
 };
 
