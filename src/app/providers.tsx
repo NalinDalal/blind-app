@@ -4,31 +4,34 @@
  */
 
 import type React from "react";
-import { Provider } from "react-redux";
-import { PersistGate } from "redux-persist/integration/react";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import { persistor, store } from "@/redux/store";
+import {Provider} from "react-redux";
+import {PersistGate} from "redux-persist/integration/react";
+import {ThemeProvider} from "@/components/ThemeProvider";
+import {persistor, store} from "@/redux/store";
+import TanstackQueryProvider from "@/lib/tanstack/TanProvider";
 
 interface ProvidersProps {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }
 
-const Providers = ({ children }: ProvidersProps) => {
-  return (
-    <Provider store={store}>
-      <PersistGate persistor={persistor} loading={null}>
-        <ThemeProvider
-          attribute={"class"}
-          defaultTheme={"system"}
-          enableSystem
-          enableColorScheme
-          disableTransitionOnChange={false}
-          storageKey={"theme"}
-        >
-          {children}
-        </ThemeProvider>
-      </PersistGate>
-    </Provider>
-  );
+const Providers = ({children}: ProvidersProps) => {
+    return (
+        <Provider store={store}>
+            <PersistGate persistor={persistor} loading={null}>
+                <TanstackQueryProvider>
+                    <ThemeProvider
+                        attribute={"class"}
+                        defaultTheme={"system"}
+                        enableSystem
+                        enableColorScheme
+                        disableTransitionOnChange={false}
+                        storageKey={"theme"}
+                    >
+                        {children}
+                    </ThemeProvider>
+                </TanstackQueryProvider>
+            </PersistGate>
+        </Provider>
+    );
 };
 export default Providers;
