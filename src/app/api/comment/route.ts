@@ -4,7 +4,7 @@ import {prisma} from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
     try {
-        const {content, postId, authorId} = await req.json();
+        const {content, postId, authorId, parentId} = await req.json();
 
         if (!content || !postId || !authorId) {
             return NextResponse.json(
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
             // 3. Create the comment (now we know everything is valid)
             const comment = await tx.comment.create({
-                data: {content, postId, authorId},
+                data: {content, postId, authorId, parentId},
             });
 
             // 4. Create notification if commenting on someone else's post
@@ -50,7 +50,8 @@ export async function POST(req: NextRequest) {
                 await tx.notification.create({
                     data: {
                         userId: post.authorId,
-                        message: `Your post received a new comment.`,
+                        type: parentId ? "COMMENT_REPLY" : "POST_COMMENT",
+                        message: parentId ? "Your post received a reply on your post comment" : "your post received a comment",
                     },
                 });
             }
