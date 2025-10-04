@@ -57,6 +57,9 @@ export const useInfinitePosts = () => {
         queryFn: fetchPosts,
         initialPageParam: null, // Start with no cursor
         getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+        refetchOnMount:true,
+        refetchOnWindowFocus:true,
+        refetchInterval:1000*5*60
     });
 };
 
