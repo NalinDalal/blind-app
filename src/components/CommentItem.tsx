@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { CommentWithReplies } from "@/lib/tanstack/types";
 import { CommentForm } from "./CommentForm";
+import {useAppSelector} from "@/redux/hooks";
 
 interface CommentItemProps {
     comment: CommentWithReplies;
@@ -11,25 +12,29 @@ interface CommentItemProps {
 
 export function CommentItem({ comment, postId }: CommentItemProps) {
     const [isReplying, setIsReplying] = useState(false);
+    const {isAuthenticated} = useAppSelector(state=>state.auth)
 
     return (
         <div className="comment-container mt-3">
             {/* Render the main comment body */}
             <div className="comment-body">
                 <p className="text-sm">
-                    <strong className="font-semibold">{comment.author.anonMappings[0]?.anonName || "Anonymous"}</strong>
+                    <strong className="font-semibold">{comment.author.anonMapping?.anonName || "Anonymous"}</strong>
                     : {comment.content}
                 </p>
-                <button
-                    onClick={() => setIsReplying(!isReplying)}
-                    className="text-xs text-gray-500 hover:underline mt-1"
-                >
-                    Reply
-                </button>
+
+                {isAuthenticated && (
+                    <button
+                        onClick={() => setIsReplying(!isReplying)}
+                        className="text-xs text-gray-500 hover:underline mt-1"
+                    >
+                        {isReplying ? 'Cancel' : 'Reply'}
+                    </button>
+                )}
             </div>
 
             {/* Conditionally render the reply form */}
-            {isReplying && (
+            {isReplying && isAuthenticated && (
                 <div className="pl-4">
                     <CommentForm
                         postId={postId}

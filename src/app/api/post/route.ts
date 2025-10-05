@@ -60,47 +60,86 @@ export async function GET(req: NextRequest) {
         const cursor = req.nextUrl.searchParams.get("cursor");
         const limit = 10;
         const userId = await getAuthenticatedUserId();
+
+        // Define the ordering for the posts
         const orderBy: Prisma.PostOrderByWithRelationInput[] = [
             {engagementScore: "desc"},
             {createdAt: "desc"}
-        ]
-        const queryOptions = {
-            take: limit,
-            orderBy,
-            include: {
-                author: {
-                    select: {
-                        anonMapping: {
-                            select: {
-                                anonName: true
-                            }
-                        }
-                    }
+        ];
+        const orderByInclude: Prisma.PostOrderByWithRelationInput[] = [
+            {createdAt: "asc"}
+        ];
+
+        // Define the complex include structure to fetch nested data
+        const include = {
+            author: {
+                select: {
+                    anonMapping: { // Correct relation name is anonMapping (one-to-one)
+                        select: {
+                            anonName: true,
+                        },
+                    },
                 },
-                _count: {
-                    select: {
-                        comments: true
-                    }
-                }
-            }
-        }
-        if (!userId) {
-            const posts = await prisma.post.findMany(queryOptions);
-            return NextResponse.json({posts, nextCursor: null})
+            },
+            _count: {
+                select: {
+                    comments: true,
+                },
+            },
+            // Fetch comments and their replies
+            comments: {
+                where: {parentId: null}, // Only fetch top-level comments
+                orderBy: orderByInclude,
+                include: {
+                    author: {
+                        select: {anonMapping: {select: {anonName: true}}},
+                    },
+                    // For each top-level comment, include its replies
+                    replies: {
+                        orderBy: orderByInclude,
+                        include: {
+                            author: {
+                                select: {anonMapping: {select: {anonName: true}}},
+                            },
+                        },
+                    },
+                },
+            },
+        };
+
+        // --- Guest and Logged-in User Logic ---
+
+        if (!userId) { // Guest user
+            const posts = await prisma.post.findMany({
+                take: limit,
+                orderBy,
+                include,
+                where: {deletedAt: null}, // Ensure we don't fetch soft-deleted posts
+            });
+            return NextResponse.json({posts, nextCursor: null});
         }
 
-        if (cursor && UUID_REGEX.test(cursor))
-            return NextResponse.json({error: `Invalid Cursor format`}, {status: 400});
+        // Logged-in user
+        if (cursor && !UUID_REGEX.test(cursor)) {
+            return NextResponse.json({error: "Invalid Cursor format"}, {status: 400});
+        }
 
         const posts = await prisma.post.findMany({
-            ...queryOptions,
+            take: limit,
             skip: cursor ? 1 : 0,
-            cursor: cursor ? {id: cursor} : undefined
+            cursor: cursor ? {id: cursor} : undefined,
+            orderBy,
+            include,
+            where: {deletedAt: null}, // Ensure we don't fetch soft-deleted posts
         });
+
         let nextCursor: string | null = null;
-        if (posts.length === limit)
+        if (posts.length === limit) {
             nextCursor = posts[limit - 1].id;
+        }
+
         return NextResponse.json({posts, nextCursor});
+
     } catch (error) {
         console.error("Failed to fetch posts:", error);
         return NextResponse.json(
