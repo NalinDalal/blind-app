@@ -1,10 +1,13 @@
 "use client";
-import { ArrowRight, Info } from "lucide-react";
-import { useRouter } from "next/navigation";
+import {useRouter} from "next/navigation";
 import toast from "react-hot-toast";
-import { Button } from "@/components/ui/button";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { logout } from "@/redux/slices/AuthSlice";
+import {useAppDispatch, useAppSelector} from "@/redux/hooks";
+import {logout} from "@/redux/slices/AuthSlice";
+import PostFeed from "@/components/PostFeed";
+import React from "react";
+import {POSTS_QUERY_KEY, useInfinitePosts, useNewPostsNotifier} from "@/lib/tanstack/posts";
+import {useQueryClient} from "@tanstack/react-query";
+import {Button} from "@/components/ui/button";
 
 /**
  * Renders the home hero for the Blind Platform with authentication-aware actions.
@@ -14,76 +17,65 @@ import { logout } from "@/redux/slices/AuthSlice";
  * @returns The Home page React element.
  */
 export default function Home() {
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
-  const dispatch = useAppDispatch();
-  const router = useRouter();
-  const handlePush = () => {
-    router.push(`/auth`);
-  };
-  const handleSignOut = () => {
-    try {
-      dispatch(logout());
-      toast.success("Logout successfully");
-    } catch (err) {
-      toast.error(`Failed to logout`);
-    }
-  };
-  return (
-    <main
-      className="flex min-h-screen w-full items-center justify-center p-4
+    const {isAuthenticated} = useAppSelector((state) => state.auth);
+    const dispatch = useAppDispatch();
+    const router = useRouter();
+    const handlePush = () => {
+        router.push(`/auth`);
+    };
+
+    const queryClient = useQueryClient();
+
+    const {
+        data,
+    } = useInfinitePosts();
+
+
+    // Get the ID of the very first post in our feed
+    const firstPostId = data?.pages?.[0]?.posts?.[0]?.id;
+
+    // Use the notifier hook, passing it the ID of the post at the top of our feed
+    const {data: newPostsData} = useNewPostsNotifier(firstPostId);
+
+    const handleShowNewPosts = async () => {
+        // 1. Reset the notifier query. This will immediately remove the stale
+        //    `hasNewPosts: true` state, hiding the button.
+        await queryClient.resetQueries({queryKey: ["latestPost"]});
+
+        // 2. Invalidate the main posts query to fetch the new content.
+        await queryClient.invalidateQueries({queryKey: POSTS_QUERY_KEY});
+
+        // 3. Scroll the user to the top to see the new posts.
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    };
+
+    const handleSignOut = () => {
+        try {
+            dispatch(logout());
+            toast.success("Logout successfully");
+        } catch (err) {
+            toast.error(`Failed to logout`);
+        }
+    };
+    return (
+        <main className="relative">
+            <section>
+                {newPostsData?.hasNewPosts && (
+                    <div className={"absolute top-4 left-1/2 -translate-x-1/2 z-10"}>
+                        <Button type={"button"} variant={"default"} onClick={handleShowNewPosts}
+                                className="shadow-lg">
+                            New posts available
+                        </Button>
+                    </div>
+                )}
+            </section>
+            <section
+                className="flex min-h-screen w-full items-center justify-center p-4
                  bg-gray-50 text-gray-800
                  dark:bg-gradient-to-br dark:from-[#020024] dark:via-[#090979] dark:to-[#00d4ff] dark:text-gray-200"
-    >
-      <section
-        className="w-full max-w-3xl text-center rounded-2xl border border-gray-200 bg-white/60 p-8 shadow-2xl backdrop-blur-lg
-                   dark:border-gray-700 dark:bg-black/30"
-      >
-        {/* Main Heading */}
-        <h1
-          className="text-5xl font-extrabold tracking-tight text-gray-900 md:text-6xl lg:text-7xl
-                     dark:text-white"
-        >
-          Welcome to the{" "}
-          <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
-            Blind
-          </span>{" "}
-          Platform
-        </h1>
-
-        {/* Subheading */}
-        <p
-          className="mt-4 text-lg text-gray-600 md:text-xl
-                     dark:text-gray-300"
-        >
-          Connect, share, and engage with a community where your voice matters,
-          not your identity.
-        </p>
-
-        {/* Call-to-Action Buttons */}
-        <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Button
-            type={"button"}
-            className="flex items-center gap-2 rounded-full bg-blue-600 px-6 py-3 font-semibold text-white transition-transform duration-300 ease-in-out hover:scale-105 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-50
-                       dark:focus:ring-offset-gray-900 cursor-pointer"
-            onClick={!isAuthenticated ? handlePush : handleSignOut}
-          >
-            {!isAuthenticated ? (
-              <>
-                Get Started <ArrowRight className="h-5 w-5" />
-              </>
-            ) : (
-              <span>Sign Out</span>
-            )}
-          </Button>
-          <button
-            type={"button"}
-            className="flex items-center gap-2 rounded-full border border-gray-400 px-6 py-3 font-semibold text-gray-700 transition-colors duration-300 hover:bg-gray-100
-                       dark:border-gray-500 dark:text-gray-200 dark:hover:bg-gray-800 dark:hover:text-white"
-          >
-            Learn More <Info className="h-5 w-5" />
-          </button>
-        </div>
-      </section>
-    </main>
-  );
+            >
+                <PostFeed/>
+            </section>
+        </main>
+    );
 }
