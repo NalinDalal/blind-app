@@ -36,10 +36,10 @@ const rootReducer = (
 // Strip sensitive fields from persisted auth state
 const authSanitizer = createTransform(
   (inboundState: typeof initialState) => {
-    const { jwt, ...rest } = inboundState ?? {};
-    return rest;
+    // No sensitive data to strip since we use HTTP-only cookies
+    return inboundState;
   },
-  (outboundState: any) => outboundState,
+  (outboundState: typeof initialState) => outboundState,
   { whitelist: ["auth"] },
 );
 
