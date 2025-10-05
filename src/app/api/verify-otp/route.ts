@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { email },
       include: {
-        anonMappings: true,
+        anonMapping: true,
       },
     });
     if (!user) {
@@ -73,8 +73,7 @@ export async function POST(req: NextRequest) {
       maxAge: 60 * 60 * 2,
     });
 
-    const anonName =
-      user.anonMappings.length > 0 ? user.anonMappings[0].anonName : null;
+    const anonName = user.anonMapping?.anonName ?? null;
 
     return NextResponse.json({
       message: "OTP verified",
