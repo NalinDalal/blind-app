@@ -3,8 +3,8 @@
  */
 
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import type { PersistPartial } from "redux-persist/es/persistReducer";
 import {
+  createTransform,
   FLUSH,
   PAUSE,
   PERSIST,
@@ -13,8 +13,8 @@ import {
   persistStore,
   REGISTER,
   REHYDRATE,
-  createTransform,
 } from "redux-persist";
+import type { PersistPartial } from "redux-persist/es/persistReducer";
 import { authSyncMiddleware } from "@/redux/middleware/authSyncMiddleware";
 import authReducer, { initialState } from "@/redux/slices/AuthSlice";
 import storage from "./storage";
@@ -24,7 +24,10 @@ const persistConfig = {
   storage,
 };
 
-const rootReducer = (state: { auth: typeof initialState } | undefined, action: any) => {
+const rootReducer = (
+  state: { auth: typeof initialState } | undefined,
+  action: any,
+) => {
   return {
     auth: authReducer(state?.auth ?? initialState, action),
   };
@@ -35,6 +38,7 @@ const authSanitizer = createTransform(
   (inboundState: any) => {
     const { jwt, ...rest } = inboundState ?? {};
     return rest;
+    console.log(jwt);
   },
   (outboundState: any) => outboundState,
   { whitelist: ["auth"] },

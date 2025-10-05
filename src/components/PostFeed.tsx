@@ -1,7 +1,7 @@
 import React from "react";
-import { useInfinitePosts } from "@/lib/tanstack/posts";
 import { CommentForm } from "@/components/CommentForm";
 import { CommentList } from "@/components/CommentList";
+import { useInfinitePosts } from "@/lib/tanstack/posts";
 import { useAppSelector } from "@/redux/hooks";
 
 const PostFeed = () => {

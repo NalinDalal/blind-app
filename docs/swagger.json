@@ -209,6 +209,9 @@
     }
   },
   "tags": [
-    { "name": "Authentication", "description": "User authentication and authorization" }
+    {
+      "name": "Authentication",
+      "description": "User authentication and authorization"
+    }
   ]
 }

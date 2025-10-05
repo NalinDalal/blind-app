@@ -31,9 +31,7 @@
   "paths": {
     "/register": {
       "post": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "summary": "Register a new user",
         "description": "Create a new user account with college email validation",
         "operationId": "registerUser",
@@ -44,10 +42,7 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "email",
-                  "password"
-                ],
+                "required": ["email", "password"],
                 "properties": {
                   "email": {
                     "type": "string",
@@ -124,9 +119,7 @@
             "description": "Error message"
           }
         },
-        "required": [
-          "error"
-        ]
+        "required": ["error"]
       }
     },
     "responses": {

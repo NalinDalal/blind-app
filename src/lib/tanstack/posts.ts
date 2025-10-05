@@ -1,12 +1,12 @@
 import {
-  InfiniteData,
+  type InfiniteData,
   useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import type { Comment } from "@/generated/prisma";
-import { InfinitePostsData, NewCommentPayload } from "./types";
+import type { InfinitePostsData, NewCommentPayload } from "./types";
 // Define a unique key for the posts query to manage its cache
 export const POSTS_QUERY_KEY = ["posts"];
 

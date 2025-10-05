@@ -1,8 +1,8 @@
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import * as OTPAuth from "otpauth";
 import { PrismaClient } from "@/generated/prisma";
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || "devsecret";

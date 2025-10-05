@@ -15,7 +15,7 @@ export const UserSchema = createSchema(
     createdAt: DateTime,
     verified: z.boolean().default(false),
     otp: z.string().nullable().optional(),
-  })
+  }),
 );
 
 export type User = z.infer<typeof UserSchema>;
@@ -29,7 +29,7 @@ export const PostSchema = createSchema(
     createdAt: DateTime,
     authorId: UUID,
     isFlagged: z.boolean().default(false),
-  })
+  }),
 );
 
 export type Post = z.infer<typeof PostSchema>;
@@ -43,7 +43,7 @@ export const CommentSchema = createSchema(
     postId: UUID,
     authorId: UUID,
     isFlagged: z.boolean().default(false),
-  })
+  }),
 );
 
 export type Comment = z.infer<typeof CommentSchema>;
@@ -55,7 +55,7 @@ export const CommentLikeSchema = createSchema(
     commentId: UUID,
     userId: UUID,
     createdAt: DateTime,
-  })
+  }),
 );
 
 export type CommentLike = z.infer<typeof CommentLikeSchema>;
@@ -67,7 +67,7 @@ export const AnonMappingSchema = createSchema(
     userId: UUID,
     anonName: z.string(),
     createdAt: DateTime,
-  })
+  }),
 );
 
 export type AnonMapping = z.infer<typeof AnonMappingSchema>;
@@ -80,7 +80,7 @@ export const NotificationSchema = createSchema(
     message: z.string(),
     read: z.boolean().default(false),
     createdAt: DateTime,
-  })
+  }),
 );
 
 export type Notification = z.infer<typeof NotificationSchema>;
@@ -92,7 +92,7 @@ export const LogSchema = createSchema(
     action: z.string(),
     details: z.string().nullable().optional(),
     createdAt: DateTime,
-  })
+  }),
 );
 
 export type Log = z.infer<typeof LogSchema>;
