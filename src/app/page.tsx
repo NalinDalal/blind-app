@@ -1,7 +1,6 @@
 "use client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import React from "react";
 import toast from "react-hot-toast";
 import PostFeed from "@/components/PostFeed";
 import { Button } from "@/components/ui/button";
@@ -21,10 +20,10 @@ import { logout } from "@/redux/slices/AuthSlice";
  * @returns The Home page React element.
  */
 export default function Home() {
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const handlePush = () => {
+  const _handlePush = () => {
     router.push(`/auth`);
   };
 
@@ -50,7 +49,7 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSignOut = () => {
+  const _handleSignOut = () => {
     try {
       dispatch(logout());
       toast.success("Logout successfully");

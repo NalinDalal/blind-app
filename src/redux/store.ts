@@ -2,7 +2,7 @@
  store to combine all reducers
  */
 
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import { type AnyAction, configureStore } from "@reduxjs/toolkit";
 import {
   createTransform,
   FLUSH,
@@ -16,7 +16,7 @@ import {
 } from "redux-persist";
 import type { PersistPartial } from "redux-persist/es/persistReducer";
 import { authSyncMiddleware } from "@/redux/middleware/authSyncMiddleware";
-import authReducer, { initialState } from "@/redux/slices/AuthSlice";
+import authReducer, { type initialState } from "@/redux/slices/AuthSlice";
 import storage from "./storage";
 
 const persistConfig = {
@@ -26,19 +26,18 @@ const persistConfig = {
 
 const rootReducer = (
   state: { auth: typeof initialState } | undefined,
-  action: any,
+  action: AnyAction,
 ) => {
   return {
-    auth: authReducer(state?.auth ?? initialState, action),
+    auth: authReducer(state?.auth, action),
   };
 };
 
 // Strip sensitive fields from persisted auth state
 const authSanitizer = createTransform(
-  (inboundState: any) => {
+  (inboundState: typeof initialState) => {
     const { jwt, ...rest } = inboundState ?? {};
     return rest;
-    console.log(jwt);
   },
   (outboundState: any) => outboundState,
   { whitelist: ["auth"] },

@@ -62,7 +62,7 @@ async function main() {
   console.log("👥 Created users");
 
   // Create Anonymous Mappings
-  const anonMappings = await Promise.all([
+  const _anonMappings = await Promise.all([
     prisma.anonMapping.create({
       data: { userId: users[0].id, anonName: "Anonymous_Eagle" },
     }),
@@ -83,7 +83,7 @@ async function main() {
   console.log("🎭 Created anonymous mappings");
 
   // Create Posts (all associated with Oriental College)
-  const posts = await Promise.all([
+  const _posts = await Promise.all([
     prisma.post.create({
       data: {
         content:

@@ -22,7 +22,7 @@ const PostFeed = () => {
   return (
     <section>
       {data.pages.map((page, index) => (
-        <React.Fragment key={index}>
+        <React.Fragment key={page.nextCursor ?? "last-page"}>
           {page.posts.map((post) => (
             <div className={"post"} key={post.id}>
               <p>{post.content}</p>
@@ -46,6 +46,7 @@ const PostFeed = () => {
       ))}
       <div>
         <button
+          type="button"
           onClick={() => fetchNextPage()}
           disabled={!hasNextPage || isFetchingNextPage}
         >

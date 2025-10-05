@@ -27,6 +27,7 @@ export function CommentItem({ comment, postId }: CommentItemProps) {
 
         {isAuthenticated && (
           <button
+            type="button"
             onClick={() => setIsReplying(!isReplying)}
             className="text-xs text-gray-500 hover:underline mt-1"
           >
