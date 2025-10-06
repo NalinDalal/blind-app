@@ -14,7 +14,7 @@ jobs:
     env:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
-      # add any others your app needs:
+      # Add more if needed:
       # DATABASE_URL: ${{ secrets.DATABASE_URL }}
       # NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
@@ -41,7 +41,11 @@ jobs:
         run: npm run build
 
       - name: Build Docker image
-        run: docker build -t blind-app .
+        run: |
+          docker build \
+            --build-arg JWT_SECRET=${{ secrets.JWT_SECRET }} \
+            --build-arg SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} \
+            -t blind-app .
 
       - name: Push Docker image (example)
         run: echo "Add Docker Hub or registry push step here"
