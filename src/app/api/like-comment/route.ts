@@ -98,6 +98,7 @@ export async function POST(req: NextRequest) {
                         data: {
                             userId: comment.authorId,
                             message: "Your comment received a new like.",
+                            type: "COMMENT_LIKE",
                         },
                     });
                 }

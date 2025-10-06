@@ -87,18 +87,26 @@ export default function AuthPage() {
     try {
       switch (data.mode) {
         case "register":
-          await dispatch(
-            registerUser({ email: data.email, password: data.password! }),
-          ).unwrap();
-          toast.success("Account created! Please login.");
-          handleModeChange("login");
+          if (data.password) {
+            await dispatch(
+              registerUser({ email: data.email, password: data.password }),
+            ).unwrap();
+            toast.success("Account created! Please login.");
+            handleModeChange("login");
+          } else {
+            toast.error("Password is required.");
+          }
           break;
 
         case "login":
-          await dispatch(
-            login({ email: data.email, password: data.password! }),
-          ).unwrap();
-          // The useEffect will handle switching to 'anon' mode
+          if (data.password) {
+            await dispatch(
+              login({ email: data.email, password: data.password }),
+            ).unwrap();
+            // The useEffect will handle switching to 'anon' mode
+          } else {
+            toast.error("Password is required.");
+          }
           break;
 
         case "otp":
@@ -115,13 +123,17 @@ export default function AuthPage() {
           break;
 
         case "anon":
-          await dispatch(setAnonName({ anonName: data.anonName! })).unwrap();
-          toast.success("You are all set!");
-          router.push("/");
-          // Here you would typically redirect the user, e.g., router.push('/dashboard')
+          if (data.anonName) {
+            await dispatch(setAnonName({ anonName: data.anonName })).unwrap();
+            toast.success("You are all set!");
+            router.push("/");
+            // Here you would typically redirect the user, e.g., router.push('/dashboard')
+          } else {
+            toast.error("Anonymous name is required.");
+          }
           break;
       }
-    } catch (error: any) {
+    } catch (error) {
       // .unwrap() throws the error, so we can catch it here elegantly.
       // The toast is likely handled by your slice's extraReducers, but you could add one here as a fallback.
       console.error("Authentication failed:", error);
@@ -137,7 +149,7 @@ export default function AuthPage() {
     reset(
       {
         mode: newMode,
-        email: currentEmail!,
+        email: currentEmail || "",
         password: "",
         otp: "",
         anonName: "",

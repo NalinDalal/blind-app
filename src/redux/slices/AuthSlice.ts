@@ -55,7 +55,7 @@ export const login = createAsyncThunk<SuccessLoginResponse, LoginCredentials>(
 );
 
 // Register a new user
-export const register = createAsyncThunk<any, LoginCredentials>(
+export const register = createAsyncThunk<SuccessLoginResponse, LoginCredentials>(
   "auth/register",
   async (credentials: LoginCredentials, { dispatch, rejectWithValue }) => {
     try {
@@ -85,7 +85,7 @@ export const register = createAsyncThunk<any, LoginCredentials>(
 );
 
 // Request an OTP code
-export const requestOtp = createAsyncThunk<any, { email: string }>(
+export const requestOtp = createAsyncThunk<{ success?: boolean; error?: string }, { email: string }>(
   "auth/requestOtp",
   async ({ email }: { email: string }, { dispatch, rejectWithValue }) => {
     try {
@@ -225,7 +225,7 @@ const authSlice = createSlice({
       state.anonName = action.payload.anonName;
       state.status = AuthStatus.SUCCEEDED;
     };
-    const handleFailure = (state: AuthState, action: any) => {
+    const handleFailure = (state: AuthState, action: PayloadAction<any>) => {
       state.status = AuthStatus.FAILED;
       if (
         action.payload &&
