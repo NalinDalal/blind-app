@@ -10,6 +10,10 @@ jobs:
   lint-build:
     runs-on: ubuntu-latest
 
+    env:
+      # Inject your GitHub secret as a runtime environment variable
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,11 +35,17 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
       - name: Build Docker image
         run: docker build -t blind-app .
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
       - name: Push Docker image (example)
         run: echo "Add Docker Hub or registry push step here"
+
       - name: Deploy (example)
         run: echo "Add deployment step here"
 
