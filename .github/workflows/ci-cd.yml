@@ -10,9 +10,13 @@ jobs:
   lint-build:
     runs-on: ubuntu-latest
 
+    # ✅ Global environment variables (available to all steps)
     env:
-      # Inject your GitHub secret as a runtime environment variable
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+      # add any others your app needs:
+      # DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
     steps:
       - name: Checkout code
@@ -33,15 +37,11 @@ jobs:
       - name: Run lint check
         run: npm run lint
 
-      - name: Build
+      - name: Build Next.js app
         run: npm run build
-        env:
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
       - name: Build Docker image
         run: docker build -t blind-app .
-        env:
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
       - name: Push Docker image (example)
         run: echo "Add Docker Hub or registry push step here"
