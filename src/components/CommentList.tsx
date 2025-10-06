@@ -1,9 +1,9 @@
-import type {CommentWithReplies} from "@/lib/tanstack/types";
-import {CommentItem} from "./CommentItem";
+import type { CommentWithReplies } from "@/lib/tanstack/types";
+import { CommentItem } from "./CommentItem";
 
 interface CommentListProps {
-    comments: CommentWithReplies[];
-    postId: string;
+  comments: CommentWithReplies[];
+  postId: string;
 }
 
 /**
@@ -15,17 +15,17 @@ interface CommentListProps {
  * @param postId - The identifier of the post these comments belong to
  * @returns A React element containing the comments list or a placeholder message when there are no comments
  */
-export function CommentList({comments, postId}: CommentListProps) {
-    if (!comments || comments.length === 0) {
-        return <p className="text-sm text-gray-500 mt-4">No comments yet.</p>;
-    }
+export function CommentList({ comments, postId }: CommentListProps) {
+  if (!comments || comments.length === 0) {
+    return <p className="text-sm text-gray-500 mt-4">No comments yet.</p>;
+  }
 
-    return (
-        <div className="mt-4">
-            <h3 className="font-bold">Comments</h3>
-            {comments.map((comment) => (
-                <CommentItem key={comment.id} comment={comment} postId={postId}/>
-            ))}
-        </div>
-    );
+  return (
+    <div className="mt-4">
+      <h3 className="font-bold">Comments</h3>
+      {comments.map((comment) => (
+        <CommentItem key={comment.id} comment={comment} postId={postId} />
+      ))}
+    </div>
+  );
 }
