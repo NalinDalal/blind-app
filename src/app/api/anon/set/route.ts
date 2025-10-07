@@ -20,6 +20,35 @@ const ANON_NAME_MIN_LENGTH = 3;
 const ANON_NAME_MAX_LENGTH = 20;
 const ANON_NAME_REGEX = /^[a-zA-Z0-9_-]+$/;
 
+/**
+ * Handles POST requests to set an anonymous display name for a user.
+ *
+ * This endpoint allows an authenticated user to set a unique, non-reserved, and non-toxic anonymous name (anonName).
+ * The anonName is mapped to the user's account and cannot be changed once set. The handler performs validation on the
+ * anonName, checks for reserved words, enforces length and character rules, and ensures the name is not already taken.
+ * It also verifies the user's JWT token and checks for inappropriate content using a toxicity filter.
+ *
+ * Request body:
+ *   - anonName: string (required) — The desired anonymous name.
+ *
+ * Authentication:
+ *   - Requires a valid JWT token in the 'token' cookie.
+ *
+ * Returns:
+ *   - 201: { anonName } on success
+ *   - 400: { error } if input is invalid or missing
+ *   - 401: { error } if token is invalid or expired
+ *   - 403: { error } if user already set an anonName
+ *   - 409: { error } if anonName is already taken
+ *   - 500: { error } for internal server errors
+ *
+ * @param {NextRequest} req - The incoming Next.js request object containing JSON body and cookies.
+ * @returns {Promise<NextResponse>} The response with status and result or error message.
+ *
+ * @example
+ * // Request body: { "anonName": "cool_user123" }
+ * // Response: { "anonName": "cool_user123" }
+ */
 export const POST = async (req: NextRequest) => {
   try {
     // 1. Extract and validate input

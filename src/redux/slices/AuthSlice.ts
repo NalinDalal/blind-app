@@ -1,5 +1,7 @@
 /**
- Auth Slick to maintain authentication related state across the app
+ * @fileoverview Authentication state management slice.
+ * Handles user authentication, registration, OTP verification, and anonymous name setting.
+ * @module redux/slices/AuthSlice
  */
 
 import {
@@ -26,7 +28,23 @@ export const initialState: AuthState = {
   anonName: null,
 };
 
-// Login with email and password
+/**
+ * Async thunk for user login with email and password.
+ * Makes a POST request to /api/login and updates the auth state on success.
+ *
+ * @async
+ * @function login
+ * @param {LoginCredentials} credentials - User's email and password
+ * @returns {Promise<SuccessLoginResponse>} User data including id, email, and anonName
+ *
+ * @example
+ * dispatch(login({ 
+ *   email: "student@oriental.ac.in", 
+ *   password: "securePassword123" 
+ * }));
+ *
+ * @throws {Object} Rejects with error object from API response
+ */
 export const login = createAsyncThunk<SuccessLoginResponse, LoginCredentials>(
   "auth/login",
   async (credentials: LoginCredentials, { dispatch, rejectWithValue }) => {
@@ -54,7 +72,23 @@ export const login = createAsyncThunk<SuccessLoginResponse, LoginCredentials>(
   },
 );
 
-// Register a new user
+/**
+ * Async thunk for user registration.
+ * Creates a new user account with email and password.
+ *
+ * @async
+ * @function register
+ * @param {LoginCredentials} credentials - User's email and password
+ * @returns {Promise<SuccessLoginResponse>} Registration confirmation
+ *
+ * @example
+ * dispatch(register({ 
+ *   email: "newstudent@oriental.ac.in", 
+ *   password: "securePassword123" 
+ * }));
+ *
+ * @throws {Object} Rejects with error object from API response
+ */
 export const register = createAsyncThunk<SuccessLoginResponse, LoginCredentials>(
   "auth/register",
   async (credentials: LoginCredentials, { dispatch, rejectWithValue }) => {
@@ -84,7 +118,21 @@ export const register = createAsyncThunk<SuccessLoginResponse, LoginCredentials>
   },
 );
 
-// Request an OTP code
+/**
+ * Async thunk for requesting an OTP code.
+ * Sends an OTP to the user's email address.
+ *
+ * @async
+ * @function requestOtp
+ * @param {Object} params - Parameters object
+ * @param {string} params.email - User's email address
+ * @returns {Promise<{success?: boolean, error?: string}>} OTP request result
+ *
+ * @example
+ * dispatch(requestOtp({ email: "student@oriental.ac.in" }));
+ *
+ * @throws {Object} Rejects with error object from API response
+ */
 export const requestOtp = createAsyncThunk<{ success?: boolean; error?: string }, { email: string }>(
   "auth/requestOtp",
   async ({ email }: { email: string }, { dispatch, rejectWithValue }) => {
@@ -112,7 +160,30 @@ export const requestOtp = createAsyncThunk<{ success?: boolean; error?: string }
   },
 );
 
-// Verify OTP and log the user in by fetching a JWT
+/**
+ * Async thunk for verifying OTP and logging in.
+ * Verifies the OTP code and obtains a JWT token for authentication.
+ *
+ * @async
+ * @function verifyOtp
+ * @param {Object} params - Parameters object
+ * @param {string} params.email - User's email address
+ * @param {string} params.otp - One-time password code
+ * @returns {Promise<SuccessLoginResponse>} User data with authentication token
+ *
+ * @example
+ * dispatch(verifyOtp({ 
+ *   email: "student@oriental.ac.in", 
+ *   otp: "123456" 
+ * }));
+ *
+ * @description
+ * This thunk performs a two-step process:
+ * 1. Verifies the OTP code with /api/verify-otp
+ * 2. Obtains a JWT token from /api/token
+ *
+ * @throws {Object} Rejects with error object from API response
+ */
 export const verifyOtp = createAsyncThunk<
   SuccessLoginResponse,
   { email: string; otp: string }
@@ -159,7 +230,22 @@ export const verifyOtp = createAsyncThunk<
   }
 });
 
-// Set the user's anonymous name
+/**
+ * Async thunk for setting the user's anonymous name.
+ * This is a one-time operation that cannot be changed once set.
+ *
+ * @async
+ * @function setAnonName
+ * @param {Object} params - Parameters object
+ * @param {string} params.anonName - Desired anonymous username
+ * @returns {Promise<{anonName: string}>} Confirmation with the set anonymous name
+ *
+ * @example
+ * dispatch(setAnonName({ anonName: "cool_student_123" }));
+ *
+ * @throws {Object} Rejects with error object from API response
+ * @note Requires user to be authenticated (JWT in cookies)
+ */
 export const setAnonName = createAsyncThunk(
   "auth/setAnonName",
   async (
@@ -194,18 +280,40 @@ export const setAnonName = createAsyncThunk(
   },
 );
 
+/**
+ * Authentication slice containing reducers and extra reducers for auth state.
+ *
+ * @constant
+ */
 const authSlice = createSlice({
   name: "auth-state",
   initialState,
   reducers: {
+    /**
+     * Action to log out the current user.
+     * Clears all authentication-related state.
+     *
+     * @param {AuthState} state - Current auth state
+     */
     logout: (state: AuthState) => {
       state.isAuthenticated = false;
       state.email = null;
       state.userId = null;
     },
+    /**
+     * Action to set a user-facing message (success, error, info).
+     *
+     * @param {AuthState} state - Current auth state
+     * @param {PayloadAction<AuthMessage>} action - Message payload
+     */
     setMessage: (state: AuthState, action: PayloadAction<AuthMessage>) => {
       state.message = action.payload;
     },
+    /**
+     * Action to clear the current message.
+     *
+     * @param {AuthState} state - Current auth state
+     */
     clearMessage: (state: AuthState) => {
       state.message = null;
     },

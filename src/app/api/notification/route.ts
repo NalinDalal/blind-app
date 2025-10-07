@@ -1,9 +1,49 @@
+/**
+ * @fileoverview API routes for notification management.
+ * Handles creating, retrieving, and marking notifications as read.
+ * @module api/notification
+ */
 import { type NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@/generated/prisma";
 
+/**
+ * Prisma client instance for database operations.
+ * @constant {PrismaClient}
+ */
 const prisma = new PrismaClient();
 
 // Create a notification
+/**
+ * POST endpoint to create a new notification for a user.
+ *
+ * @async
+ * @function POST
+ * @param {NextRequest} req - The incoming Next.js request object
+ * @returns {Promise<NextResponse>} JSON response with the created notification or error
+ *
+ * @example
+ * // Request body
+ * // {
+ * //   "userId": "user_123",
+ * //   "message": "Someone liked your comment",
+ * //   "type": "COMMENT_LIKE"
+ * // }
+ *
+ * @example
+ * // Success response (200)
+ * // {
+ * //   "id": "notif_456",
+ * //   "userId": "user_123",
+ * //   "message": "Someone liked your comment",
+ * //   "type": "COMMENT_LIKE",
+ * //   "read": false,
+ * //   "createdAt": "2025-01-15T10:30:00Z"
+ * // }
+ *
+ * @throws {400} Missing required fields (userId, message, type)
+ * @throws {400} Invalid notification type
+ * @throws {500} Database operation failure
+ */
 export async function POST(req: NextRequest) {
   try {
     const { userId, message, type } = await req.json();
@@ -42,6 +82,32 @@ export async function POST(req: NextRequest) {
 }
 
 // Get notifications for a user
+/**
+ * GET endpoint to retrieve all notifications for a specific user.
+ * Notifications are returned in descending order by creation time.
+ *
+ * @async
+ * @function GET
+ * @param {NextRequest} req - The incoming Next.js request object with userId query parameter
+ * @returns {Promise<NextResponse>} JSON array of notifications or error
+ *
+ * @example
+ * // GET /api/notification?userId=user_123
+ * // Response (200)
+ * // [
+ * //   {
+ * //     "id": "notif_456",
+ * //     "userId": "user_123",
+ * //     "message": "Someone liked your comment",
+ * //     "type": "COMMENT_LIKE",
+ * //     "read": false,
+ * //     "createdAt": "2025-01-15T10:30:00Z"
+ * //   }
+ * // ]
+ *
+ * @throws {400} Missing userId query parameter
+ * @throws {500} Database query failure
+ */
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
@@ -63,6 +129,32 @@ export async function GET(req: NextRequest) {
 }
 
 // Mark a notification as read
+/**
+ * PATCH endpoint to mark a notification as read.
+ * Updates the read status and sets the readAt timestamp.
+ *
+ * @async
+ * @function PATCH
+ * @param {NextRequest} req - The incoming Next.js request object
+ * @returns {Promise<NextResponse>} JSON response with the updated notification or error
+ *
+ * @example
+ * // Request body
+ * // {
+ * //   "notificationId": "notif_456"
+ * // }
+ *
+ * @example
+ * // Success response (200)
+ * // {
+ * //   "id": "notif_456",
+ * //   "read": true,
+ * //   "readAt": "2025-01-15T10:35:00Z"
+ * // }
+ *
+ * @throws {400} Missing notificationId in request body
+ * @throws {500} Database update failure
+ */
 export async function PATCH(req: NextRequest) {
   try {
     const { notificationId } = await req.json();
