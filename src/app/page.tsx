@@ -1,14 +1,15 @@
 "use client";
-import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { logout } from "@/redux/slices/AuthSlice";
+import {useAppDispatch, useAppSelector} from "@/redux/hooks";
+import {logoutUser} from "@/redux/slices/AuthSlice";
 import PostFeed from "@/components/PostFeed";
 import React from "react";
-import type { LatestPostQueryData } from "@/lib/tanstack/posts";
-import { LATEST_POST_QUERY_KEY, POSTS_QUERY_KEY, useNewPostsNotifier } from "@/lib/tanstack/posts";
-import { useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
+import type {LatestPostQueryData} from "@/lib/tanstack/posts";
+import {LATEST_POST_QUERY_KEY, POSTS_QUERY_KEY, useNewPostsNotifier} from "@/lib/tanstack/posts";
+import {useQueryClient} from "@tanstack/react-query";
+import {Button} from "@/components/ui/button";
+import Link from "next/link";
+
 /**
  * Renders the Home page with the post-feed and an optional "New posts available" notifier.
  *
@@ -19,10 +20,6 @@ import { Button } from "@/components/ui/button";
 export default function Home() {
     const {isAuthenticated} = useAppSelector((state) => state.auth);
     const dispatch = useAppDispatch();
-    const router = useRouter();
-    const handlePush = () => {
-        router.push(`/auth`);
-    };
 
     const queryClient = useQueryClient();
 
@@ -63,15 +60,15 @@ export default function Home() {
         });
 
         // STEP 2: Refetch the main posts query to get the new content.
-    await queryClient.invalidateQueries({ queryKey: POSTS_QUERY_KEY });
+        await queryClient.invalidateQueries({queryKey: POSTS_QUERY_KEY});
 
         // STEP 3: Scroll the user to the top to see the new posts.
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({top: 0, behavior: 'smooth'});
     };
 
     const handleSignOut = () => {
         try {
-            dispatch(logout());
+            dispatch(logoutUser());
             toast.success("Logout successfully");
         } catch (err) {
             toast.error(`Failed to logout`);
@@ -79,6 +76,13 @@ export default function Home() {
     };
     return (
         <main className="relative">
+            {isAuthenticated ? (
+                <Button type={"button"} onClick={handleSignOut}>
+                    Logout
+                </Button>
+            ) : (
+                <Link href={"/auth"}>Login</Link>
+            )}
             <section>
                 {shouldShowNewPostsButton && (
                     <div className={"absolute top-4 left-1/2 -translate-x-1/2 z-10"}>
