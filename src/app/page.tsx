@@ -1,18 +1,18 @@
 "use client";
-import toast from "react-hot-toast";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { logoutUser } from "@/redux/slices/AuthSlice";
-import PostFeed from "@/components/PostFeed";
+import { useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import React from "react";
+import toast from "react-hot-toast";
+import PostFeed from "@/components/PostFeed";
+import { Button } from "@/components/ui/button";
 import type { LatestPostQueryData } from "@/lib/tanstack/posts";
 import {
   LATEST_POST_QUERY_KEY,
   POSTS_QUERY_KEY,
   useNewPostsNotifier,
 } from "@/lib/tanstack/posts";
-import { useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { logoutUser } from "@/redux/slices/AuthSlice";
 
 /**
  * Renders the Home page with the post-feed and an optional "New posts available" notifier.
