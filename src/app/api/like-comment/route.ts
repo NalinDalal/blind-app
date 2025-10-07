@@ -88,6 +88,8 @@ export async function POST(req: NextRequest) {
                 userId: comment.authorId,
                 message: "Your comment received a new like.",
                 type: "COMMENT_LIKE",
+                commentId: comment.id,
+                actorId: userId,
               },
             });
           }
