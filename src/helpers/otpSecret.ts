@@ -36,7 +36,7 @@ const prisma = new PrismaClient();
  *
  * @throws {Error} Database operation failure
  */
-export async function getOrCreateSecret(email: string) {
+export async function getOrCreateSecret(email: string): Promise<OTPAuth.Secret> {
   let user = await prisma.user.findUnique({ where: { email } });
 
   if (!user) {

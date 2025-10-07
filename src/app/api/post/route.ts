@@ -1,9 +1,8 @@
 import {type NextRequest, NextResponse} from "next/server";
-import {Prisma, PrismaClient} from "@/generated/prisma";
+import {Prisma} from "@/generated/prisma";
 import {analyzeToxicity} from "@/helpers/contentModeration";
 import {getAuthenticatedUserId} from "@/helpers/auth/user";
-
-const prisma = new PrismaClient();
+import {prisma} from "@/lib/prisma";
 
 /**
  * Create a new post from the request JSON after validating required fields and applying toxicity moderation.
@@ -69,8 +68,8 @@ export async function GET(req: NextRequest) {
 
         // Define the ordering for the posts
         const orderBy: Prisma.PostOrderByWithRelationInput[] = [
-            {engagementScore: "desc"},
-            {createdAt: "desc"}
+            {createdAt: "desc"},
+            {engagementScore: "desc"}
         ];
         const orderByInclude: Prisma.PostOrderByWithRelationInput[] = [
             {createdAt: "asc"}

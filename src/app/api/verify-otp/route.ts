@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import * as OTPAuth from "otpauth";
 import { PrismaClient } from "@/generated/prisma";
+import {getOrCreateSecret} from "@/helpers/otpSecret";
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || "devsecret";
@@ -45,10 +46,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const secret = await getOrCreateSecret(user.email)
     const totp = new OTPAuth.TOTP({
       issuer: "BlindApp",
       label: email,
-      secret: OTPAuth.Secret.fromBase32(user.otp),
+      secret,
       digits: 6,
       period: 120,
     });

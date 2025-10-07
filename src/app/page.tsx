@@ -1,16 +1,16 @@
 "use client";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import {useAppDispatch, useAppSelector} from "@/redux/hooks";
-import {logout} from "@/redux/slices/AuthSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { logout } from "@/redux/slices/AuthSlice";
 import PostFeed from "@/components/PostFeed";
 import React from "react";
-import {POSTS_QUERY_KEY, useInfinitePosts, useNewPostsNotifier} from "@/lib/tanstack/posts";
-import {useQueryClient} from "@tanstack/react-query";
-import {Button} from "@/components/ui/button";
-
+import type { LatestPostQueryData } from "@/lib/tanstack/posts";
+import { LATEST_POST_QUERY_KEY, POSTS_QUERY_KEY, useNewPostsNotifier } from "@/lib/tanstack/posts";
+import { useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
 /**
- * Renders the Home page with the post feed and an optional "New posts available" notifier.
+ * Renders the Home page with the post-feed and an optional "New posts available" notifier.
  *
  * When newer posts are detected, a notifier button is shown; activating it resets the notifier state, refetches the feed, and scrolls to the top to reveal the latest posts.
  *
@@ -26,27 +26,47 @@ export default function Home() {
 
     const queryClient = useQueryClient();
 
-    const {
-        data,
-    } = useInfinitePosts();
+    const {data: newPostsData} = useNewPostsNotifier();
+    const [lastSeenLatestPostId, setLastSeenLatestPostId] = React.useState<string | null>(null);
 
+    React.useEffect(() => {
+        if (newPostsData?.latestPostId && lastSeenLatestPostId === null) {
+            setLastSeenLatestPostId(newPostsData.latestPostId);
+        }
+    }, [newPostsData?.latestPostId, lastSeenLatestPostId]);
 
-    // Get the ID of the very first post in our feed
-    const firstPostId = data?.pages?.[0]?.posts?.[0]?.id;
-
-    // Use the notifier hook, passing it the ID of the post at the top of our feed
-    const {data: newPostsData} = useNewPostsNotifier(firstPostId);
+    const shouldShowNewPostsButton = Boolean(
+        newPostsData?.latestPostId &&
+        lastSeenLatestPostId &&
+        newPostsData.latestPostId !== lastSeenLatestPostId,
+    );
 
     const handleShowNewPosts = async () => {
-        // 1. Reset the notifier query. This will immediately remove the stale
-        //    `hasNewPosts: true` state, hiding the button.
-        await queryClient.resetQueries({queryKey: ["latestPost"]});
+        // Store the current latest post ID to update our tracking
+        const currentLatestPostId = newPostsData?.latestPostId;
 
-        // 2. Invalidate the main posts query to fetch the new content.
-        await queryClient.invalidateQueries({queryKey: POSTS_QUERY_KEY});
+        // STEP 1: Update the query cache to mark that we've seen this latest post
+        // This prevents the button from showing again until a newer post arrives
+        setLastSeenLatestPostId(currentLatestPostId ?? null);
 
-        // 3. Scroll the user to the top to see the new posts.
-        window.scrollTo({top: 0, behavior: 'smooth'});
+        queryClient.setQueryData<LatestPostQueryData>(LATEST_POST_QUERY_KEY, (oldData) => {
+            const safeOldData: LatestPostQueryData = typeof oldData === "object" && oldData !== null
+                ? oldData
+                : {latestPostId: null};
+
+            return {
+                ...safeOldData,
+                hasNewPosts: false,
+                latestPostId: currentLatestPostId ?? safeOldData.latestPostId ?? null,
+                lastSeenLatestPostId: currentLatestPostId ?? null,
+            };
+        });
+
+        // STEP 2: Refetch the main posts query to get the new content.
+    await queryClient.invalidateQueries({ queryKey: POSTS_QUERY_KEY });
+
+        // STEP 3: Scroll the user to the top to see the new posts.
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleSignOut = () => {
@@ -60,7 +80,7 @@ export default function Home() {
     return (
         <main className="relative">
             <section>
-                {newPostsData?.hasNewPosts && (
+                {shouldShowNewPostsButton && (
                     <div className={"absolute top-4 left-1/2 -translate-x-1/2 z-10"}>
                         <Button type={"button"} variant={"default"} onClick={handleShowNewPosts}
                                 className="shadow-lg">
