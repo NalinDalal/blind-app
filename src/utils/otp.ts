@@ -1,6 +1,5 @@
-import {randomInt} from "node:crypto";
+import { randomInt } from "node:crypto";
 
 export const generateRandomOTP = () => {
-    return randomInt(100000, 1000000);
-
-}
+  return randomInt(100000, 1000000);
+};
