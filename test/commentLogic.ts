@@ -1,4 +1,13 @@
 // Extracted core logic for comment validation (for testability)
+interface ValidateCommentOptions {
+  content: string;
+  postId: string;
+  authorId: string;
+  postExists?: boolean;
+  userExists?: boolean;
+  analyzeToxicity?: (content: string) => { isToxic: boolean };
+}
+
 export function validateComment({
   content,
   postId,
@@ -6,7 +15,7 @@ export function validateComment({
   postExists = true,
   userExists = true,
   analyzeToxicity = () => ({ isToxic: false }),
-}) {
+}: ValidateCommentOptions) {
   if (!content || !postId || !authorId) {
     return { ok: false, error: "Missing content, postId, or authorId" };
   }
