@@ -28,7 +28,8 @@ export function validateAnonName({
   if (!regex.test(anonName)) {
     return {
       ok: false,
-      error: "anonName can only contain letters, numbers, underscores, and hyphens",
+      error:
+        "anonName can only contain letters, numbers, underscores, and hyphens",
     };
   }
   if (reservedNames.includes(anonName.toLowerCase())) {

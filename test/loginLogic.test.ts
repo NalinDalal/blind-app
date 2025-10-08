@@ -20,7 +20,10 @@ describe("validateLogin", () => {
   });
 
   it("returns ok for valid email and password", () => {
-    const result = validateLogin({ email: "user@example.com", password: "pass" });
+    const result = validateLogin({
+      email: "user@example.com",
+      password: "pass",
+    });
     expect(result.ok).toBe(true);
     expect(result.error).toBeUndefined();
   });

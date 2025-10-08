@@ -20,7 +20,10 @@ export function validateComment({
     return { ok: false, error: "Missing content, postId, or authorId" };
   }
   if (analyzeToxicity(content).isToxic) {
-    return { ok: false, error: "Content flagged as inappropriate. Please revise your comment." };
+    return {
+      ok: false,
+      error: "Content flagged as inappropriate. Please revise your comment.",
+    };
   }
   if (!postExists) {
     return { ok: false, error: "Post not found" };

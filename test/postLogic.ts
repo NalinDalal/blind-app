@@ -16,7 +16,10 @@ export function validatePost({
     return { ok: false, error: "Missing content, authorId, or college" };
   }
   if (analyzeToxicity(content).isToxic) {
-    return { ok: false, error: "Content flagged as toxic/abusive. Please revise your post." };
+    return {
+      ok: false,
+      error: "Content flagged as toxic/abusive. Please revise your post.",
+    };
   }
   return { ok: true };
 }

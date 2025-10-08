@@ -15,7 +15,9 @@ export interface LikeCommentResult {
  * Validates the input for liking/unliking a comment.
  * - commentId and userId must be non-empty strings (UUIDs in real use)
  */
-export function validateLikeComment(input: LikeCommentInput): LikeCommentResult {
+export function validateLikeComment(
+  input: LikeCommentInput,
+): LikeCommentResult {
   if (!input.commentId) {
     return { valid: false, error: "Missing commentId" };
   }

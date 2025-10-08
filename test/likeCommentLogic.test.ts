@@ -1,5 +1,3 @@
-
-
 import { validateLikeComment } from "./likeCommentLogic";
 
 describe("validateLikeComment", () => {
@@ -16,7 +14,10 @@ describe("validateLikeComment", () => {
   });
 
   it("returns valid for correct input", () => {
-    const result = validateLikeComment({ commentId: "comment-1", userId: "user-1" });
+    const result = validateLikeComment({
+      commentId: "comment-1",
+      userId: "user-1",
+    });
     expect(result.valid).toBe(true);
     expect(result.error).toBeUndefined();
   });

@@ -16,7 +16,10 @@ export function validateRegister({
     return { ok: false, error: "Email and password required" };
   }
   if (!emailRegex.test(email)) {
-    return { ok: false, error: "Only college emails (@oriental.ac.in) are allowed." };
+    return {
+      ok: false,
+      error: "Only college emails (@oriental.ac.in) are allowed.",
+    };
   }
   if (password.length < passwordMinLength) {
     return {

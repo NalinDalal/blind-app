@@ -20,7 +20,10 @@ describe("validateToken", () => {
   });
 
   it("returns valid for correct input", () => {
-    const result = validateToken({ id: "user_123", email: "student@oriental.ac.in" });
+    const result = validateToken({
+      id: "user_123",
+      email: "student@oriental.ac.in",
+    });
     expect(result.valid).toBe(true);
     expect(result.error).toBeUndefined();
   });

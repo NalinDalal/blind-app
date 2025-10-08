@@ -31,7 +31,11 @@ describe("validatePost", () => {
   });
 
   it("returns ok for valid post", () => {
-    const result = validatePost({ content: "This is a valid post.", authorId: "u1", college: "c1" });
+    const result = validatePost({
+      content: "This is a valid post.",
+      authorId: "u1",
+      college: "c1",
+    });
     expect(result.ok).toBe(true);
     expect(result.error).toBeUndefined();
   });

@@ -25,7 +25,9 @@ const VALID_TYPES = [
  * - userId, message, and type must be non-empty strings
  * - type must be one of the valid notification types
  */
-export function validateNotification(input: NotificationInput): NotificationResult {
+export function validateNotification(
+  input: NotificationInput,
+): NotificationResult {
   if (!input.userId || !input.message || !input.type) {
     return { valid: false, error: "Missing userId, message, or type" };
   }
