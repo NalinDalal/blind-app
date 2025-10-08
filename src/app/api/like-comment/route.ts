@@ -18,12 +18,9 @@ interface LikeCommentResponse {
 }
 
 /**
- * Toggle the authenticated user's like on a comment and return the updated like state and total like count.
+ * Toggle the authenticated user's like on a comment, update the parent post's engagement score, and create a notification for the comment author when applicable.
  *
- * Performs validation and authentication, creates or removes the user's comment like, adjusts the parent post's engagement score,
- * and creates a notification for the comment author when a new like is added.
- *
- * @returns An object with `liked` (`true` if the user now likes the comment, `false` otherwise) and `likeCount` (the comment's total number of likes).
+ * @returns An object with `liked` — `true` if the user now likes the comment, `false` otherwise; and `likeCount` — the comment's total number of likes.
  */
 export async function POST(req: NextRequest) {
   try {

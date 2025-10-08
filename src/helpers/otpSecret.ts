@@ -14,10 +14,12 @@ import { PrismaClient } from "@/generated/prisma";
 const prisma = new PrismaClient();
 
 /**
- * Retrieve the OTP secret for the given email, creating and persisting a new base32 secret if the user or their secret does not exist.
+ * Retrieve or create the OTPAuth secret associated with the given email.
  *
- * @param email - The user's email address
- * @returns An `OTPAuth.Secret` constructed from the user's stored base32 secret
+ * If no user exists for the email a new user is created with a generated secret.
+ *
+ * @param email - The user's email address used to look up or create the account
+ * @returns An OTPAuth.Secret constructed from the user's base32 OTP secret
  */
 export async function getOrCreateSecret(
   email: string,

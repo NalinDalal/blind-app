@@ -18,9 +18,9 @@ interface RegisterResponse {
 }
 
 /**
- * Handle registration of a college user: validate and normalize input, enforce the college email domain and minimum password length, prevent duplicate accounts, create the user with a hashed password, and record an audit log.
+ * Register a new college user and create an audit log for the registration.
  *
- * @returns A `RegisterResponse` containing the new user's `id`, `email`, and `message` on success; otherwise an object `{ error: string }` describing the failure.
+ * @returns On success, a `RegisterResponse` containing `id`, `email`, and `message`. On failure, a JSON object `{ error: string }` describing the problem (the response is returned with an appropriate HTTP status).
  */
 export async function POST(req: NextRequest) {
   try {

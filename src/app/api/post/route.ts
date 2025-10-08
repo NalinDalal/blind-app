@@ -5,11 +5,11 @@ import { analyzeToxicity } from "@/helpers/contentModeration";
 import { prisma } from "@/lib/prisma";
 
 /**
- * Create a new post from the request JSON after validating required fields and applying toxicity moderation.
+ * Create a new post from the request body after validating required fields and applying toxicity moderation.
  *
- * If required fields are missing the request is rejected. If the content is flagged as toxic a moderation log entry is created and the request is rejected; otherwise the post is persisted.
+ * Validates that `content`, `authorId`, and `college` are present; if `content` is flagged as toxic, records a moderation log and rejects the request.
  *
- * @returns A JSON response containing the created post on success. If validation fails returns `{ error: string }` with status `400`; if content is flagged as toxic a moderation log is created and returns `{ error: string }` with status `403`; on internal errors returns `{ error: string }` with status `500`.
+ * @returns HTTP response containing the created post object on success; a JSON error object with status 400 when required fields are missing, 403 when content is flagged as toxic (after creating a moderation log entry), or 500 for internal server errors.
  */
 export async function POST(req: NextRequest) {
   try {
