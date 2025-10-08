@@ -4,7 +4,7 @@ const sendgridApiKey = process.env.SENDGRID_API_KEY;
 const fromEmail = process.env.EMAIL_FROM || "noreply@blindapp.local";
 
 if (!sendgridApiKey) {
-  throw new Error("SENDGRID_API_KEY is not set in environment variables");
+    throw new Error("SENDGRID_API_KEY is not set in environment variables");
 }
 sgMail.setApiKey(sendgridApiKey);
 
@@ -19,21 +19,21 @@ sgMail.setApiKey(sendgridApiKey);
  * Note: Errors encountered while sending are caught and logged and will not be thrown to the caller.
  */
 export async function sendEmail(
-  to: string,
-  subject: string,
-  text: string,
-  html?: string,
+    to: string,
+    subject: string,
+    html: string,
+    text?: string,
 ) {
-  try {
-    const msg = {
-      to,
-      from: fromEmail,
-      subject,
-      text,
-      html: html || undefined,
-    };
-    const _res = await sgMail.send(msg);
-  } catch (e: unknown) {
-    console.table(e);
-  }
+    try {
+        const msg = {
+            to,
+            from: fromEmail,
+            subject,
+            text: text || undefined,
+            html: html,
+        };
+        const _res = await sgMail.send(msg);
+    } catch (e: unknown) {
+        console.table(e);
+    }
 }
