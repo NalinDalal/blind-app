@@ -7,9 +7,9 @@ import { prisma } from "@/lib/prisma";
 /**
  * Create a new post from the request JSON after validating required fields and applying toxicity moderation.
  *
- * Validates that `content`, `authorId`, and `college` are present. If `content` is flagged as toxic, a moderation log entry is created and the request is rejected. On success, the new post is persisted and returned.
+ * If required fields are missing the request is rejected. If the content is flagged as toxic a moderation log entry is created and the request is rejected; otherwise the post is persisted.
  *
- * @returns The created post object wrapped in a NextResponse on success. On failure, returns a JSON error `{ error: string }` with HTTP status `400` for missing fields, `403` if content is flagged as toxic (a moderation log entry will be created), or `500` for internal errors.
+ * @returns A JSON response containing the created post on success. If validation fails returns `{ error: string }` with status `400`; if content is flagged as toxic a moderation log is created and returns `{ error: string }` with status `403`; on internal errors returns `{ error: string }` with status `500`.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
       { createdAt: "desc" },
       { engagementScore: "desc" },
     ];
-    const orderByInclude: Prisma.CommentOrderByWithRelationInput[] = [
+    const orderByInclude: Prisma.PostOrderByWithRelationInput[] = [
       { createdAt: "asc" },
     ];
 

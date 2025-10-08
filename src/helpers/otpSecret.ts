@@ -14,27 +14,10 @@ import { PrismaClient } from "@/generated/prisma";
 const prisma = new PrismaClient();
 
 /**
- * Retrieves or creates an OTP secret for a user.
- * If the user doesn't exist, creates a new user with a generated OTP secret.
- * If the user exists but has no OTP secret, generates and assigns one.
+ * Retrieve the OTP secret for the given email, creating and persisting a new base32 secret if the user or their secret does not exist.
  *
- * @async
- * @function getOrCreateSecret
- * @param {string} email - User's email address
- * @returns {Promise<OTPAuth.Secret>} OTP secret object in base32 format
- *
- * @example
- * const secret = await getOrCreateSecret("user@oriental.ac.in");
- * // Returns OTPAuth.Secret instance that can be used to generate OTP tokens
- *
- * @description
- * The function follows this logic:
- * 1. Checks if user exists in database
- * 2. If not, creates user with new OTP secret
- * 3. If user exists but has no OTP, generates and assigns one
- * 4. If user has OTP, returns existing secret
- *
- * @throws {Error} Database operation failure
+ * @param email - The user's email address
+ * @returns An `OTPAuth.Secret` constructed from the user's stored base32 secret
  */
 export async function getOrCreateSecret(
   email: string,
