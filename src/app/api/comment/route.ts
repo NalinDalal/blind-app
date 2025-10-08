@@ -5,10 +5,10 @@ import { prisma } from "@/lib/prisma";
 /**
  * Create a new comment for a post.
  *
- * Validates the request body, rejects toxic content, creates the comment, optionally notifies the post author, and increments the post's engagement score.
+ * Validates the request body, rejects content flagged as toxic, persists the comment, optionally notifies the post author, and increments the post's engagement score.
  *
  * @param req - NextRequest whose JSON body must include `content`, `postId`, and `authorId`; may include `parentId` to indicate a reply
- * @returns The created comment object on success; a JSON error response describing the cause of the failure otherwise
+ * @returns The created comment object on success; on failure, a JSON error object describing the cause of the failure
  */
 export async function POST(req: NextRequest) {
   try {

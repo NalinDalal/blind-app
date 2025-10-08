@@ -4,12 +4,11 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 /**
- * Handles POST requests to log out a user.
+ * Log out the current user by clearing the server-side `token` HttpOnly cookie.
  *
- * This endpoint clears the 'token' HttpOnly cookie, effectively logging out the user
- * from the server's perspective.
+ * Clears the `token` cookie (expires it immediately) so subsequent requests are unauthenticated.
  *
- * @returns {Promise<NextResponse>} A response confirming successful logout.
+ * @returns A JSON NextResponse with `{ message: "Logout successful" }` and status 200 on success, or `{ error: "Internal Server Error" }` and status 500 on failure.
  */
 export async function POST(): Promise<NextResponse> {
   try {
