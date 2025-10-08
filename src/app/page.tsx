@@ -76,9 +76,10 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSignOut = () => {
+  //make it async to avoid the catch handle bypass
+  const handleSignOut = async () => {
     try {
-      dispatch(logoutUser());
+      await dispatch(logoutUser());
       toast.success("Logout successfully");
     } catch (err) {
       toast.error(`Failed to logout`);

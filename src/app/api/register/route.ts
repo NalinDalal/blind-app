@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
 
-const EMAIL_REGEX = /^\w+@oriental\.ac\.in$/i;
+const EMAIL_REGEX = /^[^\s@]+@oriental\.ac\.in$/i;
 const PASSWORD_MIN_LENGTH = 8;
 
 interface RegisterRequest {
@@ -82,10 +82,9 @@ export async function POST(req: NextRequest) {
     // 3. Generate OTP for email verification
 
     // 4. Create user with transaction
+    // Pre-compute hash to keep the transaction short
+    const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.$transaction(async (tx) => {
-      // Hash password
-      const hashedPassword = await bcrypt.hash(password, 10);
-
       // Create user
       const newUser = await tx.user.create({
         data: {
@@ -105,12 +104,15 @@ export async function POST(req: NextRequest) {
       await tx.log.create({
         data: {
           action: "USER_REGISTRATION",
-          details: `New user registered: ${email}`,
+          // Avoid PII in logs; redact local-part
+          details: `New user registered: ${email.replace(/(^.{2}).*(@.*$)/, "$1***$2")}`,
           userId: newUser.id,
-          ipAddress:
-            req.headers.get("x-forwarded-for") ||
-            req.headers.get("x-real-ip") ||
-            "unknown",
+          ipAddress: (() => {
+            const xff = req.headers.get("x-forwarded-for");
+            if (xff) return xff.split(",")[0].trim();
+            const xrip = req.headers.get("x-real-ip");
+            return xrip ?? "unknown";
+          })(),
           userAgent: req.headers.get("user-agent") || "unknown",
           level: "INFO",
           category: "AUTH",

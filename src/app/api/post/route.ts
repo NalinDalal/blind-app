@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
       { createdAt: "desc" },
       { engagementScore: "desc" },
     ];
-    const orderByInclude: Prisma.PostOrderByWithRelationInput[] = [
+    const orderByInclude: Prisma.CommentOrderByWithRelationInput[] = [
       { createdAt: "asc" },
     ];
 
