@@ -7,8 +7,14 @@ import {
 } from "@tanstack/react-query";
 import type { Comment } from "@/generated/prisma";
 import type { InfinitePostsData, NewCommentPayload } from "./types";
-// Define a unique key for the posts query to manage its cache
+// Define a unique key for the post query to manage its cache
 export const POSTS_QUERY_KEY = ["posts"];
+
+export type LatestPostQueryData = {
+  latestPostId: string | null;
+  hasNewPosts?: boolean;
+  lastSeenLatestPostId?: string | null;
+};
 
 // --- 1. FETCHER FUNCTIONS ---
 // These functions are responsible for making the actual API calls.
@@ -70,9 +76,7 @@ export const useInfinitePosts = () => {
 };
 
 // --- FETCHER for the new endpoint ---
-const fetchLatestPostId = async (): Promise<{
-  latestPostId: string | null;
-}> => {
+const fetchLatestPostId = async (): Promise<LatestPostQueryData> => {
   const res = await fetch("/api/post/latest");
   if (!res.ok) {
     throw new Error("Failed to fetch latest post ID");
@@ -83,36 +87,21 @@ const fetchLatestPostId = async (): Promise<{
 /**
  * Custom hook to periodically check for new posts.
  * It does NOT fetch the post data, only the ID of the latest post.
- *
- * @param firstPostId The ID of the first post currently visible in the user's feed.
  */
-export const useNewPostsNotifier = (firstPostId: string | undefined) => {
-  return useQuery({
-    queryKey: ["latestPost"],
+export const LATEST_POST_QUERY_KEY = ["latestPost"] as const;
+
+export const useNewPostsNotifier = () =>
+  useQuery<LatestPostQueryData>({
+    queryKey: LATEST_POST_QUERY_KEY,
     queryFn: fetchLatestPostId,
     // Poll every 30 seconds
     refetchInterval: 30000,
-    // This query is only enabled if we have a firstPostId to compare against
-    // enabled: !!firstPostId, // disabled for the empty feed
-
-    select: (data) => {
-      const latestPostIdFromServer = data.latestPostId;
-
-      // If the server has no posts, there are no new posts.
-      if (!latestPostIdFromServer) {
-        return { hasNewPosts: false };
-      }
-
-      // If the user's feed is empty but the server has a post, it's a new post.
-      if (!firstPostId && latestPostIdFromServer) {
-        return { hasNewPosts: true };
-      }
-
-      // If the latest post on the server is different from the one the user sees, there are new posts.
-      return { hasNewPosts: latestPostIdFromServer !== firstPostId };
-    },
+    // Don't refetch every time the user clicks back to the window.
+    refetchOnWindowFocus: false,
+    // Consider the data "fresh" for 25 seconds to prevent unnecessary refetches
+    // between polling intervals.
+    staleTime: 25000,
   });
-};
 
 /**
  * Custom hook for the "add comment" mutation.

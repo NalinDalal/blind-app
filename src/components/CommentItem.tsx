@@ -34,7 +34,7 @@ export function CommentItem({ comment, postId }: CommentItemProps) {
           : {comment.content}
         </p>
 
-        {isAuthenticated && (
+        {isAuthenticated && !comment.parentId && (
           <button
             type="button"
             onClick={toggleReply}

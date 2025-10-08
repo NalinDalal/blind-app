@@ -49,7 +49,7 @@ const ANON_NAME_REGEX = /^[a-zA-Z0-9_-]+$/;
  * // Request body: { "anonName": "cool_user123" }
  * // Response: { "anonName": "cool_user123" }
  */
-export const POST = async (req: NextRequest) => {
+export const POST = async (req: NextRequest): Promise<NextResponse> => {
   try {
     // 1. Extract and validate input
     const { anonName } = await req.json();
@@ -116,30 +116,36 @@ export const POST = async (req: NextRequest) => {
     }
 
     // 5. Create mapping within transaction
-    const mapping = await prisma.$transaction(async (tx) => {
-      // Check if user already has an anonName (should check first)
-      const existingUser = await tx.anonMapping.findUnique({
-        where: { userId },
-      });
+    const mapping = await prisma.$transaction(
+      async (tx) => {
+        // Check if user already has an anonName (should check first)
+        const existingUser = await tx.anonMapping.findUnique({
+          where: { userId },
+        });
 
-      if (existingUser) {
-        throw new Error("ANON_NAME_ALREADY_SET");
-      }
+        if (existingUser) {
+          throw new Error("ANON_NAME_ALREADY_SET");
+        }
 
-      // Check if anonName is taken
-      const existingName = await tx.anonMapping.findUnique({
-        where: { anonName },
-      });
+        // Check if anonName is taken
+        const existingName = await tx.anonMapping.findUnique({
+          where: { anonName },
+        });
 
-      if (existingName) {
-        throw new Error("ANON_NAME_TAKEN");
-      }
+        if (existingName) {
+          throw new Error("ANON_NAME_TAKEN");
+        }
 
-      // Create the mapping
-      return tx.anonMapping.create({
-        data: { userId, anonName },
-      });
-    });
+        // Create the mapping
+        return tx.anonMapping.create({
+          data: { userId, anonName },
+        });
+      },
+      {
+        maxWait: 10000, // Wait for 10 seconds for a connection
+        timeout: 15000, // Allow the transaction 15 seconds to complete
+      },
+    );
 
     return NextResponse.json({ anonName: mapping.anonName }, { status: 201 });
   } catch (error) {

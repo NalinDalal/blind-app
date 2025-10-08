@@ -13,7 +13,7 @@ interface CommentListProps {
  *
  * @param comments - The comments (with replies) to display in the list
  * @param postId - The identifier of the post these comments belong to
- * @returns A React element containing the comments list or a placeholder message when there are no comments
+ * @returns A React element containing the comment list or a placeholder message when there are no comments
  */
 export function CommentList({ comments, postId }: CommentListProps) {
   if (!comments || comments.length === 0) {

@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     if (!userId) {
       return NextResponse.json(
         { error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -114,29 +114,26 @@ export async function POST(req: NextRequest) {
         });
 
         return { liked, likeCount };
-      }
+      },
     );
 
     return NextResponse.json(result, { status: 200 });
   } catch (error) {
     if (error instanceof Error && error.message === "COMMENT_NOT_FOUND") {
-      return NextResponse.json(
-        { error: "Comment not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Comment not found" }, { status: 404 });
     }
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
         return NextResponse.json(
           { error: "Comment or post not found" },
-          { status: 404 }
+          { status: 404 },
         );
       }
       if (error.code === "P2003") {
         return NextResponse.json(
           { error: "Invalid comment or user reference" },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -144,7 +141,7 @@ export async function POST(req: NextRequest) {
     console.error("Comment like error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

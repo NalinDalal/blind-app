@@ -38,9 +38,9 @@ export const initialState: AuthState = {
  * @returns {Promise<SuccessLoginResponse>} User data including id, email, and anonName
  *
  * @example
- * dispatch(login({ 
- *   email: "student@oriental.ac.in", 
- *   password: "securePassword123" 
+ * dispatch(login({
+ *   email: "student@oriental.ac.in",
+ *   password: "securePassword123"
  * }));
  *
  * @throws {Object} Rejects with error object from API response
@@ -82,14 +82,17 @@ export const login = createAsyncThunk<SuccessLoginResponse, LoginCredentials>(
  * @returns {Promise<SuccessLoginResponse>} Registration confirmation
  *
  * @example
- * dispatch(register({ 
- *   email: "newstudent@oriental.ac.in", 
- *   password: "securePassword123" 
+ * dispatch(register({
+ *   email: "newstudent@oriental.ac.in",
+ *   password: "securePassword123"
  * }));
  *
  * @throws {Object} Rejects with error object from API response
  */
-export const register = createAsyncThunk<SuccessLoginResponse, LoginCredentials>(
+export const register = createAsyncThunk<
+  SuccessLoginResponse,
+  LoginCredentials
+>(
   "auth/register",
   async (credentials: LoginCredentials, { dispatch, rejectWithValue }) => {
     try {
@@ -133,7 +136,10 @@ export const register = createAsyncThunk<SuccessLoginResponse, LoginCredentials>
  *
  * @throws {Object} Rejects with error object from API response
  */
-export const requestOtp = createAsyncThunk<{ success?: boolean; error?: string }, { email: string }>(
+export const requestOtp = createAsyncThunk<
+  { success?: boolean; error?: string },
+  { email: string }
+>(
   "auth/requestOtp",
   async ({ email }: { email: string }, { dispatch, rejectWithValue }) => {
     try {
@@ -172,9 +178,9 @@ export const requestOtp = createAsyncThunk<{ success?: boolean; error?: string }
  * @returns {Promise<SuccessLoginResponse>} User data with authentication token
  *
  * @example
- * dispatch(verifyOtp({ 
- *   email: "student@oriental.ac.in", 
- *   otp: "123456" 
+ * dispatch(verifyOtp({
+ *   email: "student@oriental.ac.in",
+ *   otp: "123456"
  * }));
  *
  * @description
@@ -281,6 +287,34 @@ export const setAnonName = createAsyncThunk(
 );
 
 /**
+ * Async thunk for logging out the user.
+ * Makes a POST request to /api/logout to clear the server-side session
+ * and HttpOnly cookie, then clears the client-side Redux state.
+ *
+ * @async
+ * @function logoutUser
+ * @returns {Promise<void>}
+ *
+ * @example
+ * dispatch(logoutUser());
+ */
+
+export const logoutUser = createAsyncThunk(
+  "auth/logout",
+  async (_, { dispatch }) => {
+    try {
+      // This endpoint is responsible for clearing the HttpOnly cookie
+      await fetch("/api/logout", {
+        method: "POST",
+      });
+    } finally {
+      // Regardless of API success, clear the client state
+      dispatch(logout());
+    }
+  },
+);
+
+/**
  * Authentication slice containing reducers and extra reducers for auth state.
  *
  * @constant
@@ -291,7 +325,7 @@ const authSlice = createSlice({
   reducers: {
     /**
      * Action to log out the current user.
-     * Clears all authentication-related state.
+     * Clears all authentication-related state. Called by the logoutUser thunk.
      *
      * @param {AuthState} state - Current auth state
      */
@@ -299,6 +333,8 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.email = null;
       state.userId = null;
+      state.anonName = null; // Also clear anonName on logout
+      state.status = AuthStatus.IDLE;
     },
     /**
      * Action to set a user-facing message (success, error, info).
@@ -379,7 +415,13 @@ const authSlice = createSlice({
         state.anonName = action.payload.anonName;
         state.status = AuthStatus.SUCCEEDED;
       })
-      .addCase(setAnonName.rejected, handleFailure);
+      .addCase(setAnonName.rejected, handleFailure)
+      // Logout
+      .addCase(logoutUser.fulfilled, (state) => {
+        // The logout() action is dispatched inside the thunk,
+        // so the state is already cleared. We just confirm the status.
+        state.status = AuthStatus.IDLE;
+      });
   },
 });
 
