@@ -16,7 +16,6 @@ jobs:
       SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
       # Add more if needed:
       # DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      # NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
     steps:
       - name: Checkout code
@@ -36,6 +35,9 @@ jobs:
 
       - name: Run lint check
         run: npm run lint
+
+      - name: Run tests
+        run: npx jest test
 
       - name: Build Next.js app
         run: npm run build

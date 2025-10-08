@@ -54,13 +54,16 @@
     "@tailwindcss/postcss": "^4",
     "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",
+    "@types/jest": "^30.0.0",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^19.1.15",
     "@types/react-dom": "^19.1.9",
     "@types/swagger-ui-react": "^5.18.0",
+    "jest": "^30.2.0",
     "prisma": "^6.16.2",
     "tailwindcss": "^4",
+    "ts-jest": "^29.4.4",
     "tsx": "^4.20.6",
     "typescript": "^5"
   }
