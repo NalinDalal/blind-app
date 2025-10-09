@@ -21,16 +21,16 @@ sgMail.setApiKey(sendgridApiKey);
 export async function sendEmail(
   to: string,
   subject: string,
-  text: string,
-  html?: string,
+  html: string,
+  text?: string,
 ) {
   try {
     const msg = {
       to,
       from: fromEmail,
       subject,
-      text,
-      html: html || undefined,
+      text: text || undefined,
+      html: html,
     };
     const _res = await sgMail.send(msg);
   } catch (e: unknown) {
