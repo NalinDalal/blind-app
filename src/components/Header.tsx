@@ -155,18 +155,7 @@ const Header = (): JSX.Element => {
                 </div>
             </div>
 
-            <div
-                onClick={() => setIsMenuOpen(false)}
-                className={cn(
-                    "fixed inset-0 z-40 backdrop-blur-sm md:hidden transition-opacity duration-300",
-                    // Stronger scrim for better contrast on mobile devices:
-                    "bg-slate-900/70 dark:bg-black/70",
-                    // When hidden, we remove pointer events and make it invisible.
-                    isMenuOpen ? "opacity-100 visible pointer-events-auto" : "opacity-0 invisible pointer-events-none"
-                )}
-                aria-hidden={!isMenuOpen}
-            />
-            <MobileDrawerPortal isOpen={isMenuOpen} onClose={()=>setIsMenuOpen(!isMenuOpen)}>
+            <MobileDrawerPortal isOpen={isMenuOpen} onClose={()=>setIsMenuOpen(false)}>
                 <div className="flex items-center justify-between">
                     <span className="font-bold">Menu</span>
                     <Button

@@ -9,7 +9,7 @@ const BlindAppLogo = ({className = ""}) => {
     const isDark = resolvedTheme === "dark";
 
     const textColorMain = isDark ? "#FFFFFF" : "#1F2937"; // gray-800
-    const textColorSub = isDark ? "#9CA3AF" : "#4B5563"; // gray-400
+    // const textColorSub = isDark ? "#9CA3AF" : "#4B5563"; // gray-400
     const rectColor = isDark ? "#111827" : "#FFFFFF"; // gray-900 / white
 
     return (
