@@ -1,8 +1,8 @@
 // src/components/BlindAppLogo.jsx
 "use client";
 
-import React from "react";
 import { useTheme } from "next-themes";
+import React from "react";
 
 const BlindAppLogo = ({ className = "" }) => {
   const { resolvedTheme } = useTheme();

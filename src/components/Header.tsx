@@ -1,18 +1,17 @@
 "use client";
 
-import React, { JSX, useEffect, useRef, useState } from "react";
+import { Loader2, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Loader2, Menu, X } from "lucide-react";
+import React, { type JSX, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-
+import { MobileDrawerPortal } from "@/components/MobileDrawerPortal";
+import { Button } from "@/components/ui/button";
+import Logo from "@/components/ui/logo";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { logoutUser } from "@/redux/slices/AuthSlice";
 import { cn } from "@/utils/ui";
-import { Button } from "@/components/ui/button";
-import Logo from "@/components/ui/logo";
 import { ThemeToggle } from "./ThemeToggle";
-import { MobileDrawerPortal } from "@/components/MobileDrawerPortal";
 
 /**
  * Navigation links used across desktop and mobile.
