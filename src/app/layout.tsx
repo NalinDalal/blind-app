@@ -4,7 +4,7 @@ import "./globals.css";
 import type React from "react";
 import Providers from "@/app/providers";
 import { ThemeToggle } from "@/components/ThemeToggle";
-
+import Header from "@/components/Header"
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -28,10 +28,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased space-y-10`}
       >
         <Providers>
-          <ThemeToggle />
+          <Header/>
           {children}
         </Providers>
       </body>
