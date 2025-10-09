@@ -1,40 +1,40 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type {Metadata} from "next";
+import {Geist, Geist_Mono} from "next/font/google";
 import "./globals.css";
 import type React from "react";
 import Providers from "@/app/providers";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import Header from "@/components/Header"
+
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+    variable: "--font-geist-sans",
+    subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+    variable: "--font-geist-mono",
+    subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "Blind App",
-  description: "Anonymous Community App for College Students",
+    title: "Blind App",
+    description: "Anonymous Community App for College Students",
 };
 
 export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
+                                       children,
+                                   }: Readonly<{
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased space-y-10`}
-      >
+    return (
+        <html lang="en">
+        <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
         <Providers>
-          <Header/>
-          {children}
+            <Header/>
+            {children}
         </Providers>
-      </body>
-    </html>
-  );
+        </body>
+        </html>
+    );
 }

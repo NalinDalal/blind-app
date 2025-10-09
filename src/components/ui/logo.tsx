@@ -2,10 +2,10 @@
 "use client";
 
 import React from "react";
-import { useTheme } from "next-themes";
+import {useTheme} from "next-themes";
 
-const BlindAppLogo = ({ className = "" }) => {
-    const { resolvedTheme } = useTheme();
+const BlindAppLogo = ({className = ""}) => {
+    const {resolvedTheme} = useTheme();
     const isDark = resolvedTheme === "dark";
 
     const textColorMain = isDark ? "#FFFFFF" : "#1F2937"; // gray-800
@@ -46,7 +46,7 @@ const BlindAppLogo = ({ className = "" }) => {
                 {/*</text>*/}
 
                 {/* Bar over 'B' */}
-                <rect x="20" y="19" width="22" height="4" fill={rectColor} />
+                <rect x="20" y="19" width="22" height="4" fill={rectColor}/>
             </svg>
         </div>
     );
