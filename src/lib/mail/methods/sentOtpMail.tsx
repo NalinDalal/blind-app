@@ -1,4 +1,4 @@
-import { renderTemplate } from "@/lib/mail/methods/rederTemplate";
+import { renderTemplate } from "@/lib/mail/methods/renderTemplate";
 import { sendEmail } from "@/utils/sendEmail";
 import OtpRequestEmail from "../../../../emails/OtpRequestEmail";
 
@@ -10,7 +10,8 @@ interface OtpRequestMailProps {
 export const sendOtpMail = async ({ otpCode, to }: OtpRequestMailProps) => {
   try {
     const content = await renderTemplate(OtpRequestEmail, {
-      otpCode: "123456",
+      //otpCode: "123456",
+      otpCode,
     });
     await sendEmail(to, "OTP Request", content);
   } catch (e) {
