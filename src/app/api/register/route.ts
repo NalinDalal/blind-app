@@ -20,7 +20,7 @@ interface RegisterResponse {
 /**
  * Register a new college user and create an audit log for the registration.
  *
- * @returns On success, a `RegisterResponse` containing `id`, `email`, and `message`. On failure, a JSON object `{ error: string }` describing the problem (the response is returned with an appropriate HTTP status).
+ * @returns A JSON response containing the new user's `id`, `email`, and a success `message` on success; on failure a JSON object `{ error: string }` describing the problem (returned with an appropriate HTTP status).
  */
 export async function POST(req: NextRequest) {
   try {
