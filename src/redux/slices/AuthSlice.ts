@@ -331,7 +331,37 @@ export const requestOtpEmailVerification = createAsyncThunk("/auth/otp/send", as
         }
         dispatch(
             setMessage({
-                text: "Registration Successful! Please login.",
+                text: "An OTP is send to your registered Email Id.",
+                type: AuthMessageType.SUCCESS,
+            }),
+        );
+        return data;
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+            return rejectWithValue({error: err.message});
+        }
+        return rejectWithValue({error: "An Unknown Error Occurred"});
+    }
+});
+
+
+export const verifyEmailOtp = createAsyncThunk("/auth/otp/verify", async (credentials: {
+    email: string,
+    otp: string
+}, {dispatch, rejectWithValue}) => {
+    try {
+        const response = await fetch("/api/otp/verify", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(credentials),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            return rejectWithValue(data);
+        }
+        dispatch(
+            setMessage({
+                text: "Email ID verified successfully! you can now login to the platform",
                 type: AuthMessageType.SUCCESS,
             }),
         );
@@ -461,6 +491,18 @@ const authSlice = createSlice({
             .addCase(requestOtpEmailVerification.fulfilled, (state, action) => {
                 state.message = action.payload.message;
                 state.status = AuthStatus.SUCCEEDED;
+            })
+
+            // verify OTP
+            .addCase(verifyEmailOtp.pending, handlePending)
+            .addCase(verifyEmailOtp.rejected, handleFailure)
+            .addCase(verifyEmailOtp.fulfilled, (state, action) => {
+                state.isVerified = action.payload.isVerified
+                state.status = AuthStatus.SUCCEEDED;
+                state.message = {
+                    text: `Email verified successfully!`,
+                    type: AuthMessageType.SUCCESS,
+                }
             })
 
     },
