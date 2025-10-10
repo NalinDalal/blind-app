@@ -1,4 +1,4 @@
-import { timingSafeEqual } from "crypto";
+import { timingSafeEqual } from "node:crypto";
 import { type NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -20,8 +20,16 @@ export const POST = async (req: NextRequest) => {
         { status: 404 },
       );
 
-    if (userExists.otp !== otp)
+    if (
+      userExists.otp !== otp ||
+      !timingSafeEqual(Buffer.from(userExists.otp), Buffer.from(otp))
+    ) {
+      await prisma.user.update({
+        where: { email },
+        data: { otp: null },
+      });
       return NextResponse.json({ error: `Invalid OTP` }, { status: 401 });
+    }
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
     console.error(`Failed to verify OTP`, err);

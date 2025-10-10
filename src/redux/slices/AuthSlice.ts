@@ -308,8 +308,10 @@ export const logoutUser = createAsyncThunk(
         method: "POST",
       });
     } finally {
-      // Regardless of API success, clear the client state
       dispatch(logout());
+      setTimeout(() => {
+        dispatch(clearMessage());
+      }, 3000);
     }
   },
 );

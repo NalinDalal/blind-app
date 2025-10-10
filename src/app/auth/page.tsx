@@ -140,6 +140,10 @@ export default function AuthPage() {
     }
   };
 
+  useEffect(() => {
+    dispatch(clearMessage());
+  }, [dispatch]);
+
   const currentEmail = watch("email");
 
   const handleModeChange = (newMode: AuthMode) => {

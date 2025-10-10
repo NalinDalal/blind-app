@@ -1,8 +1,6 @@
 "use client";
 import { useQueryClient } from "@tanstack/react-query";
-import Link from "next/link";
 import React from "react";
-import toast from "react-hot-toast";
 import PostFeed from "@/components/PostFeed";
 import { Button } from "@/components/ui/button";
 import type { LatestPostQueryData } from "@/lib/tanstack/posts";
@@ -11,8 +9,7 @@ import {
   POSTS_QUERY_KEY,
   useNewPostsNotifier,
 } from "@/lib/tanstack/posts";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { logoutUser } from "@/redux/slices/AuthSlice";
+import { useAppDispatch } from "@/redux/hooks";
 
 /**
  * Renders the Home page with the post-feed and an optional "New posts available" notifier.
@@ -22,7 +19,6 @@ import { logoutUser } from "@/redux/slices/AuthSlice";
  * @returns The Home page React element
  */
 export default function Home() {
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
 
   const queryClient = useQueryClient();
@@ -76,24 +72,8 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  //make it async to avoid the catch handle bypass
-  const handleSignOut = async () => {
-    try {
-      await dispatch(logoutUser());
-      toast.success("Logout successfully");
-    } catch (err) {
-      toast.error(`Failed to logout`);
-    }
-  };
   return (
     <main className="relative">
-      {isAuthenticated ? (
-        <Button type={"button"} onClick={handleSignOut}>
-          Logout
-        </Button>
-      ) : (
-        <Link href={"/auth"}>Login</Link>
-      )}
       <section>
         {shouldShowNewPostsButton && (
           <div className={"absolute top-4 left-1/2 -translate-x-1/2 z-10"}>
