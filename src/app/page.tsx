@@ -9,7 +9,6 @@ import {
   POSTS_QUERY_KEY,
   useNewPostsNotifier,
 } from "@/lib/tanstack/posts";
-import { useAppDispatch } from "@/redux/hooks";
 
 /**
  * Renders the Home page with the post-feed and an optional "New posts available" notifier.
@@ -19,8 +18,6 @@ import { useAppDispatch } from "@/redux/hooks";
  * @returns The Home page React element
  */
 export default function Home() {
-  const dispatch = useAppDispatch();
-
   const queryClient = useQueryClient();
 
   const { data: newPostsData } = useNewPostsNotifier();

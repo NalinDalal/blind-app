@@ -27,7 +27,7 @@ export const MobileDrawerPortal = ({
   return createPortal(
     <div aria-hidden={!isOpen}>
       {/* Overlay / Scrim */}
-      <div
+      <button
         onClick={onClose}
         className={cn(
           "fixed inset-0 z-[900] transition-opacity duration-300 md:hidden",

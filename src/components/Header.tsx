@@ -3,7 +3,7 @@
 import { Loader2, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { type JSX, useEffect, useRef, useState } from "react";
+import { type JSX, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { MobileDrawerPortal } from "@/components/MobileDrawerPortal";
 import { Button } from "@/components/ui/button";
@@ -60,9 +60,9 @@ const Header = (): JSX.Element => {
     try {
       await dispatch(logoutUser()).unwrap();
       toast.success("Logout successful");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to logout:", err);
-      toast.error(err?.message || "Failed to logout");
+      toast.error(err instanceof Error ? err.message : "Failed to logout");
     } finally {
       setIsMenuOpen(false);
     }

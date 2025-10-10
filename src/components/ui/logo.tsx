@@ -2,7 +2,6 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import React from "react";
 
 const BlindAppLogo = ({ className = "" }) => {
   const { resolvedTheme } = useTheme();
