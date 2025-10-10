@@ -1,3 +1,4 @@
+// api/otp/verify
 import {timingSafeEqual} from "node:crypto";
 import {type NextRequest, NextResponse} from "next/server";
 import {prisma} from "@/lib/prisma";
@@ -30,6 +31,16 @@ export const POST = async (req: NextRequest) => {
             });
             return NextResponse.json({error: `Invalid OTP`}, {status: 401});
         }
+
+        await prisma.user.update({
+            where: {email},
+            data: {
+                verified: true,
+                verifiedAt: new Date(),
+                otp: null
+            }
+        })
+
         return NextResponse.json({success: true, isVerified: true}, {status: 200});
     } catch (err) {
         console.error(`Failed to verify OTP`, err);

@@ -32,10 +32,12 @@ export interface LoginCredentials {
 }
 
 export interface SuccessLoginResponse {
-    id: string;
+    id?: string;
     email: string;
     anonName: string | null;
     isVerified:boolean;
+    errorCode?: string;
+    error?: string;
 }
 
 export interface FailureLoginResponse {

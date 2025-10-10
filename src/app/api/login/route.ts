@@ -1,31 +1,32 @@
+export const dynamic = 'force-dynamic';
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
-import { type NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@/generated/prisma";
-import { prisma } from "@/lib/prisma";
+import {cookies} from "next/headers";
+import {type NextRequest, NextResponse} from "next/server";
+import {Prisma} from "@/generated/prisma";
+import {prisma} from "@/lib/prisma";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET environment variable must be set");
+    throw new Error("JWT_SECRET environment variable must be set");
 }
 
 // Fake hash for timing attack prevention
 const DUMMY_PASSWORD_HASH =
-  "$2a$10$invalidhashtopreventtimingattacksXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+    "$2a$10$invalidhashtopreventtimingattacksXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 interface LoginRequest {
-  email: string;
-  password: string;
+    email: string;
+    password: string;
 }
 
 interface LoginResponse {
-  id: string;
-  email: string;
-  anonName: string | null;
-  verified: boolean;
+    id: string;
+    email: string;
+    anonName: string | null;
+    verified: boolean;
 }
 
 /**
@@ -38,198 +39,203 @@ interface LoginResponse {
  * @returns On success, a JSON response containing `{ id, email, anonName, verified }`. On failure, a JSON error object with an `error` message and an appropriate HTTP status (400, 401, 403, or 500).
  */
 export async function POST(req: NextRequest) {
-  try {
-    const cookieStore = await cookies();
-    let { email, password } = (await req.json()) as LoginRequest;
+    try {
+        const cookieStore = await cookies();
+        let {email, password} = (await req.json()) as LoginRequest;
 
-    // 1. Input validation
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: "Email and password required" },
-        { status: 400 },
-      );
-    }
+        // 1. Input validation
+        if (!email || !password) {
+            return NextResponse.json(
+                {error: "Email and password required"},
+                {status: 400},
+            );
+        }
 
-    // Normalize email
-    email = email.toLowerCase().trim();
+        // Normalize email
+        email = email.toLowerCase().trim();
 
-    // Validate email format
-    if (!EMAIL_REGEX.test(email)) {
-      return NextResponse.json(
-        { error: "Invalid email format" },
-        { status: 400 },
-      );
-    }
+        // Validate email format
+        if (!EMAIL_REGEX.test(email)) {
+            return NextResponse.json(
+                {error: "Invalid email format"},
+                {status: 400},
+            );
+        }
 
-    // 2. Fetch user with related data
-    const user = await prisma.user.findUnique({
-      where: { email },
-      include: {
-        anonMapping: true, // Fixed: singular one-to-one
-      },
-    });
+        // 2. Fetch user with related data
+        const user = await prisma.user.findUnique({
+            where: {email},
+            include: {
+                anonMapping: true, // Fixed: singular one-to-one
+            },
+        });
 
-    // 3. Always perform bcrypt comparison to prevent timing attacks
-    const passwordHash = user?.password || DUMMY_PASSWORD_HASH;
-    const valid = await bcrypt.compare(password, passwordHash);
+        // 3. Always perform bcrypt comparison to prevent timing attacks
+        const passwordHash = user?.password || DUMMY_PASSWORD_HASH;
+        const valid = await bcrypt.compare(password, passwordHash);
 
-    // 4. Check credentials
-    if (!user || !valid) {
-      await prisma.log
-        .create({
-          data: {
-            action: "LOGIN_FAILED",
-            details: `Failed login attempt for email: ${email}`,
-            ipAddress:
-              req.headers.get("x-forwarded-for") ||
-              req.headers.get("x-real-ip") ||
-              "unknown",
-            userAgent: req.headers.get("user-agent") || "unknown",
-            level: "WARN",
-            category: "AUTH",
-          },
-        })
-        .catch((err) => console.error("Failed to log login attempt:", err));
+        // 4. Check credentials
+        if (!user || !valid) {
+            await prisma.log
+                .create({
+                    data: {
+                        action: "LOGIN_FAILED",
+                        details: `Failed login attempt for email: ${email}`,
+                        ipAddress:
+                            req.headers.get("x-forwarded-for") ||
+                            req.headers.get("x-real-ip") ||
+                            "unknown",
+                        userAgent: req.headers.get("user-agent") || "unknown",
+                        level: "WARN",
+                        category: "AUTH",
+                    },
+                })
+                .catch((err) => console.error("Failed to log login attempt:", err));
 
-      return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: 401 },
-      );
-    }
+            return NextResponse.json(
+                {error: "Invalid credentials"},
+                {status: 401},
+            );
+        }
 
-    // 5. Check if the account is locked
-    if (user.isLocked) {
-      await prisma.loginLog
-        .create({
-          data: {
-            userId: user.id,
-            ipAddress:
-              req.headers.get("x-forwarded-for") ||
-              req.headers.get("x-real-ip") ||
-              "unknown",
-            userAgent: req.headers.get("user-agent") || "unknown",
-            status: "LOCKED",
-          },
-        })
-        .catch((err) => console.error("Failed to log locked attempt:", err));
+        // 5. Check if the account is locked
+        if (user.isLocked) {
+            await prisma.loginLog
+                .create({
+                    data: {
+                        userId: user.id,
+                        ipAddress:
+                            req.headers.get("x-forwarded-for") ||
+                            req.headers.get("x-real-ip") ||
+                            "unknown",
+                        userAgent: req.headers.get("user-agent") || "unknown",
+                        status: "LOCKED",
+                    },
+                })
+                .catch((err) => console.error("Failed to log locked attempt:", err));
 
-      return NextResponse.json(
-        {
-          error:
-            user.lockedReason || "Account is locked. Please contact support.",
-        },
-        { status: 403 },
-      );
-    }
+            return NextResponse.json(
+                {
+                    error:
+                        user.lockedReason || "Account is locked. Please contact support.",
+                },
+                {status: 403},
+            );
+        }
 
-    // 6. Check if the account is active
-    if (!user.isActive) {
-      return NextResponse.json(
-        { error: "Account is inactive. Please contact support." },
-        { status: 403 },
-      );
-    }
+        // 6. Check if the account is active
+        if (!user.isActive) {
+            return NextResponse.json(
+                {error: "Account is inactive. Please contact support."},
+                {status: 403},
+            );
+        }
 
-    // 7. Check if email is verified
-    if (!user.verified) {
-      await prisma.loginLog
-        .create({
-          data: {
-            userId: user.id,
-            ipAddress:
-              req.headers.get("x-forwarded-for") ||
-              req.headers.get("x-real-ip") ||
-              "unknown",
-            userAgent: req.headers.get("user-agent") || "unknown",
-            status: "UNVERIFIED",
-          },
-        })
-        .catch((err) =>
-          console.error("Failed to log unverified attempt:", err),
+        // 7. Check if email is verified
+        if (!user.verified) {
+            await prisma.loginLog
+                .create({
+                    data: {
+                        userId: user.id,
+                        ipAddress:
+                            req.headers.get("x-forwarded-for") ||
+                            req.headers.get("x-real-ip") ||
+                            "unknown",
+                        userAgent: req.headers.get("user-agent") || "unknown",
+                        status: "UNVERIFIED",
+                    },
+                })
+                .catch((err) =>
+                    console.error("Failed to log unverified attempt:", err),
+                );
+
+            return NextResponse.json(
+                {
+                    error: "Please verify your email before logging in.",
+                    userId: user.id,
+                    errorCode: "EMAIL_NOT_VERIFIED", // <-- Add this
+
+                },
+                {
+                    status: 403,
+
+                },
+            );
+        }
+
+        // 8. Generate JWT token
+        const token = jwt.sign(
+            {id: user.id, email: user.email},
+            JWT_SECRET as string,
+            {expiresIn: "2h"},
         );
 
-      return NextResponse.json(
-        {
-          error: "Please verify your email before logging in.",
-          userId: user.id,
-        },
-        { status: 403 },
-      );
+        // 9. Set secure HTTP-only cookie
+        cookieStore.set("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            path: "/",
+            sameSite: "strict",
+            maxAge: 60 * 60 * 2, // 2 hours
+        });
+
+        // 10. Update user login tracking and logs
+        await prisma
+            .$transaction(async (tx) => {
+                await tx.user.update({
+                    where: {id: user.id},
+                    data: {
+                        lastLoginAt: new Date(),
+                        loginCount: {increment: 1},
+                    },
+                });
+
+                await tx.loginLog.create({
+                    data: {
+                        userId: user.id,
+                        ipAddress:
+                            req.headers.get("x-forwarded-for") ||
+                            req.headers.get("x-real-ip") ||
+                            "unknown",
+                        userAgent: req.headers.get("user-agent") || "unknown",
+                        status: "SUCCESS",
+                    },
+                });
+
+                await tx.log.create({
+                    data: {
+                        action: "LOGIN_SUCCESS",
+                        details: `User logged in: ${email}`,
+                        userId: user.id,
+                        ipAddress:
+                            req.headers.get("x-forwarded-for") ||
+                            req.headers.get("x-real-ip") ||
+                            "unknown",
+                        userAgent: req.headers.get("user-agent") || "unknown",
+                        level: "INFO",
+                        category: "AUTH",
+                    },
+                });
+            })
+            .catch((err) => console.error("Failed to update login tracking:", err));
+
+        const anonName = user.anonMapping?.anonName ?? null;
+
+        return NextResponse.json<LoginResponse>(
+            {
+                id: user.id,
+                email: user.email,
+                anonName,
+                verified: user.verified,
+            },
+            {status: 200},
+        );
+    } catch (error) {
+        console.error("Login error:", error);
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            console.error("Prisma error code:", error.code);
+        }
+
+        return NextResponse.json({error: "Login failed"}, {status: 500});
     }
-
-    // 8. Generate JWT token
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      JWT_SECRET as string,
-      { expiresIn: "2h" },
-    );
-
-    // 9. Set secure HTTP-only cookie
-    cookieStore.set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 2, // 2 hours
-    });
-
-    // 10. Update user login tracking and logs
-    await prisma
-      .$transaction(async (tx) => {
-        await tx.user.update({
-          where: { id: user.id },
-          data: {
-            lastLoginAt: new Date(),
-            loginCount: { increment: 1 },
-          },
-        });
-
-        await tx.loginLog.create({
-          data: {
-            userId: user.id,
-            ipAddress:
-              req.headers.get("x-forwarded-for") ||
-              req.headers.get("x-real-ip") ||
-              "unknown",
-            userAgent: req.headers.get("user-agent") || "unknown",
-            status: "SUCCESS",
-          },
-        });
-
-        await tx.log.create({
-          data: {
-            action: "LOGIN_SUCCESS",
-            details: `User logged in: ${email}`,
-            userId: user.id,
-            ipAddress:
-              req.headers.get("x-forwarded-for") ||
-              req.headers.get("x-real-ip") ||
-              "unknown",
-            userAgent: req.headers.get("user-agent") || "unknown",
-            level: "INFO",
-            category: "AUTH",
-          },
-        });
-      })
-      .catch((err) => console.error("Failed to update login tracking:", err));
-
-    const anonName = user.anonMapping?.anonName ?? null;
-
-    return NextResponse.json<LoginResponse>(
-      {
-        id: user.id,
-        email: user.email,
-        anonName,
-        verified: user.verified,
-      },
-      { status: 200 },
-    );
-  } catch (error) {
-    console.error("Login error:", error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      console.error("Prisma error code:", error.code);
-    }
-
-    return NextResponse.json({ error: "Login failed" }, { status: 500 });
-  }
 }
