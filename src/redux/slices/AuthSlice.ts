@@ -314,6 +314,37 @@ export const logoutUser = createAsyncThunk(
     },
 );
 
+// below thunks are responsible for the email verification via OTP if registration and login via email and password
+
+export const requestOtpEmailVerification = createAsyncThunk("/auth/otp/send", async ({email}: {
+    email: string
+}, {dispatch, rejectWithValue}) => {
+    try {
+        const response = await fetch("/api/otp/send", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({email}),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            return rejectWithValue(data);
+        }
+        dispatch(
+            setMessage({
+                text: "Registration Successful! Please login.",
+                type: AuthMessageType.SUCCESS,
+            }),
+        );
+        return data;
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+            return rejectWithValue({error: err.message});
+        }
+        return rejectWithValue({error: "An Unknown Error Occurred"});
+    }
+})
+
+
 /**
  * Authentication slice containing reducers and extra reducers for auth state.
  *
@@ -422,7 +453,16 @@ const authSlice = createSlice({
                 // The logout() action is dispatched inside the thunk,
                 // so the state is already cleared. We just confirm the status.
                 state.status = AuthStatus.IDLE;
-            });
+            })
+            // email verifications via OTP
+            // send OTP
+            .addCase(requestOtpEmailVerification.pending, handlePending)
+            .addCase(requestOtpEmailVerification.rejected, handleFailure)
+            .addCase(requestOtpEmailVerification.fulfilled, (state, action) => {
+                state.message = action.payload.message;
+                state.status = AuthStatus.SUCCEEDED;
+            })
+
     },
 });
 
