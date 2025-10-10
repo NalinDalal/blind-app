@@ -1,6 +1,6 @@
 # Blind App - Roadmap
 
->This roadmap outlines the planned development milestones, features, and contribution opportunities for the Blind App.
+> This roadmap outlines the planned development milestones, features, and contribution opportunities for the Blind App.
 
 ---
 
