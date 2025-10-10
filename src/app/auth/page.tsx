@@ -23,13 +23,12 @@ import { type Auth, AuthSchema } from "@/Schema/Auth"; // Make sure path is corr
 type AuthMode = "register" | "login" | "otp" | "anon";
 
 /**
- * Render the multi-mode authentication page that manages register, login, OTP, and anonymous-name flows.
+ * Render the authentication page UI supporting register, login, OTP, and anonymous-name flows.
  *
- * Uses react-hook-form with Zod validation to manage form state and validation, synchronizes a local
- * mode state with form values, dispatches authentication actions (register, login, request/verify OTP,
- * set anonymous name), shows toast feedback, and navigates on successful authentication.
+ * Handles form validation, dispatches authentication-related Redux actions, shows toast feedback,
+ * and navigates on successful authentication.
  *
- * @returns The rendered authentication page UI as JSX
+ * @returns The authentication page UI as a JSX.Element
  */
 export default function AuthPage() {
   const router = useRouter();
