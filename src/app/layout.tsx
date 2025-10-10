@@ -20,6 +20,12 @@ export const metadata: Metadata = {
   description: "Anonymous Community App for College Students",
 };
 
+/**
+ * Application root layout that applies global fonts, wraps content with app providers, and renders the site header.
+ *
+ * @param children - The page or component content to render inside the layout.
+ * @returns The root HTML structure containing the body with providers, header, and the provided children.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{

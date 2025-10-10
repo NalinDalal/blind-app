@@ -9,14 +9,14 @@ if (!sendgridApiKey) {
 sgMail.setApiKey(sendgridApiKey);
 
 /**
- * Send an email via the configured SendGrid client.
+ * Sends an email using the configured SendGrid client.
  *
  * @param to - Recipient email address
  * @param subject - Email subject line
  * @param html - HTML email body
  * @param text - Optional plain-text email body
  *
- * Note: Sending errors are caught and logged; they are not re-thrown to the caller.
+ * Errors encountered while sending are logged and not propagated to the caller.
  */
 export async function sendEmail(
   to: string,
