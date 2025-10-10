@@ -19,7 +19,10 @@ const BlindAppLogo = ({ className = "" }) => {
         viewBox="0 0 220 50"
         xmlns="http://www.w3.org/2000/svg"
         className="h-10 w-auto transition-colors duration-300"
+        role="img"
+        aria-label="Blind app logo"
       >
+        <title>Blind app logo</title>
         {/* "Blind" text */}
         <text
           x="20"
