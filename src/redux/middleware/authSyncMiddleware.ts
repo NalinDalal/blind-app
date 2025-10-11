@@ -37,7 +37,7 @@ export const authSyncMiddleware: Middleware = (store) => (next) => (action) => {
   if (typeof action === "object" && action !== null && "type" in action) {
     if (action.type === "auth/login/fulfilled") {
       const state = store.getState() as RootState;
-      const hasToken = Boolean(state.auth?.isAuthenticated);
+      const _hasToken = Boolean(state.auth?.isAuthenticated);
     }
 
     if (action.type === "auth/logout/fulfilled") {

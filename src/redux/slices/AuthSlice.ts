@@ -8,6 +8,7 @@ import {
   createAsyncThunk,
   createSlice,
   type PayloadAction,
+  type SerializedError,
 } from "@reduxjs/toolkit";
 import {
   type AuthMessage,
@@ -258,7 +259,7 @@ export const setAnonName = createAsyncThunk(
     { anonName }: { anonName: string },
     { getState, dispatch, rejectWithValue },
   ) => {
-    const state = getState() as RootState;
+    const _state = getState() as RootState;
 
     try {
       const response = await fetch("/api/anon/set", {
@@ -371,15 +372,19 @@ const authSlice = createSlice({
       state.anonName = action.payload.anonName;
       state.status = AuthStatus.SUCCEEDED;
     };
-    const handleFailure = (state: AuthState, action: PayloadAction<any>) => {
+    const handleFailure = (
+      state: AuthState,
+      action: PayloadAction<unknown, string, unknown, SerializedError>,
+    ) => {
       state.status = AuthStatus.FAILED;
       if (
         action.payload &&
         typeof action.payload === "object" &&
         "error" in action.payload
       ) {
+        const payload = action.payload as { error?: string };
         state.message = {
-          text: (action.payload as { error: string }).error,
+          text: payload.error ?? "An unknown error occurred.",
           type: AuthMessageType.ERROR,
         };
       } else {

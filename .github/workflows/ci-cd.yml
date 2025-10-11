@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate OpenAPI spec from Zod schemas
+        run: npm run generate:openapi
+
       - name: Run lint and auto-fix
         run: npm run lint:fix
 
@@ -54,4 +57,3 @@ jobs:
 
       - name: Deploy (example)
         run: echo "Add deployment step here"
-
