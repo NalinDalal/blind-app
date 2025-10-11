@@ -21,7 +21,7 @@ const PostFeed = () => {
 
   return (
     <section>
-      {data.pages.map((page, index) => (
+      {data.pages.map((page, _index) => (
         <React.Fragment key={page.nextCursor ?? "last-page"}>
           {page.posts.map((post) => (
             <div className={"post"} key={post.id}>

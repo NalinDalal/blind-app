@@ -17,7 +17,6 @@ import {
   type LoginCredentials,
   type SuccessLoginResponse,
 } from "@/redux/types";
-import type { RootState } from "../store";
 
 export const initialState: AuthState = {
   isAuthenticated: false,
@@ -258,8 +257,6 @@ export const setAnonName = createAsyncThunk(
     { anonName }: { anonName: string },
     { getState, dispatch, rejectWithValue },
   ) => {
-    const state = getState() as RootState;
-
     try {
       const response = await fetch("/api/anon/set", {
         method: "POST",
@@ -371,7 +368,10 @@ const authSlice = createSlice({
       state.anonName = action.payload.anonName;
       state.status = AuthStatus.SUCCEEDED;
     };
-    const handleFailure = (state: AuthState, action: PayloadAction<any>) => {
+    const handleFailure = (
+      state: AuthState,
+      action: PayloadAction<{ error?: string } | undefined>,
+    ) => {
       state.status = AuthStatus.FAILED;
       if (
         action.payload &&
@@ -379,7 +379,7 @@ const authSlice = createSlice({
         "error" in action.payload
       ) {
         state.message = {
-          text: (action.payload as { error: string }).error,
+          text: action.payload.error ?? "An unknown error occurred.",
           type: AuthMessageType.ERROR,
         };
       } else {

@@ -35,15 +35,23 @@ export const authSyncMiddleware: Middleware = (store) => (next) => (action) => {
   const result = next(action);
 
   if (typeof action === "object" && action !== null && "type" in action) {
+    const state = store.getState() as RootState;
+
+    // ✅ Handle login success
     if (action.type === "auth/login/fulfilled") {
-      const state = store.getState() as RootState;
       const hasToken = Boolean(state.auth?.isAuthenticated);
+
+      if (!hasToken) {
+        console.warn("No token found after login — redirecting to /login");
+        alert("You are not logged in, please login");
+        window.location.href = "/login";
+      }
     }
 
+    // ✅ Handle logout
     if (action.type === "auth/logout/fulfilled") {
       Cookies.remove("auth-token");
     }
   }
-
   return result;
 };

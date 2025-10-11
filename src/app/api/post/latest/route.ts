@@ -19,6 +19,7 @@ export async function GET() {
 
     return NextResponse.json({ latestPostId: latestPost?.id ?? null });
   } catch (error) {
+    console.error(error);
     return NextResponse.json(
       { error: "Could not fetch the latest post ID." },
       { status: 500 },

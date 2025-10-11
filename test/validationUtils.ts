@@ -1,8 +1,7 @@
 // Shared validation utilities for endpoint logic tests
-
-export function requireFields(
-  obj: Record<string, any>,
-  fields: string[],
+export function requireFields<T extends Record<string, unknown>>(
+  obj: T,
+  fields: (keyof T)[],
 ): string | null {
   for (const field of fields) {
     if (!obj[field]) return `Missing ${fields.join(", ")}`;
