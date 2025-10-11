@@ -1,5 +1,4 @@
 // Shared validation utilities for endpoint logic tests
-
 export function requireFields<T extends Record<string, unknown>>(
   obj: T,
   fields: (keyof T)[],

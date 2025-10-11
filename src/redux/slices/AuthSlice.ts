@@ -260,7 +260,6 @@ export const setAnonName = createAsyncThunk(
     { getState, dispatch, rejectWithValue },
   ) => {
     const _state = getState() as RootState;
-
     try {
       const response = await fetch("/api/anon/set", {
         method: "POST",

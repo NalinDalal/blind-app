@@ -35,15 +35,18 @@ export const authSyncMiddleware: Middleware = (store) => (next) => (action) => {
   const result = next(action);
 
   if (typeof action === "object" && action !== null && "type" in action) {
+    const state = store.getState() as RootState;
+
+    // ✅ Handle login success
     if (action.type === "auth/login/fulfilled") {
-      const state = store.getState() as RootState;
       const _hasToken = Boolean(state.auth?.isAuthenticated);
+      // No side-effect needed here; cookie is managed server-side.
     }
 
+    // ✅ Handle logout
     if (action.type === "auth/logout/fulfilled") {
       Cookies.remove("auth-token");
     }
   }
-
   return result;
 };
