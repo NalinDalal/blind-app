@@ -10,7 +10,10 @@ import { AuthForm, AuthMode } from "@/components/auth/AuthForm";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 
 /**
- * Custom hook to get the previous value of a prop or state.
+ * Get the previous value of a prop or state across renders.
+ *
+ * @param value - The current value to capture for the next render
+ * @returns The value from the previous render, or `undefined` if there was no previous render
  */
 function usePrevious<T>(value: T): T | undefined {
     const ref = useRef<T | undefined>(undefined);

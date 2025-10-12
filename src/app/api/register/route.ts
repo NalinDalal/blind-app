@@ -19,9 +19,9 @@ interface RegisterResponse {
 }
 
 /**
- * Register a new college user and create an audit log for the registration.
+ * Register a new college user and record an audit log entry.
  *
- * @returns A JSON response containing the new user's `id`, `email`, and a success `message` on success; on failure a JSON object `{ error: string }` describing the problem (returned with an appropriate HTTP status).
+ * @returns On success, a JSON object with the new user's `id`, `email`, a success `message`, and `isVerified` indicating whether the account is verified; on failure, a JSON object `{ error: string }` describing the problem (returned with an appropriate HTTP status).
  */
 export async function POST(req: NextRequest) {
   try {

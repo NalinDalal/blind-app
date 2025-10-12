@@ -32,6 +32,16 @@ type AuthFormProps = {
     onModeChange: (mode: AuthMode) => void;
 };
 
+/**
+ * Render an authentication form that supports register, login, OTP, anonymous name, and email verification modes.
+ *
+ * The form conditionally renders fields and actions based on `mode`, manages OTP resend state, and dispatches
+ * authentication-related actions (register, login, request/verify OTP, set anonymous name, verify email).
+ *
+ * @param mode - Active form mode: "register" | "login" | "otp" | "anon" | "verifyEmail"
+ * @param onModeChange - Callback invoked when the user switches authentication modes
+ * @returns The authentication form component's JSX element
+ */
 export function AuthForm({mode, onModeChange}: AuthFormProps) {
     const dispatch = useAppDispatch();
     const {status, message, email: authEmail} = useAppSelector(

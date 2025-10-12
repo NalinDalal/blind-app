@@ -7,6 +7,13 @@ type AuthToggleProps = {
     onModeChange: (mode: AuthMode) => void;
 };
 
+/**
+ * Renders a three-button authentication mode toggle (Register, Login, OTP) and highlights the active mode.
+ *
+ * @param mode - Current authentication mode: `"register"`, `"login"`, or `"otp"`.
+ * @param onModeChange - Callback invoked with the selected `AuthMode` when a button is clicked.
+ * @returns A JSX element containing three buttons for switching authentication modes.
+ */
 export function AuthToggle({ mode, onModeChange }: AuthToggleProps) {
     return (
         <div className="flex justify-center gap-2 mb-6">

@@ -30,13 +30,13 @@ interface LoginResponse {
 }
 
 /**
- * Authenticate a user, issue a JWT in a secure HTTP-only cookie, and return basic user info on success.
+ * Authenticate a user, set a secure HTTP-only JWT cookie, and return basic user information.
  *
- * Expects the request body to be JSON with `email` and `password`. Performs validation, credential checks,
- * account status checks (locked, active, verified), logs events, and updates login tracking.
+ * Expects the request JSON body to include `email` and `password`. Validates input, verifies credentials,
+ * enforces account state checks (locked, active, email verified), logs events, and updates login records.
  *
- * @param req - The incoming NextRequest whose JSON body must include `email` and `password`
- * @returns On success, a JSON response containing `{ id, email, anonName, verified }`. On failure, a JSON error object with an `error` message and an appropriate HTTP status (400, 401, 403, or 500).
+ * @param req - Incoming NextRequest whose JSON body must include `email` and `password`
+ * @returns On success, a LoginResponse with `id`, `email`, `anonName`, and `isVerified`. On failure, a JSON error object with an `error` message and an appropriate HTTP status: 400 (bad input), 401 (invalid credentials), 403 (locked/inactive/unverified). When the email is unverified, the response also includes `userId` and `errorCode: "EMAIL_NOT_VERIFIED"`. 500 is returned for unexpected server errors.
  */
 export async function POST(req: NextRequest) {
     try {
