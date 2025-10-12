@@ -1,11 +1,203 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   title: Blind App API
   version: 1.0.0
-  description: Auto-generated OpenAPI spec from Zod schemas.
+  description: API specification for Blind App endpoints
 servers:
   - url: https://your-domain.com/api
-paths: {}
+
+paths:
+  /post:
+    post:
+      summary: Create a new post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content, authorId, college]
+              properties:
+                content:
+                  type: string
+                authorId:
+                  type: string
+                college:
+                  type: string
+      responses:
+        '200':
+          description: Post created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Missing required fields
+        '403':
+          description: Content flagged as toxic
+        '500':
+          description: Internal server error
+
+    get:
+      summary: Get posts (paginated)
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+          required: false
+          description: Cursor for pagination
+      responses:
+        '200':
+          description: List of posts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  posts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Post'
+                  nextCursor:
+                    type: string
+                    nullable: true
+        '500':
+          description: Internal server error
+
+  /post/latest:
+    get:
+      summary: Get latest post ID
+      responses:
+        '200':
+          description: Latest post ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  latestPostId:
+                    type: string
+                    nullable: true
+        '500':
+          description: Internal server error
+
+  /verify-otp:
+    post:
+      summary: Verify OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, otp]
+              properties:
+                email:
+                  type: string
+                otp:
+                  type: string
+      responses:
+        '200':
+          description: OTP verified
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: string
+                  email:
+                    type: string
+                  anonName:
+                    type: string
+                    nullable: true
+        '400':
+          description: Missing/invalid input
+        '401':
+          description: Not found or invalid/expired OTP
+        '500':
+          description: Server error
+
+  /login:
+    post:
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  email:
+                    type: string
+                  anonName:
+                    type: string
+                    nullable: true
+                  isVerified:
+                    type: boolean
+        '400':
+          description: Bad input
+        '401':
+          description: Invalid credentials
+        '403':
+          description: Locked/inactive/unverified
+        '500':
+          description: Server error
+
+  /register:
+    post:
+      summary: Register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  email:
+                    type: string
+                  message:
+                    type: string
+                  isVerified:
+                    type: boolean
+        '400':
+          description: Bad input
+        '500':
+          description: Server error
+
 components:
   schemas:
     AnonMapping:
@@ -14,99 +206,64 @@ components:
         id:
           type: string
           format: uuid
-          pattern: >-
-            ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
         userId:
           type: string
           format: uuid
-          pattern: >-
-            ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
         anonName:
           type: string
         createdAt:
           type: string
           format: date-time
-          pattern: >-
-            ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
-      required:
-        - id
-        - userId
-        - anonName
-        - createdAt
+      required: [id, userId, anonName, createdAt]
       additionalProperties: false
+
     CommentLike:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          pattern: >-
-            ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
         commentId:
           type: string
           format: uuid
-          pattern: >-
-            ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
         userId:
           type: string
           format: uuid
-          pattern: >-
-            ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
         createdAt:
           type: string
           format: date-time
-          pattern: >-
-            ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
-      required:
-        - id
-        - commentId
-        - userId
-        - createdAt
+      required: [id, commentId, userId, createdAt]
       additionalProperties: false
+
     Comment:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          pattern: >-
-            ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
         content:
           type: string
         createdAt:
           type: string
           format: date-time
-          pattern: >-
-            ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
         postId:
           type: string
           format: uuid
-          pattern: >-
-            ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
         authorId:
           type: string
           format: uuid
-          pattern: >-
-            ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
         isFlagged:
-          default: false
           type: boolean
-      required:
-        - id
-        - content
-        - createdAt
-        - postId
-        - authorId
-        - isFlagged
+          default: false
+      required: [id, content, createdAt, postId, authorId, isFlagged]
       additionalProperties: false
+
     Log:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          pattern: >-
-            ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
         action:
           type: string
         details:
@@ -116,108 +273,75 @@ components:
         createdAt:
           type: string
           format: date-time
-          pattern: >-
-            ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
-      required:
-        - id
-        - action
-        - createdAt
+      required: [id, action, createdAt]
       additionalProperties: false
+
     Notification:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          pattern: >-
-            ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
         userId:
           type: string
           format: uuid
-          pattern: >-
-            ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
         message:
           type: string
         read:
-          default: false
           type: boolean
+          default: false
         createdAt:
           type: string
           format: date-time
-          pattern: >-
-            ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
-      required:
-        - id
-        - userId
-        - message
-        - read
-        - createdAt
+      required: [id, userId, message, read, createdAt]
       additionalProperties: false
+
     Post:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          pattern: >-
-            ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
         content:
           type: string
+        authorId:
+          type: string
+          format: uuid
         college:
           type: string
         createdAt:
           type: string
           format: date-time
-          pattern: >-
-            ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
-        authorId:
-          type: string
-          format: uuid
-          pattern: >-
-            ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
         isFlagged:
-          default: false
           type: boolean
-      required:
-        - id
-        - content
-        - college
-        - createdAt
-        - authorId
-        - isFlagged
+          default: false
+        engagementScore:
+          type: number
+          format: float
+      required: [id, content, authorId, college, createdAt, isFlagged]
       additionalProperties: false
+
     User:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          pattern: >-
-            ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
         email:
           type: string
           format: email
-          pattern: >-
-            ^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$
         password:
           type: string
           minLength: 6
         createdAt:
           type: string
           format: date-time
-          pattern: >-
-            ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
         verified:
-          default: false
           type: boolean
+          default: false
         otp:
           anyOf:
             - type: string
             - type: 'null'
-      required:
-        - id
-        - email
-        - password
-        - createdAt
-        - verified
+      required: [id, email, password, createdAt, verified]
       additionalProperties: false
