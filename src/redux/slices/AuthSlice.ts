@@ -1,435 +1,467 @@
 /**
  * @fileoverview Authentication state management slice.
- * Handles user authentication, registration, OTP verification, and anonymous name setting.
+ * Handles user registration, login, email verification via OTP, and anonymous name setting.
  * @module redux/slices/AuthSlice
  */
 
+import {createAsyncThunk, createSlice, type PayloadAction, type SerializedError,} from "@reduxjs/toolkit";
 import {
-  createAsyncThunk,
-  createSlice,
-  type PayloadAction,
-  type SerializedError,
-} from "@reduxjs/toolkit";
-import {
-  type AuthMessage,
-  AuthMessageType,
-  type AuthState,
-  AuthStatus,
-  type LoginCredentials,
-  type SuccessLoginResponse,
+    type AuthMessage,
+    AuthMessageType,
+    type AuthState,
+    AuthStatus,
+    type LoginCredentials,
+    type SuccessLoginResponse,
 } from "@/redux/types";
-import type { RootState } from "../store";
+import {RootState} from "@/redux/store";
 
 export const initialState: AuthState = {
-  isAuthenticated: false,
-  email: null,
-  userId: null,
-  message: null,
-  status: AuthStatus.IDLE,
-  anonName: null,
+    isAuthenticated: false,
+    email: null,
+    userId: null,
+    message: null,
+    status: AuthStatus.IDLE,
+    anonName: null,
+    isVerified: false,
 };
 
-/**
- * Async thunk for user login with email and password.
- * Makes a POST request to /api/login and updates the auth state on success.
- *
- * @async
- * @function login
- * @param {LoginCredentials} credentials - User's email and password
- * @returns {Promise<SuccessLoginResponse>} User data including id, email, and anonName
- *
- * @example
- * dispatch(login({
- *   email: "student@oriental.ac.in",
- *   password: "securePassword123"
- * }));
- *
- * @throws {Object} Rejects with error object from API response
- */
-export const login = createAsyncThunk<SuccessLoginResponse, LoginCredentials>(
-  "auth/login",
-  async (credentials: LoginCredentials, { dispatch, rejectWithValue }) => {
-    try {
-      const response = await fetch(`/api/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(credentials),
-        credentials: "include",
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        return rejectWithValue(data);
-      }
-      dispatch(
-        setMessage({ text: "Login Successful", type: AuthMessageType.SUCCESS }),
-      );
-      return data;
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        return rejectWithValue({ error: err.message });
-      }
-      return rejectWithValue({ error: "An Unknown Error Occurred" });
-    }
-  },
-);
+// =================================================================
+// ASYNC THUNKS
+// =================================================================
 
 /**
  * Async thunk for user registration.
- * Creates a new user account with email and password.
+ * On success, it does not authenticate the user but prepares the state
+ * for the mandatory email verification step.
  *
  * @async
  * @function register
- * @param {LoginCredentials} credentials - User's email and password
- * @returns {Promise<SuccessLoginResponse>} Registration confirmation
- *
- * @example
- * dispatch(register({
- *   email: "newstudent@oriental.ac.in",
- *   password: "securePassword123"
- * }));
- *
- * @throws {Object} Rejects with error object from API response
+ * @param {LoginCredentials} credentials - User's email and password.
+ * @returns {Promise<SuccessLoginResponse>} Partial user data, indicating verification is required.
  */
 export const register = createAsyncThunk<
-  SuccessLoginResponse,
-  LoginCredentials
+    SuccessLoginResponse,
+    LoginCredentials
 >(
-  "auth/register",
-  async (credentials: LoginCredentials, { dispatch, rejectWithValue }) => {
-    try {
-      const response = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(credentials),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        return rejectWithValue(data);
-      }
-      dispatch(
-        setMessage({
-          text: "Registration Successful! Please login.",
-          type: AuthMessageType.SUCCESS,
-        }),
-      );
-      return data;
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        return rejectWithValue({ error: err.message });
-      }
-      return rejectWithValue({ error: "An Unknown Error Occurred" });
-    }
-  },
+    "auth/register",
+    async (credentials: LoginCredentials, {dispatch, rejectWithValue}) => {
+        try {
+            const response = await fetch("/api/register", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(credentials),
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                return rejectWithValue(data);
+            }
+            // Immediately request OTP for verification after successful registration
+            dispatch(requestOtpEmailVerification({email: data.email}));
+            return data; // The API should return { id, email, isVerified: false, anonName: null }
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error ? err.message : "An Unknown Error Occurred";
+            return rejectWithValue({error: message});
+        }
+    },
 );
 
 /**
- * Async thunk for requesting an OTP code.
- * Sends an OTP to the user's email address.
+ * Async thunk for user login.
+ * If the API returns an error indicating the email is not verified, it triggers the
+ * verification flow. Otherwise, it processes a normal success or failure.
+ *
+ * @async
+ * @function login
+ * @param {LoginCredentials} credentials - User's email and password.
+ * @returns {Promise<SuccessLoginResponse>} Full user data on success.
+ */
+export const login = createAsyncThunk<SuccessLoginResponse, LoginCredentials>(
+    "auth/login",
+    async (credentials: LoginCredentials, {dispatch, rejectWithValue}) => {
+        try {
+            const response = await fetch(`/api/login`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(credentials),
+                credentials: "include",
+            });
+
+            const data = await response.json();
+
+            // If the API call fails (e.g., 401 Unauthorized)
+            if (!response.ok) {
+                // Specifically check if the failure is due to an unverified email.
+                if (data.errorCode === "EMAIL_NOT_VERIFIED" || data.error?.includes("Please verify your email")) {
+                    // This is not a "failure" for the user, but the next step.
+                    // We trigger the OTP request...
+                    dispatch(requestOtpEmailVerification({email: credentials.email}));
+                    // ...and return a special payload that the `fulfilled` reducer will use
+                    // to redirect the user to the verification screen.
+                    return {
+                        isVerified: false,
+                        email: credentials.email,
+                        id: data.userId || null, // Pass userId if API provides it on this error
+                        anonName: null,
+                        token: null,
+                    } as SuccessLoginResponse;
+                }
+                // For all other errors (like wrong password), reject the promise.
+                return rejectWithValue(data);
+            }
+
+            // If the API call is successful (200 OK), we trust the payload and return it.
+            dispatch(setMessage({text: "Login Successful", type: AuthMessageType.SUCCESS}));
+            return data as SuccessLoginResponse;
+
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error ? err.message : "An Unknown Error Occurred";
+            return rejectWithValue({error: message});
+        }
+    },
+);
+
+/**
+ * Async thunk for requesting an OTP for passwordless login.
  *
  * @async
  * @function requestOtp
- * @param {Object} params - Parameters object
- * @param {string} params.email - User's email address
- * @returns {Promise<{success?: boolean, error?: string}>} OTP request result
- *
- * @example
- * dispatch(requestOtp({ email: "student@oriental.ac.in" }));
- *
- * @throws {Object} Rejects with error object from API response
+ * @param {{ email: string }} params - User's email address.
+ * @returns {Promise<{ success?: boolean }>} OTP request result.
  */
 export const requestOtp = createAsyncThunk<
-  { success?: boolean; error?: string },
-  { email: string }
+    { success?: boolean },
+    { email: string }
 >(
-  "auth/requestOtp",
-  async ({ email }: { email: string }, { dispatch, rejectWithValue }) => {
-    try {
-      const response = await fetch("/api/request-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        return rejectWithValue(data);
-      }
-      dispatch(
-        setMessage({
-          text: "OTP has been sent to your email.",
-          type: AuthMessageType.SUCCESS,
-        }),
-      );
-      return data;
-    } catch (err: unknown) {
-      if (err instanceof Error) return rejectWithValue({ error: err.message });
-      return rejectWithValue({ error: "An Unknown Error Occurred" });
-    }
-  },
+    "auth/requestOtp",
+    async ({email}, {dispatch, rejectWithValue}) => {
+        try {
+            const response = await fetch("/api/request-otp", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({email}),
+            });
+            const data = await response.json();
+            if (!response.ok) return rejectWithValue(data);
+
+            dispatch(
+                setMessage({
+                    text: "OTP has been sent to your email for login.",
+                    type: AuthMessageType.SUCCESS,
+                }),
+            );
+            return data;
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error ? err.message : "An Unknown Error Occurred";
+            return rejectWithValue({error: message});
+        }
+    },
 );
 
 /**
- * Async thunk for verifying OTP and logging in.
- * Verifies the OTP code and obtains a JWT token for authentication.
+ * Async thunk for verifying a passwordless login OTP and authenticating.
  *
  * @async
  * @function verifyOtp
- * @param {Object} params - Parameters object
- * @param {string} params.email - User's email address
- * @param {string} params.otp - One-time password code
- * @returns {Promise<SuccessLoginResponse>} User data with authentication token
- *
- * @example
- * dispatch(verifyOtp({
- *   email: "student@oriental.ac.in",
- *   otp: "123456"
- * }));
- *
- * @description
- * This thunk performs a two-step process:
- * 1. Verifies the OTP code with /api/verify-otp
- * 2. Obtains a JWT token from /api/token
- *
- * @throws {Object} Rejects with error object from API response
+ * @param {{ email: string; otp: string }} params - Email and OTP code.
+ * @returns {Promise<SuccessLoginResponse>} Full user data on success.
  */
 export const verifyOtp = createAsyncThunk<
-  SuccessLoginResponse,
-  { email: string; otp: string }
->("auth/verifyOtp", async ({ email, otp }, { dispatch, rejectWithValue }) => {
-  try {
-    // Step 1: Verify the OTP
-    const verifyResponse = await fetch("/api/verify-otp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, otp }),
-    });
-    const verifyData = await verifyResponse.json();
-    if (!verifyResponse.ok) {
-      return rejectWithValue(verifyData);
-    }
+    SuccessLoginResponse,
+    { email: string; otp: string }
+>("auth/verifyOtp", async ({email, otp}, {dispatch, rejectWithValue}) => {
+    try {
+        const response = await fetch("/api/verify-otp-and-login", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({email, otp}),
+            credentials: "include",
+        });
+        const data = await response.json();
+        if (!response.ok) return rejectWithValue(data);
 
-    // Step 2: Get a JWT for the verified user
-    const tokenResponse = await fetch("/api/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: verifyData.id, email: verifyData.email }),
-    });
-    const tokenData = await tokenResponse.json();
-    if (!tokenResponse.ok) {
-      return rejectWithValue(tokenData);
+        dispatch(
+            setMessage({
+                text: "OTP Verified Successfully!",
+                type: AuthMessageType.SUCCESS,
+            }),
+        );
+        return data;
+    } catch (err: unknown) {
+        const message =
+            err instanceof Error ? err.message : "An Unexpected Error Occurred";
+        return rejectWithValue({error: message});
     }
-
-    dispatch(
-      setMessage({
-        text: "OTP Verified Successfully!",
-        type: AuthMessageType.SUCCESS,
-      }),
-    );
-    // Return a payload that matches the successful login response
-    return {
-      token: tokenData.token,
-      id: verifyData.id,
-      email: verifyData.email,
-      anonName: verifyData.anonName,
-    };
-  } catch (err: unknown) {
-    if (err instanceof Error) return rejectWithValue({ error: err.message });
-    return rejectWithValue({ error: "An Unexpected Error Occured" });
-  }
 });
 
 /**
+ * Async thunk for requesting an OTP for email verification (post-registration).
+ *
+ * @async
+ * @function requestOtpEmailVerification
+ * @param {{ email: string }} params - The email to send the verification OTP to.
+ */
+export const requestOtpEmailVerification = createAsyncThunk(
+    "auth/requestEmailVerificationOtp",
+    async ({email}: { email: string }, {dispatch, rejectWithValue}) => {
+        try {
+            const response = await fetch("/api/otp/send", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({email}),
+            });
+            const data = await response.json();
+            if (!response.ok) return rejectWithValue(data);
+            dispatch(
+                setMessage({
+                    text: "A new verification OTP has been sent.",
+                    type: AuthMessageType.SUCCESS,
+                }),
+            );
+            return data;
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error ? err.message : "An Unknown Error Occurred";
+            return rejectWithValue({error: message});
+        }
+    },
+);
+
+/**
+ * Async thunk to verify the user's email with an OTP.
+ * On success, this marks the email as verified but DOES NOT log the user in.
+ * It prepares the user to proceed with a separate login action.
+ *
+ * @async
+ * @function verifyEmailOtp
+ * @param {{ email: string, otp: string }} credentials - The user's email and the OTP.
+ * @returns {Promise<{ isVerified: boolean }>} Confirmation that the email is verified.
+ */
+export const verifyEmailOtp = createAsyncThunk<
+    { isVerified: boolean },
+    { email: string; otp: string }
+>(
+    "auth/verifyEmailOtp",
+    async (credentials, {dispatch, rejectWithValue}) => {
+        try {
+            const response = await fetch("/api/otp/verify", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(credentials),
+            });
+            const data = await response.json();
+            if (!response.ok) return rejectWithValue(data);
+            return data;
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error ? err.message : "An Unknown Error Occurred";
+            return rejectWithValue({error: message});
+        }
+    },
+);
+
+/**
  * Async thunk for setting the user's anonymous name.
- * This is a one-time operation that cannot be changed once set.
  *
  * @async
  * @function setAnonName
- * @param {Object} params - Parameters object
- * @param {string} params.anonName - Desired anonymous username
- * @returns {Promise<{anonName: string}>} Confirmation with the set anonymous name
- *
- * @example
- * dispatch(setAnonName({ anonName: "cool_student_123" }));
- *
- * @throws {Object} Rejects with error object from API response
- * @note Requires user to be authenticated (JWT in cookies)
+ * @param {{ anonName: string }} params - The desired anonymous name.
+ * @returns {Promise<{ anonName: string }>} Confirmation with the set name.
  */
 export const setAnonName = createAsyncThunk(
-  "auth/setAnonName",
-  async (
-    { anonName }: { anonName: string },
-    { getState, dispatch, rejectWithValue },
-  ) => {
-    const _state = getState() as RootState;
-    try {
-      const response = await fetch("/api/anon/set", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ anonName }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        return rejectWithValue(data);
-      }
-      dispatch(
-        setMessage({
-          text: `Anonymous name set to ${data.anonName}!`,
-          type: AuthMessageType.SUCCESS,
-        }),
-      );
-      return data;
-    } catch (err: unknown) {
-      if (err instanceof Error) return rejectWithValue({ error: err.message });
-      return rejectWithValue({ error: "An Unknown Error" });
-    }
-  },
+    "auth/setAnonName",
+    async (
+        {anonName}: { anonName: string },
+        {getState, dispatch, rejectWithValue},
+    ) => {
+        const _state = getState() as RootState;
+        try {
+            const response = await fetch("/api/anon/set", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({anonName}),
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                return rejectWithValue(data);
+            }
+            dispatch(
+                setMessage({
+                    text: `Anonymous name set to ${data.anonName}!`,
+                    type: AuthMessageType.SUCCESS,
+                }),
+            );
+            return data;
+        } catch (err: unknown) {
+            if (err instanceof Error) return rejectWithValue({error: err.message});
+            return rejectWithValue({error: "An Unknown Error"});
+        }
+    },
 );
 
 /**
  * Async thunk for logging out the user.
- * Makes a POST request to /api/logout to clear the server-side session
- * and HttpOnly cookie, then clears the client-side Redux state.
  *
  * @async
  * @function logoutUser
- * @returns {Promise<void>}
- *
- * @example
- * dispatch(logoutUser());
  */
-
 export const logoutUser = createAsyncThunk(
-  "auth/logout",
-  async (_, { dispatch }) => {
-    try {
-      // This endpoint is responsible for clearing the HttpOnly cookie
-      await fetch("/api/logout", {
-        method: "POST",
-      });
-    } finally {
-      dispatch(logout());
-      setTimeout(() => {
-        dispatch(clearMessage());
-      }, 3000);
-    }
-  },
+    "auth/logout",
+    async (_, {dispatch}) => {
+        try {
+            await fetch("/api/logout", {method: "POST"});
+        } finally {
+            dispatch(logout());
+        }
+    },
 );
 
-/**
- * Authentication slice containing reducers and extra reducers for auth state.
- *
- * @constant
- */
-const authSlice = createSlice({
-  name: "auth-state",
-  initialState,
-  reducers: {
-    /**
-     * Action to log out the current user.
-     * Clears all authentication-related state. Called by the logoutUser thunk.
-     *
-     * @param {AuthState} state - Current auth state
-     */
-    logout: (state: AuthState) => {
-      state.isAuthenticated = false;
-      state.email = null;
-      state.userId = null;
-      state.anonName = null; // Also clear anonName on logout
-      state.status = AuthStatus.IDLE;
-    },
-    /**
-     * Action to set a user-facing message (success, error, info).
-     *
-     * @param {AuthState} state - Current auth state
-     * @param {PayloadAction<AuthMessage>} action - Message payload
-     */
-    setMessage: (state: AuthState, action: PayloadAction<AuthMessage>) => {
-      state.message = action.payload;
-    },
-    /**
-     * Action to clear the current message.
-     *
-     * @param {AuthState} state - Current auth state
-     */
-    clearMessage: (state: AuthState) => {
-      state.message = null;
-    },
-  },
-  extraReducers: (builder) => {
-    const handlePending = (state: AuthState) => {
-      state.status = AuthStatus.LOADING;
-      state.message = null;
-    };
-    const handleAuthSuccess = (
-      state: AuthState,
-      action: PayloadAction<SuccessLoginResponse>,
-    ) => {
-      state.isAuthenticated = true;
-      state.userId = action.payload.id;
-      state.email = action.payload.email;
-      state.anonName = action.payload.anonName;
-      state.status = AuthStatus.SUCCEEDED;
-    };
-    const handleFailure = (
-      state: AuthState,
-      action: PayloadAction<unknown, string, unknown, SerializedError>,
-    ) => {
-      state.status = AuthStatus.FAILED;
-      if (
-        action.payload &&
-        typeof action.payload === "object" &&
-        "error" in action.payload
-      ) {
-        const payload = action.payload as { error?: string };
-        state.message = {
-          text: payload.error ?? "An unknown error occurred.",
-          type: AuthMessageType.ERROR,
-        };
-      } else {
-        state.message = {
-          text: "An unknown error occurred.",
-          type: AuthMessageType.ERROR,
-        };
-      }
-    };
+// =================================================================
+// SLICE DEFINITION
+// =================================================================
 
-    builder
-      // Login
-      .addCase(login.pending, handlePending)
-      .addCase(login.fulfilled, handleAuthSuccess)
-      .addCase(login.rejected, handleFailure)
-      // Register
-      .addCase(register.pending, handlePending)
-      .addCase(register.fulfilled, (state) => {
-        state.status = AuthStatus.SUCCEEDED;
-      })
-      .addCase(register.rejected, handleFailure)
-      // Request OTP
-      .addCase(requestOtp.pending, handlePending)
-      .addCase(requestOtp.fulfilled, (state) => {
-        state.status = AuthStatus.SUCCEEDED;
-      })
-      .addCase(requestOtp.rejected, handleFailure)
-      // Verify OTP (results in login)
-      .addCase(verifyOtp.pending, handlePending)
-      .addCase(verifyOtp.fulfilled, handleAuthSuccess)
-      .addCase(verifyOtp.rejected, handleFailure)
-      // Set Anon Name
-      .addCase(setAnonName.pending, handlePending)
-      .addCase(setAnonName.fulfilled, (state, action) => {
-        state.anonName = action.payload.anonName;
-        state.status = AuthStatus.SUCCEEDED;
-      })
-      .addCase(setAnonName.rejected, handleFailure)
-      // Logout
-      .addCase(logoutUser.fulfilled, (state) => {
-        // The logout() action is dispatched inside the thunk,
-        // so the state is already cleared. We just confirm the status.
-        state.status = AuthStatus.IDLE;
-      });
-  },
+const authSlice = createSlice({
+    name: "auth",
+    initialState,
+    reducers: {
+        logout: (state) => {
+            state.isAuthenticated = false;
+            state.email = null;
+            state.userId = null;
+            state.anonName = null;
+            state.isVerified = false;
+            state.status = AuthStatus.IDLE;
+            state.message = null; // Also clear any lingering messages on logout
+        },
+        setMessage: (state, action: PayloadAction<AuthMessage>) => {
+            state.message = action.payload;
+        },
+        clearMessage: (state) => {
+            state.message = null;
+        },
+    },
+    extraReducers: (builder) => {
+        // ================== REUSABLE STATE HANDLERS ==================
+
+        /** Handles pending states for all async thunks. */
+        const handlePending = (state: AuthState) => {
+            state.status = AuthStatus.LOADING;
+            state.message = null;
+        };
+
+        /** Handles failure states for all async thunks, parsing the error message. */
+        const handleFailure = (
+            state: AuthState,
+            action: PayloadAction<unknown, string, unknown, SerializedError>,
+        ) => {
+            state.status = AuthStatus.FAILED;
+            let errorMessage = "An unknown error occurred.";
+            if (action.payload && typeof action.payload === "object" && "error" in action.payload) {
+                errorMessage = (action.payload as { error?: string }).error || errorMessage;
+            } else if (action.error.message) {
+                errorMessage = action.error.message;
+            }
+            state.message = {
+                text: errorMessage,
+                type: AuthMessageType.ERROR,
+            };
+        };
+
+        /** Handles a fully successful authentication, setting all user details. */
+        const handleAuthSuccess = (
+            state: AuthState,
+            action: PayloadAction<SuccessLoginResponse>,
+        ) => {
+            state.isAuthenticated = true;
+            state.userId = action.payload.id || null;
+            state.email = action.payload.email;
+            state.anonName = action.payload.anonName;
+            state.isVerified = action.payload.isVerified;
+            state.status = AuthStatus.SUCCEEDED;
+        };
+
+        /** Handles state when a user is not verified. Sets email for the OTP UI. */
+        const handleVerificationRequired = (
+            state: AuthState,
+            action: PayloadAction<SuccessLoginResponse>,
+        ) => {
+            state.isAuthenticated = false;
+            state.isVerified = false;
+            state.email = action.payload.email;
+            state.userId = action.payload.id || null;
+            state.status = AuthStatus.SUCCEEDED;
+            state.message = {text: "Please check your email to verify your account.", type: AuthMessageType.INFO};
+        };
+
+        /** Handles a successful email verification. Resets the flow and prompts for login. */
+        const handleVerificationSuccess = (state: AuthState) => {
+            state.isAuthenticated = false;
+            state.isVerified = true;
+            state.status = AuthStatus.SUCCEEDED;
+            state.message = {
+                text: "Email verified successfully! Please log in.",
+                type: AuthMessageType.SUCCESS,
+            };
+        };
+
+        // ================== THUNK LIFECYCLE HANDLING ==================
+        builder
+            // REGISTER: Leads to verification step
+            .addCase(register.pending, handlePending)
+            .addCase(register.fulfilled, handleVerificationRequired)
+            .addCase(register.rejected, handleFailure)
+
+            // LOGIN: Can lead to auth success OR verification step
+            .addCase(login.pending, handlePending)
+            .addCase(login.fulfilled, (state, action) => {
+                if (action.payload.isVerified) {
+                    handleAuthSuccess(state, action);
+                } else {
+                    handleVerificationRequired(state, action);
+                }
+            })
+            .addCase(login.rejected, handleFailure)
+
+            // PASSWORDLESS OTP LOGIN: Leads to auth success
+            .addCase(verifyOtp.pending, handlePending)
+            .addCase(verifyOtp.fulfilled, handleAuthSuccess)
+            .addCase(verifyOtp.rejected, handleFailure)
+
+            // EMAIL VERIFICATION OTP: Leads to a state prompting login, NOT auth success
+            .addCase(verifyEmailOtp.pending, handlePending)
+            .addCase(verifyEmailOtp.fulfilled, handleVerificationSuccess)
+            .addCase(verifyEmailOtp.rejected, handleFailure)
+
+            // SET ANON NAME: Updates name for an already-authed user
+            .addCase(setAnonName.pending, handlePending)
+            .addCase(setAnonName.fulfilled, (state, action) => {
+                state.anonName = action.payload.anonName;
+                state.status = AuthStatus.SUCCEEDED;
+            })
+            .addCase(setAnonName.rejected, handleFailure)
+
+            // LOGOUT: Clears state
+            .addCase(logoutUser.fulfilled, (state) => {
+                state.status = AuthStatus.IDLE;
+            })
+
+            // Simple status updates for OTP requests
+            .addCase(requestOtp.pending, handlePending)
+            .addCase(requestOtp.rejected, handleFailure)
+            .addCase(requestOtp.fulfilled, (state) => {
+                state.status = AuthStatus.SUCCEEDED;
+            })
+            .addCase(requestOtpEmailVerification.pending, handlePending)
+            .addCase(requestOtpEmailVerification.rejected, handleFailure)
+            .addCase(requestOtpEmailVerification.fulfilled, (state) => {
+                state.status = AuthStatus.SUCCEEDED;
+            });
+    },
 });
 
-export const { logout, clearMessage, setMessage } = authSlice.actions;
+export const {logout, clearMessage, setMessage} = authSlice.actions;
 export default authSlice.reducer;
