@@ -22,6 +22,8 @@ export const POST = async (req: NextRequest) => {
             );
 
         if (
+            typeof userExists.otp !== "string" ||
+            userExists.otp.length === 0 ||
             userExists.otp !== otp ||
             !timingSafeEqual(Buffer.from(userExists.otp), Buffer.from(otp))
         ) {

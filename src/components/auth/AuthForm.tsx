@@ -64,7 +64,7 @@ export function AuthForm({mode, onModeChange}: AuthFormProps) {
         try {
             await dispatch(requestOtpEmailVerification({email: authEmail})).unwrap();
             toast.success("A new OTP has been sent.");
-        } catch (error) {
+        } catch {
             // Error toast is handled by the slice's `handleFailure` reducer
         } finally {
             setIsResending(false);
@@ -76,20 +76,30 @@ export function AuthForm({mode, onModeChange}: AuthFormProps) {
         try {
             switch (mode) {
                 case "register":
-                    await dispatch(
-                        registerUser({email: data.email || "", password: data.password!})
-                    ).unwrap();
+                    if (!data.email || !data.password) {
+                        toast.error("Email and password are required.");
+                        return;
+                    }
+                    await dispatch(registerUser({email: data.email, password: data.password})).unwrap();
                     break;
 
                 case "login":
+                    if (!data.email || !data.password) {
+                        toast.error("Email and password are required.");
+                        return;
+                    }
                     await dispatch(
-                        login({email: data.email || "", password: data.password!})
+                        login({email: data.email, password: data.password!})
                     ).unwrap();
                     break;
 
                 case "verifyEmail":
+                    if (!authEmail || !data.otp) {
+                        toast.error("Email and OTP are required.");
+                        return;
+                    }
                     await dispatch(
-                        verifyEmailOtp({email: authEmail!, otp: data.otp!})
+                        verifyEmailOtp({email: authEmail, otp: data.otp!})
                     ).unwrap();
                     break;
 
@@ -103,6 +113,10 @@ export function AuthForm({mode, onModeChange}: AuthFormProps) {
                     break;
 
                 case "anon":
+                    if (!data.anonName) {
+                        toast.error("Anonymous name is required.");
+                        return;
+                    }
                     await dispatch(setAnonName({anonName: data.anonName!})).unwrap();
                     break;
             }

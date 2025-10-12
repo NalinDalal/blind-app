@@ -26,7 +26,7 @@ interface LoginResponse {
     id: string;
     email: string;
     anonName: string | null;
-    verified: boolean;
+    isVerified: boolean;
 }
 
 /**
@@ -217,8 +217,6 @@ export async function POST(req: NextRequest) {
                     },
                 });
             })
-            .catch((err) => console.error("Failed to update login tracking:", err));
-
         const anonName = user.anonMapping?.anonName ?? null;
 
         return NextResponse.json<LoginResponse>(
@@ -226,7 +224,7 @@ export async function POST(req: NextRequest) {
                 id: user.id,
                 email: user.email,
                 anonName,
-                verified: user.verified,
+                isVerified: user.verified,
             },
             {status: 200},
         );

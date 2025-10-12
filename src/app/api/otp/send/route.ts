@@ -20,14 +20,12 @@ export const POST = async (req: NextRequest) => {
         }
 
         const otp = generateRandomOTP().toString();
-        const res = await prisma.user.update({
+        await prisma.user.update({
             where: {email},
             data: {
                 otp,
             },
         });
-
-        console.log(`otp update response`, res);
 
         // send mail
         await sendOtpMail({

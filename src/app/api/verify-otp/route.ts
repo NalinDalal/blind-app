@@ -56,7 +56,13 @@ export async function POST(req: NextRequest) {
                 {status: 401},
             );
         }
-        await prisma.user.update({where: {email}, data: {verified: true}});
+        const updatedUser = await prisma.user.update({
+            where: {email},
+            data: {verified: true},
+            select: {
+                verified: true
+            }
+        });
 
         const token = jwt.sign({id: user.id, email: user.email}, JWT_SECRET, {
             expiresIn: "2h",
@@ -77,7 +83,7 @@ export async function POST(req: NextRequest) {
             id: user.id,
             email: user.email,
             anonName,
-            isVerified: user.verified || false,
+            isVerified: updatedUser.verified,
         });
     } catch (err) {
         console.error(`Failed to verify OTP`, err);
