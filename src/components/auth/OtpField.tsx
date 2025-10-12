@@ -8,6 +8,13 @@ type Props = {
     errors: FieldErrors<Auth>;
 };
 
+/**
+ * Renders an OTP input field wired to react-hook-form and shows a validation message when present.
+ *
+ * @param register - react-hook-form `register` function for registering the `otp` field
+ * @param errors - Validation errors for the auth form; if `errors.otp` exists its `message` is displayed
+ * @returns The OTP input UI, including the input and any validation message
+ */
 export function OtpField({ register, errors }: Props) {
     return (
         <div>

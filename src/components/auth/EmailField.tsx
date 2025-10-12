@@ -8,6 +8,13 @@ type Props = {
     errors: FieldErrors<Auth>;
 };
 
+/**
+ * Render an email input bound to react-hook-form and display its validation message when present.
+ *
+ * @param register - react-hook-form register function wired to the "email" field
+ * @param errors - validation errors object for the Auth form; used to show the email error message
+ * @returns A JSX element containing the email input and an optional validation message
+ */
 export function EmailField({ register, errors }: Props) {
     return (
         <div>

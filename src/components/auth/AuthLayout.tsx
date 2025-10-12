@@ -7,6 +7,14 @@ type AuthLayoutProps = {
     children: React.ReactNode;
 };
 
+/**
+ * Renders a centered authentication card layout with a title, subtitle, and content area.
+ *
+ * @param title - The card title text displayed prominently.
+ * @param subtitle - Secondary text displayed below the title.
+ * @param children - React nodes rendered inside the card below the subtitle.
+ * @returns A React element containing the styled auth card.
+ */
 export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
     return (
         <div className="flex min-h-screen flex-col items-center justify-center p-4 font-sans bg-gray-100/50 dark:bg-black">
