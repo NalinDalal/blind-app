@@ -11,7 +11,8 @@
     "format:check": "biome check",
     "lint:fix": "biome check --write",
     "db:seed": "tsx prisma/seed.ts",
-    "email": "email dev --port 8080"
+    "email": "email dev --port 8080",
+    "generate:openapi": "tsx scripts/generate-openapi.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -61,6 +62,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/jest": "^30.0.0",
     "@types/js-cookie": "^3.0.6",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20",
     "@types/react": "^19.1.15",
     "@types/react-dom": "^19.1.9",

@@ -10,7 +10,7 @@ export function validatePost({
   content,
   authorId,
   college,
-  analyzeToxicity = (content: string) => ({ isToxic: false }),
+  analyzeToxicity = (_content: string) => ({ isToxic: false }),
 }: ValidatePostOptions) {
   if (!content || !authorId || !college) {
     return { ok: false, error: "Missing content, authorId, or college" };

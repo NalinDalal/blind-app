@@ -6,12 +6,18 @@
 
 import {createAsyncThunk, createSlice, type PayloadAction,} from "@reduxjs/toolkit";
 import {
-    type AuthMessage,
-    AuthMessageType,
-    type AuthState,
-    AuthStatus,
-    type LoginCredentials,
-    type SuccessLoginResponse,
+  createAsyncThunk,
+  createSlice,
+  type PayloadAction,
+  type SerializedError,
+} from "@reduxjs/toolkit";
+import {
+  type AuthMessage,
+  AuthMessageType,
+  type AuthState,
+  AuthStatus,
+  type LoginCredentials,
+  type SuccessLoginResponse,
 } from "@/redux/types";
 
 export const initialState: AuthState = {
@@ -270,30 +276,36 @@ export const verifyEmailOtp = createAsyncThunk<
  * @returns {Promise<{ anonName: string }>} Confirmation with the set name.
  */
 export const setAnonName = createAsyncThunk(
-    "auth/setAnonName",
-    async ({anonName}: { anonName: string }, {dispatch, rejectWithValue}) => {
-        try {
-            const response = await fetch("/api/anon/set", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({anonName}),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data);
-
-            dispatch(
-                setMessage({
-                    text: `Anonymous name set to ${data.anonName}!`,
-                    type: AuthMessageType.SUCCESS,
-                }),
-            );
-            return data;
-        } catch (err: unknown) {
-            const message =
-                err instanceof Error ? err.message : "An Unknown Error";
-            return rejectWithValue({error: message});
-        }
-    },
+  "auth/setAnonName",
+  async (
+    { anonName }: { anonName: string },
+    { getState, dispatch, rejectWithValue },
+  ) => {
+    const _state = getState() as RootState;
+    try {
+      const response = await fetch("/api/anon/set", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ anonName }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        return rejectWithValue(data);
+      }
+      dispatch(
+        setMessage({
+          text: `Anonymous name set to ${data.anonName}!`,
+          type: AuthMessageType.SUCCESS,
+        }),
+      );
+      return data;
+    } catch (err: unknown) {
+      if (err instanceof Error) return rejectWithValue({ error: err.message });
+      return rejectWithValue({ error: "An Unknown Error" });
+    }
+  },
 );
 
 /**
@@ -336,19 +348,36 @@ const authSlice = createSlice({
             state.message = null;
         },
     },
-    extraReducers: (builder) => {
-        // ================== SHARED REDUCER LOGIC ==================
-        const handlePending = (state: AuthState) => {
-            state.status = AuthStatus.LOADING;
-            state.message = null;
-        };
-
-        const handleFailure = (state: AuthState, action: PayloadAction<any>) => {
-            state.status = AuthStatus.FAILED;
-            state.message = {
-                text: action.payload?.error || "An unknown error occurred.",
-                type: AuthMessageType.ERROR,
-            };
+  },
+  extraReducers: (builder) => {
+    const handlePending = (state: AuthState) => {
+      state.status = AuthStatus.LOADING;
+      state.message = null;
+    };
+    const handleAuthSuccess = (
+      state: AuthState,
+      action: PayloadAction<SuccessLoginResponse>,
+    ) => {
+      state.isAuthenticated = true;
+      state.userId = action.payload.id;
+      state.email = action.payload.email;
+      state.anonName = action.payload.anonName;
+      state.status = AuthStatus.SUCCEEDED;
+    };
+    const handleFailure = (
+      state: AuthState,
+      action: PayloadAction<unknown, string, unknown, SerializedError>,
+    ) => {
+      state.status = AuthStatus.FAILED;
+      if (
+        action.payload &&
+        typeof action.payload === "object" &&
+        "error" in action.payload
+      ) {
+        const payload = action.payload as { error?: string };
+        state.message = {
+          text: payload.error ?? "An unknown error occurred.",
+          type: AuthMessageType.ERROR,
         };
 
         /** Handles a fully successful authentication, setting all user details. */
