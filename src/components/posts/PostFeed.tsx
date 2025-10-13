@@ -58,7 +58,6 @@ const PostFeed = () => {
         {data.pages.map((page) => (
           <React.Fragment
             key={Math.ceil(new Date().getMilliseconds() * Math.random() * 100)}
-<!--             key={page.nextCursor ?? page.posts[0]?.id ?? Math.random()} -->
           >
             {page.posts.map((post) => (
               <PostItem
