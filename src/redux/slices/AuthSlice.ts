@@ -248,7 +248,7 @@ export const requestOtpEmailVerification = createAsyncThunk(
 export const verifyEmailOtp = createAsyncThunk<
   { isVerified: boolean },
   { email: string; otp: string }
->("auth/verifyEmailOtp", async (credentials, { dispatch, rejectWithValue }) => {
+>("auth/verifyEmailOtp", async (credentials, { rejectWithValue }) => {
   try {
     const response = await fetch("/api/otp/verify", {
       method: "POST",

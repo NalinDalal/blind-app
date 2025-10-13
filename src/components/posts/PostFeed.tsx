@@ -28,7 +28,10 @@ const PostFeed = () => {
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
+          role="img"
+          aria-label="Loading spinner"
         >
+          <title>Loading spinner</title>
           <circle
             className="opacity-25"
             cx="12"
@@ -86,8 +89,10 @@ const PostFeed = () => {
         animate="visible"
         className="space-y-6"
       >
-        {data.pages.map((page, i) => (
-          <React.Fragment key={i}>
+        {data.pages.map((page) => (
+          <React.Fragment
+            key={page.nextCursor ?? page.posts[0]?.id ?? Math.random()}
+          >
             {page.posts.map((post) => (
               <PostItem
                 key={post.id}
@@ -113,7 +118,10 @@ const PostFeed = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
+                role="img"
+                aria-label="Loading spinner"
               >
+                <title>Loading spinner</title>
                 <circle
                   className="opacity-25"
                   cx="12"
