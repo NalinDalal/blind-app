@@ -46,30 +46,29 @@ const PostFeed = () => {
 
     // --- Main Component Render ---
 
-    return (
-        // The outer section with max-width and padding is removed, as it's now handled by the parent Home page component.
-        <div>
-            <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                className="space-y-6"
-            >
-                {data.pages.map((page) => (
-                    <React.Fragment
-                        key={Math.ceil(new Date().getMilliseconds() * Math.random() * 100)}
-                        // <!--             key={page.nextCursor ?? page.posts[0]?.id ?? Math.random()} -->
-                    >
-                        {page.posts.map((post) => (
-                            <PostItem
-                                key={post.id}
-                                post={post}
-                                isAuthenticated={isAuthenticated}
-                            />
-                        ))}
-                    </React.Fragment>
-                ))}
-            </motion.div>
+  return (
+    // The outer section with max-width and padding is removed, as it's now handled by the parent Home page component.
+    <div>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="space-y-6"
+      >
+        {data.pages.map((page) => (
+          <React.Fragment
+            key={Math.ceil(new Date().getMilliseconds() * Math.random() * 100)}
+          >
+            {page.posts.map((post) => (
+              <PostItem
+                key={post.id}
+                post={post}
+                isAuthenticated={isAuthenticated}
+              />
+            ))}
+          </React.Fragment>
+        ))}
+      </motion.div>
 
             <div className="flex justify-center mt-10">
                 <button
