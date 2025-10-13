@@ -1,19 +1,14 @@
-import {
-  type InfiniteData,
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
-import type { Comment } from "@/generated/prisma";
-import type { InfinitePostsData, NewCommentPayload } from "./types";
+import {type InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryClient,} from "@tanstack/react-query";
+import type {Comment} from "@/generated/prisma";
+import type {InfinitePostsData, NewCommentPayload} from "./types";
+import toast from "react-hot-toast";
 // Define a unique key for the post query to manage its cache
 export const POSTS_QUERY_KEY = ["posts"];
 
 export type LatestPostQueryData = {
-  latestPostId: string | null;
-  hasNewPosts?: boolean;
-  lastSeenLatestPostId?: string | null;
+    latestPostId: string | null;
+    hasNewPosts?: boolean;
+    lastSeenLatestPostId?: string | null;
 };
 
 // --- 1. FETCHER FUNCTIONS ---
@@ -24,16 +19,16 @@ export type LatestPostQueryData = {
  * @param pageParam - The cursor (ID of the last post) for pagination.
  */
 const fetchPosts = async ({
-  pageParam = null,
-}: {
-  pageParam: string | null;
+                              pageParam = null,
+                          }: {
+    pageParam: string | null;
 }): Promise<InfinitePostsData> => {
-  const url = `/api/post${pageParam ? `?cursor=${pageParam}` : ""}`;
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error("Failed to fetch posts");
-  }
-  return res.json();
+    const url = `/api/post${pageParam ? `?cursor=${pageParam}` : ""}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+        throw new Error("Failed to fetch posts");
+    }
+    return res.json();
 };
 
 /**
@@ -41,17 +36,17 @@ const fetchPosts = async ({
  * @param newComment - The comment data including content, postId, and optional parentId.
  */
 const addComment = async (newComment: NewCommentPayload) => {
-  const res = await fetch(`/api/comment`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(newComment),
-  });
+    const res = await fetch(`/api/comment`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(newComment),
+    });
 
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.error || "Failed to add comment");
-  }
-  return res.json();
+    if (!res.ok) {
+        const errorData = await res.json();
+        toast.error(errorData.error || "Failed to add comment");
+    }
+    return res.json();
 };
 
 // --- 2. CUSTOM HOOKS ---
@@ -61,27 +56,27 @@ const addComment = async (newComment: NewCommentPayload) => {
  * Custom hook to fetch the infinite scroll feed of posts.
  */
 export const useInfinitePosts = () => {
-  return useInfiniteQuery<
-    InfinitePostsData,
-    Error,
-    InfiniteData<InfinitePostsData>,
-    string[],
-    string | null
-  >({
-    queryKey: POSTS_QUERY_KEY,
-    queryFn: fetchPosts,
-    initialPageParam: null, // Start with no cursor
-    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-  });
+    return useInfiniteQuery<
+        InfinitePostsData,
+        Error,
+        InfiniteData<InfinitePostsData>,
+        string[],
+        string | null
+    >({
+        queryKey: POSTS_QUERY_KEY,
+        queryFn: fetchPosts,
+        initialPageParam: null, // Start with no cursor
+        getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    });
 };
 
 // --- FETCHER for the new endpoint ---
 const fetchLatestPostId = async (): Promise<LatestPostQueryData> => {
-  const res = await fetch("/api/post/latest");
-  if (!res.ok) {
-    throw new Error("Failed to fetch latest post ID");
-  }
-  return res.json();
+    const res = await fetch("/api/post/latest");
+    if (!res.ok) {
+        toast.error("Failed to fetch latest post ID");
+    }
+    return res.json();
 };
 
 /**
@@ -91,38 +86,38 @@ const fetchLatestPostId = async (): Promise<LatestPostQueryData> => {
 export const LATEST_POST_QUERY_KEY = ["latestPost"] as const;
 
 export const useNewPostsNotifier = () =>
-  useQuery<LatestPostQueryData>({
-    queryKey: LATEST_POST_QUERY_KEY,
-    queryFn: fetchLatestPostId,
-    // Poll every 30 seconds
-    refetchInterval: 30000,
-    // Don't refetch every time the user clicks back to the window.
-    refetchOnWindowFocus: false,
-    // Consider the data "fresh" for 25 seconds to prevent unnecessary refetches
-    // between polling intervals.
-    staleTime: 25000,
-  });
+    useQuery<LatestPostQueryData>({
+        queryKey: LATEST_POST_QUERY_KEY,
+        queryFn: fetchLatestPostId,
+        // Poll every 30 seconds
+        refetchInterval: 30000,
+        // Don't refetch every time the user clicks back to the window.
+        refetchOnWindowFocus: false,
+        // Consider the data "fresh" for 25 seconds to prevent unnecessary refetches
+        // between polling intervals.
+        staleTime: 25000,
+    });
 
 /**
  * Custom hook for the "add comment" mutation.
  * Handles cache invalidation automatically to show the new comment.
  */
 export const useAddComment = () => {
-  const queryClient = useQueryClient();
+    const queryClient = useQueryClient();
 
-  return useMutation<Comment, Error, NewCommentPayload>({
-    mutationFn: addComment,
-    // This is the key part for handling stale data
-    onSuccess: () => {
-      // When a comment is successfully added, invalidate the 'posts' query.
-      // This tells TanStack Query that the data for this key is stale,
-      // and it will automatically refetch it, updating the UI with the new comment.
-      console.log("Comment added, invalidating posts query to refetch.");
-      return queryClient.invalidateQueries({ queryKey: POSTS_QUERY_KEY });
-    },
-    onError: (error) => {
-      // You can add global error handling here, e.g., showing a toast notification.
-      console.error("Failed to add comment:", error);
-    },
-  });
+    return useMutation<Comment, Error, NewCommentPayload>({
+        mutationFn: addComment,
+        // This is the key part for handling stale data
+        onSuccess: () => {
+            // When a comment is successfully added, invalidate the 'posts' query.
+            // This tells TanStack Query that the data for this key is stale,
+            // and it will automatically refetch it, updating the UI with the new comment.
+            console.log("Comment added, invalidating posts query to refetch.");
+            return queryClient.invalidateQueries({queryKey: POSTS_QUERY_KEY});
+        },
+        onError: (error) => {
+            // You can add global error handling here, e.g., showing a toast notification.
+            console.log(`Failed to add comment: ${error?.cause?.toString()}`,);
+        },
+    });
 };

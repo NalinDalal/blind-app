@@ -4,6 +4,7 @@ import "./globals.css";
 import type React from "react";
 import Providers from "@/app/providers";
 import Header from "@/components/Header";
+import {Toaster} from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,6 +39,29 @@ export default function RootLayout({
       >
         <Providers>
           <Header />
+          <Toaster
+              position={"top-right"}
+              reverseOrder
+              toastOptions={{
+                // Define default options
+                className: '',
+                duration: 5000,
+                removeDelay: 1000,
+                style: {
+                  background: '#363636',
+                  color: '#fff',
+                },
+
+                // Default options for specific types
+                success: {
+                  duration: 3000,
+                  iconTheme: {
+                    primary: 'green',
+                    secondary: 'black',
+                  },
+                },
+              }}
+          />
           {children}
         </Providers>
       </body>
