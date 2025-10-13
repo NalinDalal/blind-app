@@ -4,8 +4,8 @@ import { UseFormRegister, FieldErrors } from "react-hook-form";
 import { Auth } from "@/Schema/Auth";
 
 type Props = {
-    register: UseFormRegister<Auth>;
-    errors: FieldErrors<Auth>;
+  register: UseFormRegister<Auth>;
+  errors: FieldErrors<Auth>;
 };
 
 /**
@@ -16,15 +16,15 @@ type Props = {
  * @returns The JSX element containing the anonName input and an inline error message when applicable
  */
 export function AnonNameField({ register, errors }: Props) {
-    return (
-        <div>
-            <Input
-                {...register("anonName")}
-                placeholder="Choose your anonymous name"
-            />
-            {errors.anonName && (
-                <p className="text-red-500 text-xs mt-1">{errors.anonName.message}</p>
-            )}
-        </div>
-    );
+  return (
+    <div>
+      <Input
+        {...register("anonName")}
+        placeholder="Choose your anonymous name"
+      />
+      {errors.anonName && (
+        <p className="text-red-500 text-xs mt-1">{errors.anonName.message}</p>
+      )}
+    </div>
+  );
 }

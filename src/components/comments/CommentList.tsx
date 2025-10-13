@@ -12,10 +12,10 @@ export function CommentList({ comments, postId }: CommentListProps) {
   }
 
   return (
-      <div className="space-y-4 mt-4">
-        {comments.map((comment) => (
-            <CommentItem key={comment.id} comment={comment} postId={postId} />
-        ))}
-      </div>
+    <div className="space-y-4 mt-4">
+      {comments.map((comment) => (
+        <CommentItem key={comment.id} comment={comment} postId={postId} />
+      ))}
+    </div>
   );
 }

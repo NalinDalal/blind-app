@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import {cookies} from "next/headers";
@@ -154,11 +154,9 @@ export async function POST(req: NextRequest) {
                     error: "Please verify your email before logging in.",
                     userId: user.id,
                     errorCode: "EMAIL_NOT_VERIFIED", // <-- Add this
-
                 },
                 {
                     status: 403,
-
                 },
             );
         }
@@ -180,43 +178,42 @@ export async function POST(req: NextRequest) {
         });
 
         // 10. Update user login tracking and logs
-        await prisma
-            .$transaction(async (tx) => {
-                await tx.user.update({
-                    where: {id: user.id},
-                    data: {
-                        lastLoginAt: new Date(),
-                        loginCount: {increment: 1},
-                    },
-                });
+        await prisma.$transaction(async (tx) => {
+            await tx.user.update({
+                where: {id: user.id},
+                data: {
+                    lastLoginAt: new Date(),
+                    loginCount: {increment: 1},
+                },
+            });
 
-                await tx.loginLog.create({
-                    data: {
-                        userId: user.id,
-                        ipAddress:
-                            req.headers.get("x-forwarded-for") ||
-                            req.headers.get("x-real-ip") ||
-                            "unknown",
-                        userAgent: req.headers.get("user-agent") || "unknown",
-                        status: "SUCCESS",
-                    },
-                });
+            await tx.loginLog.create({
+                data: {
+                    userId: user.id,
+                    ipAddress:
+                        req.headers.get("x-forwarded-for") ||
+                        req.headers.get("x-real-ip") ||
+                        "unknown",
+                    userAgent: req.headers.get("user-agent") || "unknown",
+                    status: "SUCCESS",
+                },
+            });
 
-                await tx.log.create({
-                    data: {
-                        action: "LOGIN_SUCCESS",
-                        details: `User logged in: ${email}`,
-                        userId: user.id,
-                        ipAddress:
-                            req.headers.get("x-forwarded-for") ||
-                            req.headers.get("x-real-ip") ||
-                            "unknown",
-                        userAgent: req.headers.get("user-agent") || "unknown",
-                        level: "INFO",
-                        category: "AUTH",
-                    },
-                });
-            })
+            await tx.log.create({
+                data: {
+                    action: "LOGIN_SUCCESS",
+                    details: `User logged in: ${email}`,
+                    userId: user.id,
+                    ipAddress:
+                        req.headers.get("x-forwarded-for") ||
+                        req.headers.get("x-real-ip") ||
+                        "unknown",
+                    userAgent: req.headers.get("user-agent") || "unknown",
+                    level: "INFO",
+                    category: "AUTH",
+                },
+            });
+        });
         const anonName = user.anonMapping?.anonName ?? null;
 
         return NextResponse.json<LoginResponse>(

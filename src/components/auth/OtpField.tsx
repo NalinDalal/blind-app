@@ -4,8 +4,8 @@ import { UseFormRegister, FieldErrors } from "react-hook-form";
 import { Auth } from "@/Schema/Auth";
 
 type Props = {
-    register: UseFormRegister<Auth>;
-    errors: FieldErrors<Auth>;
+  register: UseFormRegister<Auth>;
+  errors: FieldErrors<Auth>;
 };
 
 /**
@@ -16,17 +16,17 @@ type Props = {
  * @returns The OTP input UI, including the input and any validation message
  */
 export function OtpField({ register, errors }: Props) {
-    return (
-        <div>
-            <Input
-                {...register("otp")}
-                placeholder="Enter 6-digit OTP"
-                maxLength={6}
-                autoComplete="one-time-code"
-            />
-            {errors.otp && (
-                <p className="text-red-500 text-xs mt-2">{errors.otp.message}</p>
-            )}
-        </div>
-    );
+  return (
+    <div>
+      <Input
+        {...register("otp")}
+        placeholder="Enter 6-digit OTP"
+        maxLength={6}
+        autoComplete="one-time-code"
+      />
+      {errors.otp && (
+        <p className="text-red-500 text-xs mt-2">{errors.otp.message}</p>
+      )}
+    </div>
+  );
 }

@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
           id: true,
           email: true,
           createdAt: true,
-           verified:true
+          verified: true,
         },
       });
 
@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
         id: user.id,
         email: user.email,
         message: "Registration successful. Please login.",
-        isVerified:user.verified||false
+        isVerified: user.verified || false,
       },
       { status: 201 },
     );
