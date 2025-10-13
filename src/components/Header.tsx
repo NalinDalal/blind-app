@@ -77,21 +77,35 @@ const Header = (): JSX.Element => {
   const AuthButton = ({ isMobile = false }: { isMobile?: boolean }) => (
     <>
       {isAuthenticated ? (
-        <Button
-          onClick={handleLogout}
-          variant="link-no-hover"
-          size="sm"
-          disabled={status === "loading"}
-          className={cn(
-            "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-50",
-            isMobile && "w-full justify-start text-base",
-          )}
-        >
-          {status === "loading" && (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          )}
-          Logout
-        </Button>
+        <>
+          <Link href={"/me"}>
+            <Button
+              variant="link-no-hover"
+              size="sm"
+              className={cn(
+                "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-50",
+                isMobile && "w-full justify-start text-base",
+              )}
+            >
+              Profile
+            </Button>
+          </Link>
+          <Button
+            onClick={handleLogout}
+            variant="link-no-hover"
+            size="sm"
+            disabled={status === "loading"}
+            className={cn(
+              "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-50",
+              isMobile && "w-full justify-start text-base",
+            )}
+          >
+            {status === "loading" && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            Logout
+          </Button>
+        </>
       ) : (
         <Link
           href="/auth"

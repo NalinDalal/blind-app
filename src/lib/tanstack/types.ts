@@ -1,4 +1,10 @@
-import type { Comment, Post } from "@/generated/prisma";
+import type {
+  Comment,
+  CommentLike,
+  LoginLog,
+  Notification,
+  Post,
+} from "@/generated/prisma";
 
 // Type for the author's anonymous details
 export type AuthorDetails = {
@@ -34,3 +40,41 @@ export type NewCommentPayload = {
   authorId: string;
   parentId?: string;
 };
+
+// user tanstack section
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
+  verified: boolean;
+  verifiedAt: string;
+  isActive: boolean;
+  isLocked: boolean;
+  lockedAt: string | null;
+  lockedReason: string | null;
+  lastLogin: string;
+  loginCount: number;
+  anonMapping: {
+    anonName: string;
+  } | null;
+  posts: Post[];
+  comments: Comment[];
+  commentLikes: CommentLike[];
+  notifications: Notification[];
+  loginLogs: LoginLog[];
+  _count: {
+    posts: number;
+    comments: number;
+    notifications: number;
+    commentLikes: number;
+    loginLogs: number;
+  };
+}
+
+export interface NewPostPayload {
+  content: string;
+  authorId: string;
+  collage: string;
+}

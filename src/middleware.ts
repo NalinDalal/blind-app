@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 /**
  * Enforces simple authentication routing by redirecting based on the request path and auth cookie.
  *
- * Redirects unauthenticated requests targeting protected routes (paths starting with `/dashboard` or `/profile`) to `/auth`, redirects authenticated requests visiting auth-related pages (`/auth`, `/login`, `/register`) to `/`, and otherwise allows the request to proceed.
+ * Redirects unauthenticated requests targeting protected routes (paths starting with `/dashboard` or `/me`) to `/auth`, redirects authenticated requests visiting auth-related pages (`/auth`, `/login`, `/register`) to `/`, and otherwise allows the request to proceed.
  *
  * @returns A NextResponse that redirects to `/auth` for unauthenticated access to protected pages, redirects to `/` for authenticated access to auth pages, or `NextResponse.next()` to continue the request flow.
  */
@@ -16,7 +16,7 @@ export function middleware(request: NextRequest) {
   const authPages = ["/auth", "/login", "/register"];
   const isAuthPage = authPages.includes(pathname);
   const isProtectedPage =
-    pathname.startsWith("/dashboard") || pathname.startsWith("/profile");
+    pathname.startsWith("/dashboard") || pathname.startsWith("/me");
 
   // Redirect unauthenticated users from protected pages to the main auth page
   if (isProtectedPage && !authToken) {

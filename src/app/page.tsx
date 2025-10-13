@@ -101,6 +101,7 @@ export default function Home() {
                 strokeWidth="3"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                role={"alert"}
               >
                 <title>Show latest posts</title>
                 <path d="M12 5v14" />
