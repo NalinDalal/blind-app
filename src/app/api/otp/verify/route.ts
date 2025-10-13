@@ -20,12 +20,15 @@ export const POST = async (req: NextRequest) => {
         { error: `User doesn't exists can't perform verification` },
         { status: 404 },
       );
-
+    const stored =
+      typeof userExists.otp === "string"
+        ? Buffer.from(userExists.otp, "utf8")
+        : null;
+    const provided = Buffer.from(otp, "utf8");
     if (
-      typeof userExists.otp !== "string" ||
-      userExists.otp.length === 0 ||
-      userExists.otp !== otp ||
-      !timingSafeEqual(Buffer.from(userExists.otp), Buffer.from(otp))
+      !stored ||
+      stored.length !== provided.length ||
+      !timingSafeEqual(stored, provided)
     ) {
       await prisma.user.update({
         where: { email },

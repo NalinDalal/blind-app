@@ -58,6 +58,7 @@ const PostFeed = () => {
         {data.pages.map((page) => (
           <React.Fragment
             key={Math.ceil(new Date().getMilliseconds() * Math.random() * 100)}
+<!--             key={page.nextCursor ?? page.posts[0]?.id ?? Math.random()} -->
           >
             {page.posts.map((post) => (
               <PostItem
@@ -84,10 +85,10 @@ const PostFeed = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
-                role={"image"}
-                aria-labelledby={"Loading..."}
-                aria-label={`Loading...`}
+                role="img"
+                aria-label="Loading spinner"
               >
+                <title>Loading spinner</title>
                 <circle
                   className="opacity-25"
                   cx="12"
