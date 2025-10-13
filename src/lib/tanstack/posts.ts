@@ -5,6 +5,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 import type { Comment } from "@/generated/prisma";
 import type { InfinitePostsData, NewCommentPayload } from "./types";
 // Define a unique key for the post query to manage its cache
@@ -49,7 +50,7 @@ const addComment = async (newComment: NewCommentPayload) => {
 
   if (!res.ok) {
     const errorData = await res.json();
-    throw new Error(errorData.error || "Failed to add comment");
+    toast.error(errorData.error || "Failed to add comment");
   }
   return res.json();
 };
@@ -79,7 +80,7 @@ export const useInfinitePosts = () => {
 const fetchLatestPostId = async (): Promise<LatestPostQueryData> => {
   const res = await fetch("/api/post/latest");
   if (!res.ok) {
-    throw new Error("Failed to fetch latest post ID");
+    console.log("Failed to fetch latest post ID");
   }
   return res.json();
 };
@@ -122,7 +123,7 @@ export const useAddComment = () => {
     },
     onError: (error) => {
       // You can add global error handling here, e.g., showing a toast notification.
-      console.error("Failed to add comment:", error);
+      console.log(`Failed to add comment: ${error?.cause?.toString()}`);
     },
   });
 };

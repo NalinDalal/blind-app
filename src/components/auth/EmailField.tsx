@@ -1,11 +1,12 @@
 // components/auth/EmailField.tsx
+
+import type { FieldErrors, UseFormRegister } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { UseFormRegister, FieldErrors } from "react-hook-form";
-import { Auth } from "@/Schema/Auth";
+import type { Auth } from "@/Schema/Auth";
 
 type Props = {
-    register: UseFormRegister<Auth>;
-    errors: FieldErrors<Auth>;
+  register: UseFormRegister<Auth>;
+  errors: FieldErrors<Auth>;
 };
 
 /**
@@ -16,16 +17,16 @@ type Props = {
  * @returns A JSX element containing the email input and an optional validation message
  */
 export function EmailField({ register, errors }: Props) {
-    return (
-        <div>
-            <Input
-                {...register("email")}
-                placeholder="college-email@oriental.ac.in"
-                autoComplete="email"
-            />
-            {errors.email && (
-                <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
-            )}
-        </div>
-    );
+  return (
+    <div>
+      <Input
+        {...register("email")}
+        placeholder="college-email@oriental.ac.in"
+        autoComplete="email"
+      />
+      {errors.email && (
+        <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+      )}
+    </div>
+  );
 }

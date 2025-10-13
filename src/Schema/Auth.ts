@@ -5,14 +5,14 @@ import { z } from "zod";
 // Base schema for common fields
 const baseSchema = z.object({
   email: z
-      .string()
-      .email({ message: "Please enter a valid email address." })
-      .refine((email) => {
-        // Allow empty string to pass here; other schemas will enforce requirement
-        if (!email) return true;
-        const host = email.split("@")[1]?.toLowerCase();
-        return host === "oriental.ac.in" || host?.endsWith(".oriental.ac.in");
-      }, "Please use your official college email."),
+    .string()
+    .email({ message: "Please enter a valid email address." })
+    .refine((email) => {
+      // Allow empty string to pass here; other schemas will enforce requirement
+      if (!email) return true;
+      const host = email.split("@")[1]?.toLowerCase();
+      return host === "oriental.ac.in" || host?.endsWith(".oriental.ac.in");
+    }, "Please use your official college email."),
 });
 
 // Define a schema for each mode
@@ -21,8 +21,8 @@ const registerSchema = baseSchema.extend({
   // Re-define email here to make it required for this mode
   email: baseSchema.shape.email.min(1, { message: "Email is required." }),
   password: z
-      .string()
-      .min(6, { message: "Password must be at least 6 characters long." }),
+    .string()
+    .min(6, { message: "Password must be at least 6 characters long." }),
   otp: z.string().optional(),
   anonName: z.string().optional(),
 });
@@ -48,9 +48,9 @@ const otpSchema = baseSchema.extend({
 const verifyEmailSchema = z.object({
   mode: z.literal("verifyEmail"),
   otp: z
-      .string()
-      .min(6, { message: "OTP must be 6 characters." })
-      .max(6, { message: "OTP must be 6 characters." }),
+    .string()
+    .min(6, { message: "OTP must be 6 characters." })
+    .max(6, { message: "OTP must be 6 characters." }),
   // Make other fields optional as they aren't needed for this specific action
   email: z.string().optional(),
   password: z.string().optional(),
@@ -60,9 +60,9 @@ const verifyEmailSchema = z.object({
 const anonSchema = z.object({
   mode: z.literal("anon"),
   anonName: z
-      .string()
-      .min(3, { message: "Name must be at least 3 characters long." })
-      .max(20, { message: "Name must be 20 characters or less." }),
+    .string()
+    .min(3, { message: "Name must be at least 3 characters long." })
+    .max(20, { message: "Name must be 20 characters or less." }),
   // Make other fields optional
   email: z.string().optional(),
   password: z.string().optional(),

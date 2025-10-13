@@ -8,7 +8,8 @@ export type AuthorDetails = {
 // A comment that includes its author details and a list of its own replies
 export type CommentWithReplies = Comment & {
   author: AuthorDetails;
-  replies: (Comment & { author: AuthorDetails })[];
+  // This is the key change: a reply is also a 'CommentWithReplies'
+  replies: CommentWithReplies[];
 };
 
 // A post that includes its author, comment count, and a list of top-level comments
