@@ -2,11 +2,11 @@
 
 import { motion } from "framer-motion";
 import React from "react";
+import ErrorFallback from "@/components/ui/ErrorFallback";
+import Loader from "@/components/ui/Loader";
 import { useInfinitePosts } from "@/lib/tanstack/posts";
 import { useAppSelector } from "@/redux/hooks";
 import { PostItem } from "./PostItem";
-import Loader from "@/components/ui/Loader";
-import ErrorFallback from "@/components/ui/ErrorFallback";
 
 const PostFeed = () => {
   const {

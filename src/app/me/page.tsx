@@ -1,7 +1,7 @@
 "use client";
+import { motion } from "framer-motion"; // Import motion for page transitions
 import React from "react";
 import Profile from "@/components/user/Profile"; // Ensure this path is correct
-import { motion } from "framer-motion"; // Import motion for page transitions
 
 const Page = () => {
   return (

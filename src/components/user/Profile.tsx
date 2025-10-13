@@ -1,14 +1,14 @@
 "use client";
-import React from "react";
-import { Avatar } from "@/components/posts/Avatar";
-import { useAppSelector } from "@/redux/hooks";
-import { useUserProfile } from "@/lib/tanstack/user";
-import { redirect, RedirectType } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { enIN } from "date-fns/locale";
-import Loader from "@/components/ui/Loader";
-import ErrorFallback from "@/components/ui/ErrorFallback";
 import { motion } from "framer-motion";
+import { RedirectType, redirect } from "next/navigation";
+import React from "react";
+import { Avatar } from "@/components/posts/Avatar";
+import ErrorFallback from "@/components/ui/ErrorFallback";
+import Loader from "@/components/ui/Loader";
+import { useUserProfile } from "@/lib/tanstack/user";
+import { useAppSelector } from "@/redux/hooks";
 import MyPosts from "./MyPosts"; // <-- Import the new component
 
 const Profile = () => {
