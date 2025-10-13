@@ -2,7 +2,6 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import * as OTPAuth from "otpauth";
-import { PrismaClient } from "@/generated/prisma";
 import { getOrCreateSecret } from "@/helpers/otpSecret";
 import { prisma } from "@/lib/prisma";
 
