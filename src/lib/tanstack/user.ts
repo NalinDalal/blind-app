@@ -7,7 +7,7 @@ import {POSTS_QUERY_KEY} from "@/lib/tanstack/posts";
 export const USER_PROFILE_QUERY_KEY = (userId: string) => ["userProfile", userId]
 
 /**
- * Fetches a user's profile data from the API.
+ * Fetches a user's me data from the API.
  * @param userId - The ID of the user to fetch.
  */
 const fetchUserProfile = async (userId: string): Promise<UserProfile> => {
@@ -41,9 +41,9 @@ const createNewPost = async (newPost: NewPostPayload) => {
 // --- Custom Hooks ---
 
 /**
- * TanStack Query hook to fetch a user's profile data.
+ * TanStack Query hook to fetch a user's me data.
  *
- * @param userId - The ID of the user whose profile is being viewed.
+ * @param userId - The ID of the user whose me is being viewed.
  * @param initialData - Optional initial data to populate the cache.
  */
 
