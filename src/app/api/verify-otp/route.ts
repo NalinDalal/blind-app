@@ -4,9 +4,11 @@ import { type NextRequest, NextResponse } from "next/server";
 import * as OTPAuth from "otpauth";
 import { PrismaClient } from "@/generated/prisma";
 import { getOrCreateSecret } from "@/helpers/otpSecret";
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || "devsecret";
+const JWT_SECRET =
+  process.env.JWT_SECRET ??
+  (process.env.NODE_ENV === "development" ? "devsecret" : undefined);
 
 /**
  * Verify a user's TOTP, mark the user verified, set an authentication cookie, and return basic user info.
@@ -64,6 +66,12 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    if (!JWT_SECRET) {
+      return NextResponse.json(
+        { error: "Server misconfigured" },
+        { status: 500 },
+      );
+    }
     const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
       expiresIn: "2h",
     });

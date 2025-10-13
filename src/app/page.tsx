@@ -102,6 +102,7 @@ export default function Home() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
+                <title>Show latest posts</title>
                 <path d="M12 5v14" />
                 <path d="m19 12-7-7-7 7" />
               </svg>

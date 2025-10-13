@@ -47,6 +47,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({
           </div>
           {!comment.parentId && (
             <button
+              type="button"
               onClick={() => setIsReplying(!isReplying)}
               className="text-xs font-semibold text-gray-500 hover:text-blue-600 mt-1 px-1 cursor-pointer"
             >

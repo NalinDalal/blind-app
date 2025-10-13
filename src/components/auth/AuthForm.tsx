@@ -110,7 +110,7 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
             return;
           }
           await dispatch(
-            login({ email: data.email, password: data.password! }),
+            login({ email: data.email, password: data.password }),
           ).unwrap();
           break;
 
@@ -120,7 +120,7 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
             return;
           }
           await dispatch(
-            verifyEmailOtp({ email: authEmail, otp: data.otp! }),
+            verifyEmailOtp({ email: authEmail, otp: data.otp }),
           ).unwrap();
           break;
 
@@ -140,7 +140,7 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
             toast.error("Anonymous name is required.");
             return;
           }
-          await dispatch(setAnonName({ anonName: data.anonName! })).unwrap();
+          await dispatch(setAnonName({ anonName: data.anonName })).unwrap();
           break;
       }
     } catch (error) {

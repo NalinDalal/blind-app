@@ -51,6 +51,7 @@ const addComment = async (newComment: NewCommentPayload) => {
   if (!res.ok) {
     const errorData = await res.json();
     toast.error(errorData.error || "Failed to add comment");
+    throw new Error(errorData.error || "Failed to add comment");
   }
   return res.json();
 };
@@ -81,6 +82,7 @@ const fetchLatestPostId = async (): Promise<LatestPostQueryData> => {
   const res = await fetch("/api/post/latest");
   if (!res.ok) {
     console.log("Failed to fetch latest post ID");
+    throw new Error("Failed to fetch latest post ID");
   }
   return res.json();
 };
