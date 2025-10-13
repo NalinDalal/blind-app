@@ -1,8 +1,8 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import React from "react";
 import PostFeed from "@/components/posts/PostFeed";
 import { Button } from "@/components/ui/button";
 import type { LatestPostQueryData } from "@/lib/tanstack/posts";

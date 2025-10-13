@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
-import { useAddComment } from "@/lib/tanstack/posts";
-import { useAppSelector } from "@/redux/hooks";
+import type React from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAddComment } from "@/lib/tanstack/posts";
+import { useAppSelector } from "@/redux/hooks";
 
 interface CommentFormProps {
   postId: string;

@@ -1,6 +1,6 @@
 // components/auth/AuthToggle.tsx
 import { Button } from "@/components/ui/button";
-import { AuthMode } from "./AuthForm"; // We'll define AuthMode in AuthForm
+import type { AuthMode } from "./AuthForm"; // We'll define AuthMode in AuthForm
 
 type AuthToggleProps = {
   mode: AuthMode;

@@ -1,7 +1,8 @@
 // components/auth/PasswordField.tsx
+
+import type { FieldErrors, UseFormRegister } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { UseFormRegister, FieldErrors } from "react-hook-form";
-import { Auth } from "@/Schema/Auth";
+import type { Auth } from "@/Schema/Auth";
 
 type Props = {
   register: UseFormRegister<Auth>;

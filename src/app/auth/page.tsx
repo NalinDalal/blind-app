@@ -4,10 +4,10 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { AuthForm, type AuthMode } from "@/components/auth/AuthForm";
+import { AuthLayout } from "@/components/auth/AuthLayout";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { clearMessage } from "@/redux/slices/AuthSlice";
-import { AuthForm, AuthMode } from "@/components/auth/AuthForm";
-import { AuthLayout } from "@/components/auth/AuthLayout";
 
 /**
  * Get the previous value of a prop or state across renders.

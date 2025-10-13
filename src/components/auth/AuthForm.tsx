@@ -3,6 +3,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { useState } from "react"; // <-- IMPORT useState
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
@@ -16,14 +17,13 @@ import {
   verifyEmailOtp,
   verifyOtp,
 } from "@/redux/slices/AuthSlice";
-import { Auth, AuthSchema } from "@/Schema/Auth";
 import { AuthMessageType } from "@/redux/types";
+import { type Auth, AuthSchema } from "@/Schema/Auth";
+import { AnonNameField } from "./AnonNameField";
 import { AuthToggle } from "./AuthToggle";
 import { EmailField } from "./EmailField";
-import { PasswordField } from "./PasswordField";
 import { OtpField } from "./OtpField";
-import { AnonNameField } from "./AnonNameField";
-import { useState } from "react"; // <-- IMPORT useState
+import { PasswordField } from "./PasswordField";
 
 export type AuthMode = "register" | "login" | "otp" | "anon" | "verifyEmail";
 

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import type React from "react";
+import { Toaster } from "react-hot-toast";
 import Providers from "@/app/providers";
 import Header from "@/components/Header";
-import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

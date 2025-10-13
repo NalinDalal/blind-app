@@ -10,6 +10,7 @@ import {
   type PayloadAction,
   type SerializedError,
 } from "@reduxjs/toolkit";
+import type { RootState } from "@/redux/store";
 import {
   type AuthMessage,
   AuthMessageType,
@@ -18,7 +19,6 @@ import {
   type LoginCredentials,
   type SuccessLoginResponse,
 } from "@/redux/types";
-import { RootState } from "@/redux/store";
 
 export const initialState: AuthState = {
   isAuthenticated: false,

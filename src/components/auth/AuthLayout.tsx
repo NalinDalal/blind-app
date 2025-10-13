@@ -1,5 +1,5 @@
 // components/auth/AuthLayout.tsx
-import React from "react";
+import type React from "react";
 
 type AuthLayoutProps = {
   title: string;

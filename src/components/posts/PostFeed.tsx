@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
 import { motion } from "framer-motion";
+import React from "react";
 import { useInfinitePosts } from "@/lib/tanstack/posts";
 import { useAppSelector } from "@/redux/hooks";
 import { PostItem } from "./PostItem";

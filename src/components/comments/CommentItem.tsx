@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
 import { motion } from "framer-motion";
-import type { CommentWithReplies } from "@/lib/tanstack/types";
+import type React from "react";
+import { useState } from "react";
 import { Avatar } from "@/components/posts/Avatar";
+import type { CommentWithReplies } from "@/lib/tanstack/types";
 import { CommentForm } from "./CommentForm";
 import { CommentList } from "./CommentList";
 

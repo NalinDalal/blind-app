@@ -5,9 +5,9 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 import type { Comment } from "@/generated/prisma";
 import type { InfinitePostsData, NewCommentPayload } from "./types";
-import toast from "react-hot-toast";
 // Define a unique key for the post query to manage its cache
 export const POSTS_QUERY_KEY = ["posts"];
 
