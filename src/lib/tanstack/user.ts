@@ -63,23 +63,46 @@ export const useUserProfile = (userId: string, initialData?: UserProfile) => {
  * Handles optimistic updates and query invalidation on success.
  */
 
-export const useCreatePost = () => {
+export const useCreatePost = (loggedInUserId: string) => {
     const queryClient = useQueryClient();
+
     return useMutation({
         mutationFn: createNewPost,
-        onSuccess: async (data, variables, context: UserProfile) => {
+
+        // 1. Optimistically update the UI
+        onMutate: async (newPost: NewPostPayload) => {
+            await queryClient.cancelQueries({ queryKey: USER_PROFILE_QUERY_KEY(loggedInUserId) });
+            const previousProfile = queryClient.getQueryData<UserProfile>(USER_PROFILE_QUERY_KEY(loggedInUserId));
+
+            if (previousProfile) {
+                queryClient.setQueryData<UserProfile>(USER_PROFILE_QUERY_KEY(loggedInUserId), {
+                    ...previousProfile,
+                    _count: {
+                        ...previousProfile._count,
+                        posts: previousProfile._count.posts + 1,
+                    },
+                });
+            }
+            return { previousProfile };
+        },
+
+        // 2. On success, show a toast. `onSettled` will handle invalidation.
+        onSuccess: () => {
             toast.success("Post created successfully!");
-
-            // Invalidate the main post-feed to show the new post at the top
-            await queryClient.invalidateQueries({queryKey: POSTS_QUERY_KEY});
-
-            // We can also intelligently invalidate the profile of the logged-in user if we know their ID
-            const loggedInUserId = context.id; // Example of getting userId from context
-            await queryClient.invalidateQueries({queryKey: USER_PROFILE_QUERY_KEY(loggedInUserId)});
         },
-        onError: (error) => {
-            // Show a toast notification on failure
+
+        // 3. On error, roll back the optimistic update using the context
+        onError: (error, variables, context) => {
             toast.error(error.message || "An error occurred.");
+            if (context?.previousProfile) {
+                queryClient.setQueryData(USER_PROFILE_QUERY_KEY(loggedInUserId), context.previousProfile);
+            }
         },
-    })
-}
+
+        // 4. Always refetch after the mutation is done (either success or error)
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: USER_PROFILE_QUERY_KEY(loggedInUserId) });
+            queryClient.invalidateQueries({ queryKey: POSTS_QUERY_KEY });
+        },
+    });
+};
