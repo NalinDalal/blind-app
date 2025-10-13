@@ -73,7 +73,7 @@ export const useCreatePost = (loggedInUserId: string) => {
     mutationFn: createNewPost,
 
     // 1. Optimistically update the UI
-    onMutate: async (newPost: NewPostPayload) => {
+    onMutate: async (_newPost: NewPostPayload) => {
       await queryClient.cancelQueries({
         queryKey: USER_PROFILE_QUERY_KEY(loggedInUserId),
       });
@@ -102,7 +102,7 @@ export const useCreatePost = (loggedInUserId: string) => {
     },
 
     // 3. On error, roll back the optimistic update using the context
-    onError: (error, variables, context) => {
+    onError: (error, _variables, context) => {
       toast.error(error.message || "An error occurred.");
       if (context?.previousProfile) {
         queryClient.setQueryData(
