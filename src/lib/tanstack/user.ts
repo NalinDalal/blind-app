@@ -1,22 +1,25 @@
-import {NewPostPayload, UserProfile} from "@/lib/tanstack/types";
-import {Post} from "@/generated/prisma"
-import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import { NewPostPayload, UserProfile } from "@/lib/tanstack/types";
+import { Post } from "@/generated/prisma";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import {POSTS_QUERY_KEY} from "@/lib/tanstack/posts";
+import { POSTS_QUERY_KEY } from "@/lib/tanstack/posts";
 
-export const USER_PROFILE_QUERY_KEY = (userId: string) => ["userProfile", userId]
+export const USER_PROFILE_QUERY_KEY = (userId: string) => [
+  "userProfile",
+  userId,
+];
 
 /**
  * Fetches a user's me data from the API.
  * @param userId - The ID of the user to fetch.
  */
 const fetchUserProfile = async (userId: string): Promise<UserProfile> => {
-    const response = await fetch(`/api/user?id=${userId}`);
-    if (!response.ok) {
-        throw new Error(`Failed to Fetch User Profile`);
-    }
-    return await response.json() as UserProfile;
-}
+  const response = await fetch(`/api/user?id=${userId}`);
+  if (!response.ok) {
+    throw new Error(`Failed to Fetch User Profile`);
+  }
+  return (await response.json()) as UserProfile;
+};
 
 /**
  * Submits a new post to the API.
@@ -24,19 +27,19 @@ const fetchUserProfile = async (userId: string): Promise<UserProfile> => {
  */
 
 const createNewPost = async (newPost: NewPostPayload) => {
-    const response = await fetch(`/api/post`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(newPost)
-    })
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Failed to create post`)
-    }
-    return await response.json() as Post
-}
+  const response = await fetch(`/api/post`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(newPost),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || `Failed to create post`);
+  }
+  return (await response.json()) as Post;
+};
 
 // --- Custom Hooks ---
 
@@ -48,14 +51,14 @@ const createNewPost = async (newPost: NewPostPayload) => {
  */
 
 export const useUserProfile = (userId: string, initialData?: UserProfile) => {
-    return useQuery<UserProfile>({
-        queryKey: USER_PROFILE_QUERY_KEY(userId),
-        queryFn: () => fetchUserProfile(userId),
-        enabled: !!userId,
-        staleTime: 1000 * 60 * 5,
-        initialData
-    })
-}
+  return useQuery<UserProfile>({
+    queryKey: USER_PROFILE_QUERY_KEY(userId),
+    queryFn: () => fetchUserProfile(userId),
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 5,
+    initialData,
+  });
+};
 
 /**
  * TanStack Query mutation hook for creating a new post.
@@ -64,45 +67,57 @@ export const useUserProfile = (userId: string, initialData?: UserProfile) => {
  */
 
 export const useCreatePost = (loggedInUserId: string) => {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: createNewPost,
+  return useMutation({
+    mutationFn: createNewPost,
 
-        // 1. Optimistically update the UI
-        onMutate: async (newPost: NewPostPayload) => {
-            await queryClient.cancelQueries({ queryKey: USER_PROFILE_QUERY_KEY(loggedInUserId) });
-            const previousProfile = queryClient.getQueryData<UserProfile>(USER_PROFILE_QUERY_KEY(loggedInUserId));
+    // 1. Optimistically update the UI
+    onMutate: async (newPost: NewPostPayload) => {
+      await queryClient.cancelQueries({
+        queryKey: USER_PROFILE_QUERY_KEY(loggedInUserId),
+      });
+      const previousProfile = queryClient.getQueryData<UserProfile>(
+        USER_PROFILE_QUERY_KEY(loggedInUserId),
+      );
 
-            if (previousProfile) {
-                queryClient.setQueryData<UserProfile>(USER_PROFILE_QUERY_KEY(loggedInUserId), {
-                    ...previousProfile,
-                    _count: {
-                        ...previousProfile._count,
-                        posts: previousProfile._count.posts + 1,
-                    },
-                });
-            }
-            return { previousProfile };
-        },
+      if (previousProfile) {
+        queryClient.setQueryData<UserProfile>(
+          USER_PROFILE_QUERY_KEY(loggedInUserId),
+          {
+            ...previousProfile,
+            _count: {
+              ...previousProfile._count,
+              posts: previousProfile._count.posts + 1,
+            },
+          },
+        );
+      }
+      return { previousProfile };
+    },
 
-        // 2. On success, show a toast. `onSettled` will handle invalidation.
-        onSuccess: () => {
-            toast.success("Post created successfully!");
-        },
+    // 2. On success, show a toast. `onSettled` will handle invalidation.
+    onSuccess: () => {
+      toast.success("Post created successfully!");
+    },
 
-        // 3. On error, roll back the optimistic update using the context
-        onError: (error, variables, context) => {
-            toast.error(error.message || "An error occurred.");
-            if (context?.previousProfile) {
-                queryClient.setQueryData(USER_PROFILE_QUERY_KEY(loggedInUserId), context.previousProfile);
-            }
-        },
+    // 3. On error, roll back the optimistic update using the context
+    onError: (error, variables, context) => {
+      toast.error(error.message || "An error occurred.");
+      if (context?.previousProfile) {
+        queryClient.setQueryData(
+          USER_PROFILE_QUERY_KEY(loggedInUserId),
+          context.previousProfile,
+        );
+      }
+    },
 
-        // 4. Always refetch after the mutation is done (either success or error)
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: USER_PROFILE_QUERY_KEY(loggedInUserId) });
-            queryClient.invalidateQueries({ queryKey: POSTS_QUERY_KEY });
-        },
-    });
+    // 4. Always refetch after the mutation is done (either success or error)
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: USER_PROFILE_QUERY_KEY(loggedInUserId),
+      });
+      queryClient.invalidateQueries({ queryKey: POSTS_QUERY_KEY });
+    },
+  });
 };
