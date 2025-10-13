@@ -13,11 +13,9 @@ import {
 } from "@/lib/tanstack/posts";
 
 /**
- * Renders the Home page with a responsive post-feed and an animated "New posts available" notifier.
+ * Render the home page, showing the post feed and a notifier that appears when newer posts are available.
  *
- * This enhanced UI uses Framer Motion for animations and refined Tailwind CSS for a modern look.
- * When newer posts are detected, a notifier button animates from the top; activating it refetches
- * the feed and scrolls smoothly to the top to reveal the latest content.
+ * When activated, the notifier marks the latest posts as seen in the query cache, refetches the feed, and scrolls to the top.
  *
  * @returns The Home page React element
  */
