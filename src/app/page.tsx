@@ -101,6 +101,8 @@ export default function Home() {
                 strokeWidth="3"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                role={"alert"}
+
               >
                 <path d="M12 5v14" />
                 <path d="m19 12-7-7-7 7" />
