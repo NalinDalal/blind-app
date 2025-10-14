@@ -76,5 +76,5 @@ export interface UserProfile {
 export interface NewPostPayload {
   content: string;
   authorId: string;
-  collage: string;
+  college: string;
 }

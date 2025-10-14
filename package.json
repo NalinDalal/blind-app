@@ -49,6 +49,7 @@
     "react-hook-form": "^7.63.0",
     "react-hot-toast": "^2.6.0",
     "react-redux": "^9.2.0",
+    "react-textarea-autosize": "^8.5.9",
     "redux-persist": "^6.0.0",
     "swagger-ui": "^5.29.1",
     "swagger-ui-react": "^5.29.1",
