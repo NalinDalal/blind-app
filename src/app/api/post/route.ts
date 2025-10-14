@@ -87,7 +87,6 @@ export async function GET(req: NextRequest) {
             author: {
                 select: {
                     anonMapping: {
-                        // Correct relation name is anonMapping (one-to-one)
                         select: {
                             anonName: true,
                         },
@@ -98,6 +97,8 @@ export async function GET(req: NextRequest) {
                 select: {
                     comments: true,
                 },
+
+
             },
             // Fetch comments and their replies
             comments: {
@@ -107,6 +108,11 @@ export async function GET(req: NextRequest) {
                     author: {
                         select: {anonMapping: {select: {anonName: true}}},
                     },
+                    _count: {
+                        select: {
+                            commentLikes: true,
+                        },
+                    },
                     // For each top-level comment, include its replies
                     replies: {
                         orderBy: orderByInclude,
@@ -114,8 +120,14 @@ export async function GET(req: NextRequest) {
                             author: {
                                 select: {anonMapping: {select: {anonName: true}}},
                             },
+                            _count: {
+                                select: {
+                                    commentLikes: true,
+                                },
+                            },
                         },
                     },
+
                 },
             },
         };
