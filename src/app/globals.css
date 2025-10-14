@@ -1,51 +1,81 @@
 @import "tailwindcss";
 
 @layer base {
-  :root {
-    /* color params (L C h) — note no alpha here */
-    --background-oklch: 0.98 0.01 240;
-    --foreground-oklch: 0.08 0.01 240;
+    :root {
+        /* color params (L C h) — note no alpha here */
+        --background-oklch: 0.98 0.01 240;
+        --foreground-oklch: 0.08 0.01 240;
 
-    /* alpha defaults */
-    --bg-alpha: 1;
-    --fg-alpha: 1;
+        /* alpha defaults */
+        --bg-alpha: 1;
+        --fg-alpha: 1;
 
-    /* actual usable CSS colors */
-    --color-background: oklch(var(--background-oklch) / var(--bg-alpha));
-    --color-foreground: oklch(var(--foreground-oklch) / var(--fg-alpha));
+        /* actual usable CSS colors */
+        --color-background: oklch(var(--background-oklch) / var(--bg-alpha));
+        --color-foreground: oklch(var(--foreground-oklch) / var(--fg-alpha));
 
-    /* font fallbacks and vars (ensure --font-geist-sans is defined from Next font or @font-face) */
-    --font-sans: var(
-      --font-geist-sans,
-      system-ui,
-      -apple-system,
-      "Segoe UI",
-      Roboto,
-      "Helvetica Neue",
-      Arial
-    );
-    --font-mono: var(
-      --font-geist-mono,
-      ui-monospace,
-      SFMono-Regular,
-      Menlo,
-      Monaco,
-      "Roboto Mono",
-      "Courier New",
-      monospace
-    );
-  }
+        /* font fallbacks and vars (ensure --font-geist-sans is defined from Next font or @font-face) */
+        --font-sans: var(
+                --font-geist-sans,
+                system-ui,
+                -apple-system,
+                "Segoe UI",
+                Roboto,
+                "Helvetica Neue",
+                Arial
+        );
+        --font-mono: var(
+                --font-geist-mono,
+                ui-monospace,
+                SFMono-Regular,
+                Menlo,
+                Monaco,
+                "Roboto Mono",
+                "Courier New",
+                monospace
+        );
+    }
 
-  .dark {
-    --background-oklch: 0.08 0.01 240;
-    --foreground-oklch: 0.98 0.01 240;
-  }
+    .dark {
+        --background-oklch: 0.08 0.01 240;
+        --foreground-oklch: 0.98 0.01 240;
+    }
 
-  body {
-    font-family: var(--font-sans);
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-  }
+    body {
+        font-family: var(--font-sans);
+        background-color: var(--color-background);
+        color: var(--color-foreground);
+    }
+
+    /*
+    ============================================
+    Enhanced Scrollbar Styles
+    ============================================
+    */
+    /* Firefox */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: oklch(var(--foreground-oklch) / 0.5) oklch(var(--background-oklch) / 1);
+    }
+
+    /* Chrome, Edge, and Safari */
+    *::-webkit-scrollbar {
+        width: 12px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: var(--color-background);
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background-color: oklch(var(--foreground-oklch) / 0.5);
+        border-radius: 20px;
+        border: 3px solid var(--color-background);
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+        background-color: oklch(var(--foreground-oklch) / 0.7);
+    }
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
