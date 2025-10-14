@@ -1,14 +1,14 @@
 "use client";
-import React, { useState } from "react";
 // 1. Import motion from framer-motion
 import { motion } from "framer-motion";
+import { useState } from "react";
+import toast from "react-hot-toast";
 // 2. Import the auto-sizing textarea component
 import TextareaAutosize from "react-textarea-autosize";
-import { Avatar } from "./Avatar";
+import { getStudentDetailsFromEmail } from "@/helpers/studentDetails";
 import { useCreatePost, useUserProfile } from "@/lib/tanstack/user";
 import { useAppSelector } from "@/redux/hooks";
-import { getStudentDetailsFromEmail } from "@/helpers/studentDetails";
-import toast from "react-hot-toast";
+import { Avatar } from "./Avatar";
 
 const AddPost = () => {
   const { userId } = useAppSelector((state) => state.auth);
@@ -68,6 +68,7 @@ const AddPost = () => {
             <div className="flex items-center space-x-2 text-blue-500"></div>
 
             <button
+              type={"button"}
               onClick={handlePost}
               disabled={!postText.trim() || isPending}
               className="bg-blue-500 text-white font-bold px-5 py-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"

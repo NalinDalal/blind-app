@@ -3,6 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
+import AddPost from "@/components/posts/AddPost";
 import PostFeed from "@/components/posts/PostFeed";
 import { Button } from "@/components/ui/button";
 import type { LatestPostQueryData } from "@/lib/tanstack/posts";
@@ -11,7 +12,6 @@ import {
   POSTS_QUERY_KEY,
   useNewPostsNotifier,
 } from "@/lib/tanstack/posts";
-import AddPost from "@/components/posts/AddPost";
 import { useAppSelector } from "@/redux/hooks";
 
 /**

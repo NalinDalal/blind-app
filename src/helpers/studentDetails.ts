@@ -36,10 +36,10 @@ export function getStudentDetailsFromEmail(
   }
 
   const studentDetails: StudentDetails = {
-    collegeName: collegeNameMaps.get(collegeCode)!,
+    collegeName: collegeNameMaps.get(collegeCode) || "Unknown College",
     branch: branch.toUpperCase(),
-    admissionYear: 2000 + parseInt(year),
-    admissionSemester: parseInt(semester),
+    admissionYear: 2000 + parseInt(year, 10),
+    admissionSemester: parseInt(semester, 10),
     rollNumber: rollNumber, // The roll number is captured directly (e.g., "D02" or "253")
     fullId: `${collegeCode}${branch}${year}${semester}${rollNumber}`,
     // Admission type is determined if the roll number starts with 'D'

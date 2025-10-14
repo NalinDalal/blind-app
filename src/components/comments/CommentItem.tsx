@@ -1,15 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { ThumbsUp } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import { Avatar } from "@/components/posts/Avatar";
+import { useToggleCommentLike } from "@/lib/tanstack/posts";
 import type { CommentWithReplies } from "@/lib/tanstack/types";
+import { cn } from "@/utils/ui";
 import { CommentForm } from "./CommentForm";
 import { CommentList } from "./CommentList";
-import { cn } from "@/utils/ui";
-import { useToggleCommentLike } from "@/lib/tanstack/posts";
-import { ThumbsUp } from "lucide-react";
 
 interface CommentItemProps {
   comment: CommentWithReplies;
