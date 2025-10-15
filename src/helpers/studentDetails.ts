@@ -13,7 +13,11 @@ export interface StudentDetails {
 }
 
 /**
- * Parses a student email with the refined structure.
+ * Extracts student identification details from an institutional email address.
+ *
+ * Validates the email format and the college code against known mappings; returns `null` if the format is invalid or the college code is unrecognized.
+ *
+ * @returns A `StudentDetails` object containing `collegeName`, `branch`, `admissionYear`, `admissionSemester`, `rollNumber`, `fullId`, and `admissionType`, or `null` if parsing/validation fails.
  */
 export function getStudentDetailsFromEmail(
   email: string,
@@ -51,7 +55,15 @@ export function getStudentDetailsFromEmail(
 }
 
 /**
- * Generates a student email with the refined structure.
+ * Create a student email address using college, branch, year, semester, and roll number.
+ *
+ * @param collegeName - Full college name used to look up its code
+ * @param branch - Branch code (e.g., "CS", "EE"); case is normalized by the function
+ * @param admissionYear - Full admission year (e.g., 2023)
+ * @param admissionSemester - Admission semester number appended to the username
+ * @param rollNumber - Numeric part of the roll number (for diploma entries this is the numeric portion that will be prefixed with `D`)
+ * @param admissionType - Determines roll number formatting; `"Diploma (Lateral Entry)"` prefixes `D` and pads the numeric part to two digits
+ * @returns The constructed email address (e.g., `0105cs231253@oriental.ac.in`), or `null` if `collegeName` is not recognized
  */
 export function generateStudentEmail(
   collegeName: string,
