@@ -38,6 +38,7 @@ const createNewPost = async (newPost: NewPostPayload) => {
   if (!response.ok) {
     const errorData = await response.json();
     toast.error(errorData.error || `Failed to create post`);
+    throw new Error(errorData.error || "Failed to create post");
   }
   return (await response.json()) as Post;
 };

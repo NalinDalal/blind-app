@@ -59,7 +59,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({
               {comment.content}
             </p>
           </div>
-          <div className={"flex item-center gap-4 mt-1"}>
+          <div className="flex item-center gap-4 mt-1">
             <button
               type={"button"}
               onClick={handleLikeClick}

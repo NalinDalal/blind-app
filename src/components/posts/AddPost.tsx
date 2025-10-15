@@ -29,11 +29,16 @@ const AddPost = () => {
       const college =
         getStudentDetailsFromEmail(data?.email)?.collegeName ||
         "Oriental Group of Institutes";
-      createPost({
-        content: postText,
-        authorId: userId,
-        college,
-      });
+      createPost(
+        {
+          content: postText,
+          authorId: userId,
+          college,
+        },
+        {
+          onSuccess: () => setPostText(""),
+        },
+      );
       setPostText("");
     } catch (e) {
       toast.error("Something went wrong");
