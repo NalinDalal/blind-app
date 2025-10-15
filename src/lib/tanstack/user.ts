@@ -27,6 +27,7 @@ const fetchUserProfile = async (userId: string): Promise<UserProfile> => {
  */
 
 const createNewPost = async (newPost: NewPostPayload) => {
+  console.log(`Creating new post: `, newPost);
   const response = await fetch(`/api/post`, {
     method: "POST",
     headers: {
@@ -36,7 +37,7 @@ const createNewPost = async (newPost: NewPostPayload) => {
   });
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error(errorData.error || `Failed to create post`);
+    toast.error(errorData.error || `Failed to create post`);
   }
   return (await response.json()) as Post;
 };

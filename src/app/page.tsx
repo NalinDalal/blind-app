@@ -3,6 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
+import AddPost from "@/components/posts/AddPost";
 import PostFeed from "@/components/posts/PostFeed";
 import { Button } from "@/components/ui/button";
 import type { LatestPostQueryData } from "@/lib/tanstack/posts";
@@ -11,6 +12,7 @@ import {
   POSTS_QUERY_KEY,
   useNewPostsNotifier,
 } from "@/lib/tanstack/posts";
+import { useAppSelector } from "@/redux/hooks";
 
 /**
  * Render the home page, showing the post feed and a notifier that appears when newer posts are available.
@@ -21,6 +23,7 @@ import {
  */
 export default function Home() {
   const queryClient = useQueryClient();
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   const { data: newPostsData } = useNewPostsNotifier();
   const [lastSeenLatestPostId, setLastSeenLatestPostId] = React.useState<
@@ -117,8 +120,9 @@ export default function Home() {
                  bg-gray-100
                  dark:bg-gray-900"
       >
-        <div className="w-full max-w-3xl mt-12">
+        <div className="w-full max-w-3xl mt-12 space-y-10">
           {/* PostFeed is now wrapped in a container that controls its max-width for readability */}
+          {isAuthenticated && <AddPost />}
           <PostFeed />
         </div>
       </section>

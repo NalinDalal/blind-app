@@ -1,10 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { ThumbsUp } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import { Avatar } from "@/components/posts/Avatar";
+import { useToggleCommentLike } from "@/lib/tanstack/posts";
 import type { CommentWithReplies } from "@/lib/tanstack/types";
+import { cn } from "@/utils/ui";
 import { CommentForm } from "./CommentForm";
 import { CommentList } from "./CommentList";
 
@@ -19,11 +22,22 @@ export const CommentItem: React.FC<CommentItemProps> = ({
 }) => {
   const [isReplying, setIsReplying] = useState(false);
   const authorName = comment.author.anonMapping?.anonName ?? "Anonymous";
-
+  const { mutate: toggleLike, isPending: isLikePending } =
+    useToggleCommentLike();
   // Simple fade-in for new comments
   const commentVariants = {
     hidden: { opacity: 0, x: -10 },
     visible: { opacity: 1, x: 0 },
+  };
+
+  const likeCount = comment._count?.commentLikes ?? 0;
+  const isLikedByMe = !!comment.likedByMe;
+
+  const handleLikeClick = () => {
+    toggleLike({
+      postId,
+      commentId: comment.id,
+    });
   };
 
   return (
@@ -44,6 +58,26 @@ export const CommentItem: React.FC<CommentItemProps> = ({
             <p className="text-sm text-gray-600 dark:text-gray-300">
               {comment.content}
             </p>
+          </div>
+          <div className={"flex item-center gap-4 mt-1"}>
+            <button
+              type={"button"}
+              onClick={handleLikeClick}
+              disabled={isLikePending}
+              className={cn(
+                "flex items-center gap-1 text-xs font-semibold cursor-pointer transition-colors duration-200 disabled:cursor-not-allowed",
+                isLikedByMe
+                  ? "text-blue-600"
+                  : "text-gray-500 hover:text-blue-600",
+              )}
+            >
+              <ThumbsUp
+                size={16}
+                className={`h-4 w-4 ${isLikedByMe ? "text-blue-600" : ""}`}
+              />
+              {/* Like Count */}
+              <span>{likeCount}</span>
+            </button>
           </div>
           {!comment.parentId && (
             <button

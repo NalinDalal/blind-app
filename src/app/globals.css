@@ -46,6 +46,37 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
+
+  /*
+    ============================================
+    Enhanced Scrollbar Styles
+    ============================================
+    */
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: oklch(var(--foreground-oklch) / 0.5)
+      oklch(var(--background-oklch) / 1);
+  }
+
+  /* Chrome, Edge, and Safari */
+  *::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: var(--color-background);
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: oklch(var(--foreground-oklch) / 0.5);
+    border-radius: 20px;
+    border: 3px solid var(--color-background);
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: oklch(var(--foreground-oklch) / 0.7);
+  }
 }
 
 @custom-variant dark (&:where(.dark, .dark *));

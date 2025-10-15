@@ -15,6 +15,12 @@ export async function POST(req: NextRequest) {
   try {
     const { content, authorId, college } = await req.json();
     if (!content || !authorId || !college) {
+      console.log(
+        "Missing content, authorId, or college",
+        content,
+        authorId,
+        college,
+      );
       return NextResponse.json(
         { error: "Missing content, authorId, or college" },
         { status: 400 },
@@ -81,7 +87,6 @@ export async function GET(req: NextRequest) {
       author: {
         select: {
           anonMapping: {
-            // Correct relation name is anonMapping (one-to-one)
             select: {
               anonName: true,
             },
@@ -101,12 +106,22 @@ export async function GET(req: NextRequest) {
           author: {
             select: { anonMapping: { select: { anonName: true } } },
           },
+          _count: {
+            select: {
+              commentLikes: true,
+            },
+          },
           // For each top-level comment, include its replies
           replies: {
             orderBy: orderByInclude,
             include: {
               author: {
                 select: { anonMapping: { select: { anonName: true } } },
+              },
+              _count: {
+                select: {
+                  commentLikes: true,
+                },
               },
             },
           },

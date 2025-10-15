@@ -7,9 +7,23 @@ import {
 } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import type { Comment } from "@/generated/prisma";
-import type { InfinitePostsData, NewCommentPayload } from "./types";
+import type {
+  CommentWithReplies,
+  InfinitePostsData,
+  NewCommentPayload,
+} from "./types";
 // Define a unique key for the post query to manage its cache
 export const POSTS_QUERY_KEY = ["posts"];
+
+interface LikeCommentPayload {
+  commentId: string;
+  postId: string; // We need postId to find the comment in the cache
+}
+
+interface LikeCommentResponse {
+  liked: boolean;
+  likeCount: number;
+}
 
 export type LatestPostQueryData = {
   latestPostId: string | null;
@@ -52,6 +66,23 @@ const addComment = async (newComment: NewCommentPayload) => {
     const errorData = await res.json();
     toast.error(errorData.error || "Failed to add comment");
     throw new Error(errorData.error || "Failed to add comment");
+  }
+  return res.json();
+};
+
+const toggleCommentLike = async (
+  payload: LikeCommentPayload,
+): Promise<LikeCommentResponse> => {
+  const res = await fetch(`/api/like-comment`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ commentId: payload.commentId }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    toast.error(errorData.error || "Failed to like comment");
+    throw new Error(errorData.error || "Failed to like comment");
   }
   return res.json();
 };
@@ -126,6 +157,70 @@ export const useAddComment = () => {
     onError: (error) => {
       // You can add global error handling here, e.g., showing a toast notification.
       console.log(`Failed to add comment: ${error?.cause?.toString()}`);
+    },
+  });
+};
+
+/**
+ * Custom hook for toggling a like on a comment.
+ * It manually updates the specific comment in the cache on success
+ * to avoid a full refetch of all posts.
+ */
+
+export const useToggleCommentLike = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<LikeCommentResponse, Error, LikeCommentPayload>({
+    mutationFn: toggleCommentLike,
+    onSuccess: (data, variables) => {
+      // Manually update the query cache
+      queryClient.setQueryData<InfiniteData<InfinitePostsData>>(
+        POSTS_QUERY_KEY,
+        (oldData) => {
+          if (!oldData) return;
+
+          // Create a deep copy of the pages to avoid mutation issues
+          const newPages = oldData.pages.map((page) => ({
+            ...page,
+            posts: page.posts.map((post) => {
+              // Find the post that contains the liked comment
+              if (post.id !== variables.postId) {
+                return post;
+              }
+
+              // Recursive function to find and update the comment or reply
+              const updateComment = (
+                comment: CommentWithReplies,
+              ): CommentWithReplies => {
+                if (comment.id === variables.commentId) {
+                  // This is the comment we want to update
+                  return {
+                    ...comment,
+                    _count: { commentLikes: data.likeCount },
+                    likedByMe: data.liked,
+                  };
+                }
+                // Otherwise, check its replies
+                return {
+                  ...comment,
+                  replies: comment.replies.map(updateComment),
+                };
+              };
+
+              // Return the post with the updated comments list
+              return {
+                ...post,
+                comments: post.comments.map(updateComment),
+              };
+            }),
+          }));
+
+          return { ...oldData, pages: newPages };
+        },
+      );
+    },
+    onError: (_error) => {
+      toast.error("Failed to toggle comment like");
     },
   });
 };
