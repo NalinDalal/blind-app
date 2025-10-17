@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Loader from "@/components/ui/Loader";
 
@@ -52,11 +53,11 @@ export default function UserSearch() {
       }
 
       const json = await res.json();
-  const fetched: UserItem[] = json.users || [];
-  if (reset) setResults(fetched);
-  else setResults((prev) => [...prev, ...fetched]);
+      const fetched: UserItem[] = json.users || [];
+      if (reset) setResults(fetched);
+      else setResults((prev) => [...prev, ...fetched]);
       setNextCursor(json.nextCursor ?? null);
-    } catch (err) {
+    } catch (_err) {
       setError("Network error");
     } finally {
       setLoading(false);
@@ -74,7 +75,7 @@ export default function UserSearch() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === "Enter") {
               e.preventDefault();
               doSearch(true);
             }
@@ -103,18 +104,18 @@ export default function UserSearch() {
           disabled={loading || q.trim().length === 0}
           size="sm"
         >
-          {loading ? 'Searching...' : 'Search'}
+          {loading ? "Searching..." : "Search"}
         </Button>
       </div>
 
-      <div role="status" aria-live="polite" className="mt-2">
+      <output aria-live="polite" className="mt-2">
         {error && <div className="text-red-600">{error}</div>}
         {!error && loading && (
           <div className="flex items-center gap-2">
             <Loader text={"Searching..."} />
           </div>
         )}
-      </div>
+      </output>
 
       <ul className="mt-4 space-y-2" aria-live="polite">
         {results.length === 0 && !loading && q.trim().length > 0 && (
@@ -130,7 +131,7 @@ export default function UserSearch() {
       {nextCursor && (
         <div className="mt-4">
           <Button onClick={() => doSearch(false)} disabled={loading} size="sm">
-            {loading ? 'Loading...' : 'Load more'}
+            {loading ? "Loading..." : "Load more"}
           </Button>
         </div>
       )}
@@ -140,7 +141,11 @@ export default function UserSearch() {
 
 // Debounce: trigger search automatically 300ms after user stops typing
 // We use an effect so typing triggers an auto-search; the Search button still forces a call
-function useAutoSearch(q: string, doSearch: (reset?: boolean) => void, debounceRef: React.MutableRefObject<number | null>) {
+function useAutoSearch(
+  q: string,
+  doSearch: (reset?: boolean) => void,
+  debounceRef: React.MutableRefObject<number | null>,
+) {
   useEffect(() => {
     if (!q || q.trim().length === 0) return;
     // clear existing timer
