@@ -16,10 +16,7 @@ import { ThemeToggle } from "./ThemeToggle";
 /**
  * Navigation links used across desktop and mobile.
  */
-const NAV_LINKS = [
-  { href: "/", label: "Explore" },
-  { href: "/about", label: "About Us" },
-];
+const NAV_LINKS = [{ href: "/", label: "Explore" }];
 
 /**
  * Header component with improved mobile drawer scrim + accessibility.
