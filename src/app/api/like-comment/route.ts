@@ -1,5 +1,4 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@/generated/prisma";
 import { getAuthenticatedUserId } from "@/helpers/auth/user";
 import { prisma } from "@/lib/prisma";
 
@@ -120,19 +119,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Comment not found" }, { status: 404 });
     }
 
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === "P2025") {
-        return NextResponse.json(
-          { error: "Comment or post not found" },
-          { status: 404 },
-        );
-      }
-      if (error.code === "P2003") {
-        return NextResponse.json(
-          { error: "Invalid comment or user reference" },
-          { status: 400 },
-        );
-      }
+    // Avoid importing the generated Prisma namespace at module-evaluation time
+    // (which can cause bundler resolution issues). Instead, detect Prisma
+    // client errors by checking the `code` property on the error object.
+    // This keeps the runtime free of heavy Prisma exports while still
+    // handling known Prisma error codes.
+    const maybePrismaError = error as unknown as { code?: string };
+    if (maybePrismaError?.code === "P2025") {
+      return NextResponse.json(
+        { error: "Comment or post not found" },
+        { status: 404 },
+      );
+    }
+
+    if (maybePrismaError?.code === "P2003") {
+      return NextResponse.json(
+        { error: "Invalid comment or user reference" },
+        { status: 400 },
+      );
     }
 
     console.error("Comment like error:", error);
