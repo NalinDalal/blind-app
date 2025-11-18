@@ -1,0 +1,213 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER & AUTH
+// ============================================
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Verification & Security
+  verified     Boolean   @default(false)
+  verifiedAt   DateTime?
+  isActive     Boolean   @default(true)
+  isLocked     Boolean   @default(false)
+  lockedAt     DateTime?
+  lockedReason String?
+
+  // Login tracking
+  lastLoginAt DateTime?
+  loginCount  Int       @default(0)
+
+  // OTP for email verification/password reset
+  otp          String?
+  otpExpiresAt DateTime?
+
+  // Relations
+  posts         Post[]
+  comments      Comment[]
+  notifications Notification[]
+  commentLikes  CommentLike[]
+  anonMapping   AnonMapping?
+  loginLogs     LoginLog[]
+
+  @@index([email])
+  @@index([isActive])
+  @@index([verified])
+}
+
+model AnonMapping {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  anonName  String   @unique
+  createdAt DateTime @default(now())
+
+  @@index([anonName])
+}
+
+model LoginLog {
+  id        String      @id @default(uuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ipAddress String
+  userAgent String      @db.Text
+  status    LoginStatus
+  createdAt DateTime    @default(now())
+
+  @@index([userId])
+  @@index([createdAt(sort: Desc)])
+  @@index([status])
+}
+
+enum LoginStatus {
+  SUCCESS
+  FAILED
+  LOCKED
+  UNVERIFIED
+}
+
+// ============================================
+// POSTS & COMMENTS
+// ============================================
+
+model Post {
+  id              String    @id @default(uuid())
+  content         String    @db.Text
+  college         String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime? // Soft delete
+  authorId        String
+  author          User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments        Comment[]
+  isFlagged       Boolean   @default(false)
+  engagementScore Int       @default(0)
+
+  // Additional fields
+  isAnonymous Boolean  @default(false)
+  viewCount   Int      @default(0)
+  isEdited    Boolean  @default(false)
+  isPinned    Boolean  @default(false)
+  tags        String[]
+
+  @@index([authorId])
+  @@index([college])
+  @@index([createdAt(sort: Desc)])
+  @@index([engagementScore(sort: Desc)])
+  @@index([isFlagged])
+  @@index([deletedAt])
+}
+
+model Comment {
+  id           String        @id @default(uuid())
+  content      String        @db.Text
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deletedAt    DateTime? // Soft delete
+  postId       String
+  post         Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId     String
+  author       User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  isFlagged    Boolean       @default(false)
+  commentLikes CommentLike[]
+
+  // Self-referential for replies
+  parentId String?
+  parent   Comment?  @relation("Replies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("Replies")
+
+  @@index([postId])
+  @@index([authorId])
+  @@index([parentId])
+  @@index([createdAt(sort: Desc)])
+  @@index([deletedAt])
+}
+
+model CommentLike {
+  id        String   @id @default(uuid())
+  commentId String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([commentId, userId])
+  @@index([commentId])
+  @@index([userId])
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+model Notification {
+  id      String           @id @default(uuid())
+  userId  String
+  user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type    NotificationType
+  message String
+  read    Boolean          @default(false)
+  readAt  DateTime?
+
+  // References
+  postId    String?
+  commentId String?
+  actorId   String? // User who triggered the notification
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+  @@index([createdAt(sort: Desc)])
+  @@index([type])
+}
+
+enum NotificationType {
+  COMMENT_LIKE
+  POST_COMMENT
+  COMMENT_REPLY
+  MENTION
+  SYSTEM
+}
+
+// ============================================
+// LOGGING
+// ============================================
+
+model Log {
+  id        String   @id @default(uuid())
+  action    String
+  details   String?  @db.Text
+  userId    String?
+  ipAddress String?
+  userAgent String?  @db.Text
+  level     LogLevel @default(INFO)
+  category  String?
+  createdAt DateTime @default(now())
+
+  @@index([action])
+  @@index([level])
+  @@index([category])
+  @@index([createdAt(sort: Desc)])
+  @@index([userId])
+}
+
+enum LogLevel {
+  DEBUG
+  INFO
+  WARN
+  ERROR
+  CRITICAL
+}
