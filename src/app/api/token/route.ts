@@ -5,7 +5,7 @@
  */
 import jwt from "jsonwebtoken";
 import { type NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@/generated/prisma";
+import { prisma } from "@/lib/prisma";
 
 /**
  * JWT secret key for token signing.
@@ -13,11 +13,6 @@ import { PrismaClient } from "@/generated/prisma";
  * @constant {string}
  */
 const JWT_SECRET = process.env.JWT_SECRET || "devsecret";
-/**
- * Prisma client instance for database operations.
- * @constant {PrismaClient}
- */
-const prisma = new PrismaClient();
 
 /**
  * POST endpoint to generate a JWT token for authenticated users.

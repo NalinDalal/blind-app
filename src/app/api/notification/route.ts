@@ -4,13 +4,12 @@
  * @module api/notification
  */
 import { type NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@/generated/prisma";
+import { prisma } from "@/lib/prisma";
 
 /**
  * Prisma client instance for database operations.
  * @constant {PrismaClient}
  */
-const prisma = new PrismaClient();
 
 // Create a notification
 /**

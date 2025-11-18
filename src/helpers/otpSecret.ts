@@ -5,13 +5,12 @@
  */
 import crypto from "node:crypto";
 import * as OTPAuth from "otpauth";
-import { PrismaClient } from "@/generated/prisma";
+import { prisma } from "@/lib/prisma";
 
 /**
  * Prisma client instance for database operations.
  * @constant {PrismaClient}
  */
-const prisma = new PrismaClient();
 
 /**
  * Retrieve or create the OTPAuth secret associated with the given email.

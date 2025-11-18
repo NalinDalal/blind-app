@@ -4,7 +4,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -228,9 +227,6 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     console.error("Login error:", error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      console.error("Prisma error code:", error.code);
-    }
 
     return NextResponse.json({ error: "Login failed" }, { status: 500 });
   }
