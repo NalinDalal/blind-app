@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUserId } from "@/helpers/auth/user";
 import { prisma } from "@/lib/prisma";
+import type { PrismaClient } from "@prisma/client";
 
 // Constants
 const ENGAGEMENT_SCORES = {
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest) {
 
     // 3. Use transaction for atomicity
     const result: LikeCommentResponse = await prisma.$transaction(
-      async (tx) => {
+      async (tx: PrismaClient) => {
         // Verify comment exists
         const comment = await tx.comment.findUnique({
           where: { id: commentId },

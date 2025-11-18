@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { analyzeToxicity } from "@/helpers/contentModeration";
 import { prisma } from "@/lib/prisma";
+import type { PrismaClient } from "@prisma/client";
 
 // Use a default during build/dev to avoid throwing at module evaluation.
 // In production, ensure JWT_SECRET is set in the environment.
@@ -115,7 +116,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
 
     // 5. Create mapping within transaction
     const mapping = await prisma.$transaction(
-      async (tx) => {
+      async (tx: PrismaClient) => {
         // Check if user already has an anonName (should check first)
         const existingUser = await tx.anonMapping.findUnique({
           where: { userId },

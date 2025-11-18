@@ -7,6 +7,11 @@ No other identifiers (email, real name, etc.) are searchable.
 import { type NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUserId } from "@/helpers/auth/user";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@/generated/prisma";
+
+type Mapping = Prisma.AnonMappingGetPayload<{
+  select: { anonName: true; userId: true; createdAt: true };
+}>;
 
 export async function GET(req: NextRequest) {
   try {
@@ -61,7 +66,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Only expose anonName to the client to preserve anonymity
-    const users = mappings.map((m) => m.anonName);
+    const users = mappings.map((m: { anonName: string }) => m.anonName);
 
     let nextCursor: string | null = null;
     if (mappings.length === limit)
@@ -105,7 +110,7 @@ export async function findUsersByAnonName(q: string): Promise<SafeUser[]> {
     take: limit,
   });
 
-  return mappings.map((m) => ({
+  return mappings.map((m: Mapping) => ({
     id: m.userId,
     anonName: m.anonName,
     createdAt: m.createdAt,

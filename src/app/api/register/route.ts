@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { type NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import type { PrismaClient } from "@prisma/client";
 
 const EMAIL_REGEX = /^\w+@oriental\.ac\.in$/i;
 const PASSWORD_MIN_LENGTH = 8;
@@ -80,7 +81,7 @@ export async function POST(req: NextRequest) {
     // 3. Generate OTP for email verification
 
     // 4. Create user with transaction
-    const user = await prisma.$transaction(async (tx) => {
+    const user = await prisma.$transaction(async (tx: PrismaClient) => {
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
 
