@@ -2,7 +2,7 @@
 
 ## Base Information
 
-- **Base URL:** `https://your-domain.com/api`
+- **Base URL:** `blind-app-cyan.vercel.app`
 - **Authentication:** JWT Bearer tokens
 - **Content-Type:** `application/json`
 - **OpenAPI Spec:** [docs/OPENAPI.yaml](OPENAPI.yaml)
