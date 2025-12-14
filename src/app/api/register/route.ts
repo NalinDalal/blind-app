@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     // 3. Generate OTP for email verification
 
     // 4. Create user with transaction
-    const user = await prisma.$transaction(async (tx) => {
+    const user = await prisma.$transaction(async (tx: typeof prisma) => {
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
 

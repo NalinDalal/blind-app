@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     // 3. Use transaction for atomicity
     const result: LikeCommentResponse = await prisma.$transaction(
-      async (tx) => {
+      async (tx: typeof prisma) => {
         // Verify comment exists
         const comment = await tx.comment.findUnique({
           where: { id: commentId },

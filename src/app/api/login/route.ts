@@ -181,7 +181,7 @@ export async function POST(req: NextRequest) {
     });
 
     // 10. Update user login tracking and logs
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: typeof prisma) => {
       await tx.user.update({
         where: { id: user.id },
         data: {
