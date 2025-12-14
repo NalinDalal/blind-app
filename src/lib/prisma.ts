@@ -4,7 +4,7 @@
  * to prevent connection pool exhaustion in development.
  * @module lib/prisma
  */
-import { PrismaClient } from "@/generated/prisma";
+import { PrismaClient } from "@prisma/client";
 
 /**
  * Global object augmentation for Prisma Client.
