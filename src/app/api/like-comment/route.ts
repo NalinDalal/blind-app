@@ -1,4 +1,3 @@
-import type { PrismaClient } from "@prisma/client";
 import { type NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUserId } from "@/helpers/auth/user";
 import { prisma } from "@/lib/prisma";
@@ -41,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     // 3. Use transaction for atomicity
     const result: LikeCommentResponse = await prisma.$transaction(
-      async (tx: PrismaClient) => {
+      async (tx) => {
         // Verify comment exists
         const comment = await tx.comment.findUnique({
           where: { id: commentId },

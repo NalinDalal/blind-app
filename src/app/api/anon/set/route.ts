@@ -1,5 +1,3 @@
-import type { PrismaClient } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
@@ -116,7 +114,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
 
     // 5. Create mapping within transaction
     const mapping = await prisma.$transaction(
-      async (tx: PrismaClient) => {
+      async (tx) => {
         // Check if user already has an anonName (should check first)
         const existingUser = await tx.anonMapping.findUnique({
           where: { userId },
@@ -167,7 +165,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     }
 
     // Handle Prisma errors
-    if (error instanceof PrismaClientKnownRequestError) {
+    if (error && typeof error === "object" && "code" in error) {
       if (error.code === "P2002") {
         return NextResponse.json(
           { error: "anonName already taken" },

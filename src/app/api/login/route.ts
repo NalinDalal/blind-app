@@ -1,6 +1,4 @@
 export const dynamic = "force-dynamic";
-
-import type { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
@@ -183,7 +181,7 @@ export async function POST(req: NextRequest) {
     });
 
     // 10. Update user login tracking and logs
-    await prisma.$transaction(async (tx: PrismaClient) => {
+    await prisma.$transaction(async (tx) => {
       await tx.user.update({
         where: { id: user.id },
         data: {

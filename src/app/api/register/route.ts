@@ -1,4 +1,3 @@
-import type { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { type NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -81,7 +80,7 @@ export async function POST(req: NextRequest) {
     // 3. Generate OTP for email verification
 
     // 4. Create user with transaction
-    const user = await prisma.$transaction(async (tx: PrismaClient) => {
+    const user = await prisma.$transaction(async (tx) => {
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
 
