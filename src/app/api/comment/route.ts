@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const comment = await prisma.$transaction(async (tx) => {
+    const comment = await prisma.$transaction(async (tx: typeof prisma) => {
       // 1. Check toxicity first (fast, no DB call)
       const toxicityResult = analyzeToxicity(content);
       if (toxicityResult.isToxic) {

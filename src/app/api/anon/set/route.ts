@@ -114,7 +114,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
 
     // 5. Create mapping within transaction
     const mapping = await prisma.$transaction(
-      async (tx) => {
+      async (tx: typeof prisma) => {
         // Check if user already has an anonName (should check first)
         const existingUser = await tx.anonMapping.findUnique({
           where: { userId },
