@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import type { Prisma } from "@/generated/prisma";
+import type { Prisma } from "@prisma/client";
 import { getAuthenticatedUserId } from "@/helpers/auth/user";
 import { analyzeToxicity } from "@/helpers/contentModeration";
 import { prisma } from "@/lib/prisma";
