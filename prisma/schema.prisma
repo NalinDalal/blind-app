@@ -42,6 +42,22 @@ model User {
   anonMapping   AnonMapping?
   loginLogs     LoginLog[]
 
+  // Follow system
+  followedBy   Follow[]  @relation("Following")
+  following    Follow[]  @relation("Followers")
+
+  // Chat system
+  sentMessages     Message[] @relation("MessageSender")
+  receivedMessages Message[] @relation("MessageReceiver")
+  chatRooms        ChatRoomMember[]
+
+  // Calls
+  madeCalls  Call[] @relation("Caller")
+  receivedCalls Call[] @relation("Callee")
+
+  // Post votes
+  postVotes PostVote[]
+
   @@index([email])
   @@index([isActive])
   @@index([verified])
@@ -102,6 +118,12 @@ model Post {
   isPinned    Boolean  @default(false)
   tags        String[]
 
+  // Voting
+  votes PostVote[]
+
+  // Shares
+  shares Share[]
+
   @@index([authorId])
   @@index([college])
   @@index([createdAt(sort: Desc)])
@@ -149,6 +171,185 @@ model CommentLike {
 }
 
 // ============================================
+// VOTING SYSTEM (Reddit-style)
+// ============================================
+
+model PostVote {
+  id        String     @id @default(uuid())
+  postId    String
+  post      Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vote      VoteType
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+enum VoteType {
+  UPVOTE
+  DOWNVOTE
+}
+
+// ============================================
+// SHARE SYSTEM
+// ============================================
+
+model Share {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@index([postId])
+  @@index([userId])
+}
+
+// ============================================
+// FOLLOW / FRIEND SYSTEM
+// ============================================
+
+model Follow {
+  id          String       @id @default(uuid())
+  followerId  String
+  follower    User         @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  followingId String
+  following   User         @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+  status      FollowStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+  @@index([status])
+}
+
+enum FollowStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+// ============================================
+// CHAT SYSTEM
+// ============================================
+
+model ChatRoom {
+  id        String   @id @default(uuid())
+  type      ChatRoomType @default(DIRECT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members   ChatRoomMember[]
+  messages  Message[]
+
+  @@index([type])
+  @@index([createdAt(sort: Desc)])
+}
+
+enum ChatRoomType {
+  DIRECT
+  GROUP
+}
+
+model ChatRoomMember {
+  id        String   @id @default(uuid())
+  roomId    String
+  room      ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String   @default("member") // member, admin
+  joinedAt  DateTime @default(now())
+
+  @@unique([roomId, userId])
+  @@index([roomId])
+  @@index([userId])
+}
+
+model Message {
+  id        String      @id @default(uuid())
+  roomId    String
+  room      ChatRoom    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User        @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String?
+  receiver  User?       @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  content   String      @db.Text
+  type      MessageType @default(TEXT)
+  status    MessageStatus @default(SENT)
+
+  // For chat requests
+  isChatRequest Boolean @default(false)
+  requestAccepted Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  readAt    DateTime?
+
+  @@index([roomId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt(sort: Desc)])
+  @@index([status])
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+  BLOCKED
+}
+
+// ============================================
+// CALL SYSTEM (WebRTC)
+// ============================================
+
+model Call {
+  id          String     @id @default(uuid())
+  callerId    String
+  caller      User       @relation("Caller", fields: [callerId], references: [id], onDelete: Cascade)
+  calleeId    String
+  callee      User       @relation("Callee", fields: [calleeId], references: [id], onDelete: Cascade)
+  type        CallType   @default(AUDIO)
+  status      CallStatus @default(PENDING)
+  startedAt   DateTime?
+  endedAt     DateTime?
+  duration    Int?       // Duration in seconds
+  roomSid     String?    // Twilio or other WebRTC room SID
+  createdAt   DateTime   @default(now())
+
+  @@index([callerId])
+  @@index([calleeId])
+  @@index([status])
+}
+
+enum CallType {
+  AUDIO
+  VIDEO
+}
+
+enum CallStatus {
+  PENDING
+  RINGING
+  ACCEPTED
+  REJECTED
+  BUSY
+  ENDED
+  MISSED
+}
+
+// ============================================
 // NOTIFICATIONS
 // ============================================
 
@@ -166,6 +367,12 @@ model Notification {
   commentId String?
   actorId   String? // User who triggered the notification
 
+  // For follow requests
+  followId String?
+
+  // For chat requests
+  messageId String?
+
   createdAt DateTime @default(now())
 
   @@index([userId, read])
@@ -179,6 +386,10 @@ enum NotificationType {
   COMMENT_REPLY
   MENTION
   SYSTEM
+  FOLLOW_REQUEST
+  FOLLOW_ACCEPTED
+  CHAT_REQUEST
+  CALL_INCOMING
 }
 
 // ============================================

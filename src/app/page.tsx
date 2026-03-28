@@ -6,6 +6,7 @@ import React from "react";
 import InstagramLayout from "@/components/InstagramLayout";
 import AddPost from "@/components/posts/AddPost";
 import PostFeed from "@/components/posts/PostFeed";
+import PostSearch from "@/components/posts/PostSearch";
 import type { LatestPostQueryData } from "@/lib/tanstack/posts";
 import {
   LATEST_POST_QUERY_KEY,
@@ -96,11 +97,16 @@ function HomeContent() {
         )}
       </AnimatePresence>
 
-      {isAuthenticated && (
-        <div className="px-4 pt-4">
-          <AddPost />
-        </div>
-      )}
+      <PostSearch />
+
+      <div className="px-4">
+        {isAuthenticated && (
+          <div className="py-4">
+            <AddPost />
+          </div>
+        )}
+      </div>
+
       <PostFeed />
     </>
   );
