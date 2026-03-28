@@ -1,11 +1,12 @@
 "use client";
 
+import { Search, X } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Loader from "@/components/ui/Loader";
 
-type UserItem = string; // only anonName is exposed to the client
+type UserItem = string;
 
 export default function UserSearch() {
   const [q, setQ] = useState("");
@@ -13,18 +14,14 @@ export default function UserSearch() {
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // throttle control: timestamp of last API call
   const lastCallRef = useRef<number>(0);
-  // debounce timer
   const debounceRef = useRef<number | null>(null);
 
-  // Attach auto-search hook
   useAutoSearch(q, doSearch, debounceRef);
 
   async function doSearch(reset = true) {
     setError(null);
 
-    // throttle: prevent calls more often than 1s
     const now = Date.now();
     if (now - lastCallRef.current < 1000) return;
     lastCallRef.current = now;
@@ -65,11 +62,11 @@ export default function UserSearch() {
   }
 
   return (
-    <div className="p-4">
-      <div className="flex gap-2">
-        <label htmlFor="anon-search" className="sr-only">
-          Search anonName
-        </label>
+    <div>
+      <div className="relative">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2">
+          <Search size={18} className="text-neutral-500" />
+        </div>
         <input
           id="anon-search"
           value={q}
@@ -80,57 +77,73 @@ export default function UserSearch() {
               doSearch(true);
             }
           }}
-          placeholder="Search anon name"
+          placeholder="Search"
           aria-label="Search anonName"
-          className="border rounded px-2 py-1 flex-1"
+          className="
+            w-full h-10 pl-10 pr-10 rounded-lg
+            bg-neutral-100 dark:bg-neutral-800
+            text-neutral-900 dark:text-white
+            placeholder-neutral-500 dark:placeholder-neutral-400
+            border-none focus:outline-none focus:ring-2 focus:ring-blue-500
+            transition-all
+          "
         />
-
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => {
-            setQ("");
-            setResults([]);
-            setNextCursor(null);
-          }}
-          aria-label="Clear search"
-          title="Clear"
-        >
-          Clear
-        </Button>
-
-        <Button
-          onClick={() => doSearch(true)}
-          disabled={loading || q.trim().length === 0}
-          size="sm"
-        >
-          {loading ? "Searching..." : "Search"}
-        </Button>
+        {q && (
+          <button
+            type="button"
+            onClick={() => {
+              setQ("");
+              setResults([]);
+              setNextCursor(null);
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+            aria-label="Clear search"
+          >
+            <X size={18} />
+          </button>
+        )}
       </div>
 
-      <output aria-live="polite" className="mt-2">
-        {error && <div className="text-red-600">{error}</div>}
+      <output aria-live="polite" className="mt-3 block">
+        {error && (
+          <div className="text-red-500 text-sm text-center">{error}</div>
+        )}
         {!error && loading && (
-          <div className="flex items-center gap-2">
-            <Loader text={"Searching..."} />
+          <div className="flex items-center justify-center py-4">
+            <Loader text="" />
           </div>
         )}
       </output>
 
-      <ul className="mt-4 space-y-2" aria-live="polite">
+      <ul className="mt-4 space-y-1" aria-live="polite">
         {results.length === 0 && !loading && q.trim().length > 0 && (
-          <li className="text-sm text-gray-500">No users found</li>
+          <li className="text-sm text-neutral-500 text-center py-4">
+            No users found
+          </li>
         )}
         {results.map((anonName) => (
-          <li key={anonName} className="border rounded p-2">
-            <div className="font-medium">{anonName}</div>
+          <li
+            key={anonName}
+            className="flex items-center gap-3 p-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-lg transition-colors cursor-pointer"
+          >
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 via-red-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm">
+              {anonName.charAt(0).toUpperCase()}
+            </div>
+            <span className="font-semibold text-neutral-900 dark:text-white">
+              {anonName}
+            </span>
           </li>
         ))}
       </ul>
 
       {nextCursor && (
-        <div className="mt-4">
-          <Button onClick={() => doSearch(false)} disabled={loading} size="sm">
+        <div className="mt-4 text-center">
+          <Button
+            onClick={() => doSearch(false)}
+            disabled={loading}
+            variant="outline"
+            size="sm"
+          >
             {loading ? "Loading..." : "Load more"}
           </Button>
         </div>
@@ -139,8 +152,6 @@ export default function UserSearch() {
   );
 }
 
-// Debounce: trigger search automatically 300ms after user stops typing
-// We use an effect so typing triggers an auto-search; the Search button still forces a call
 function useAutoSearch(
   q: string,
   doSearch: (reset?: boolean) => void,
@@ -148,9 +159,7 @@ function useAutoSearch(
 ) {
   useEffect(() => {
     if (!q || q.trim().length === 0) return;
-    // clear existing timer
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
-    // set new timer
     const id = window.setTimeout(() => doSearch(true), 300);
     debounceRef.current = id;
     return () => {

@@ -3,39 +3,22 @@
 import { formatDistanceToNow } from "date-fns";
 import { enIN } from "date-fns/locale";
 import { motion } from "framer-motion";
-import { Calendar, MessageCircle, ThumbsUp, User } from "lucide-react";
+import {
+  Calendar,
+  Edit,
+  Grid3X3,
+  Heart,
+  MessageCircle,
+  Settings,
+  User,
+  Video,
+} from "lucide-react";
 import { Avatar } from "@/components/posts/Avatar";
 import ErrorFallback from "@/components/ui/ErrorFallback";
 import Loader from "@/components/ui/Loader";
 import { useUserProfile } from "@/lib/tanstack/user";
 import { useAppSelector } from "@/redux/hooks";
 import MyPosts from "./MyPosts";
-
-interface StatCardProps {
-  icon: React.ReactNode;
-  label: string;
-  value: number;
-  index: number;
-}
-
-const StatCard = ({ icon, label, value, index }: StatCardProps) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.1 * (index + 1), duration: 0.3 }}
-    className="flex items-center gap-4 p-4 rounded-xl bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 group"
-  >
-    <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform duration-300">
-      {icon}
-    </div>
-    <div>
-      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-        {value}
-      </p>
-      <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
-    </div>
-  </motion.div>
-);
 
 const Profile = () => {
   const { userId } = useAppSelector((state) => state.auth);
@@ -66,102 +49,111 @@ const Profile = () => {
     },
   );
 
-  const stats = [
-    {
-      icon: <MessageCircle size={22} />,
-      label: "Posts",
-      value: data._count?.posts || 0,
-    },
-    {
-      icon: <ThumbsUp size={22} />,
-      label: "Likes",
-      value: data._count?.commentLikes || 0,
-    },
-    {
-      icon: <Calendar size={22} />,
-      label: "Days Active",
-      value:
-        Math.floor(
-          (Date.now() - new Date(data?.createdAt || Date.now()).getTime()) /
-            (1000 * 60 * 60 * 24),
-        ) + 1,
-    },
-  ];
+  const posts = data?._count?.posts || 0;
+  const likes = data?._count?.commentLikes || 0;
+  const comments = data?._count?.comments || 0;
 
   return (
-    <div className="min-h-screen bg-mesh pb-8">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="relative overflow-hidden"
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/10 to-pink-500/20" />
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl animate-float" />
-        <div
-          className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-float"
-          style={{ animationDelay: "-3s" }}
-        />
-
-        <div className="relative container mx-auto px-4 sm:px-6 pt-8 pb-4">
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="flex flex-col items-center"
-          >
-            <div className="relative mb-4">
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full blur-xl opacity-30 animate-pulse" />
+    <div className="min-h-screen bg-white dark:bg-black">
+      <div className="max-w-xl mx-auto px-4">
+        <div className="py-6">
+          <div className="flex items-center gap-6 mb-6">
+            <div className="relative">
               <Avatar
                 seed={userName}
                 size={"lg"}
-                className="relative ring-4 ring-white dark:ring-gray-800 shadow-xl"
+                className="h-20 w-20 ring-4 ring-transparent"
               />
-              <span className="absolute bottom-2 right-2 w-5 h-5 bg-green-500 rounded-full border-4 border-white dark:border-gray-900" />
             </div>
 
-            <motion.h1
-              initial={{ y: 10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2"
-            >
-              {userName}
-            </motion.h1>
+            <div className="flex-1">
+              <div className="flex items-center gap-4 mb-4">
+                <h1 className="text-xl font-semibold text-neutral-900 dark:text-white">
+                  {userName}
+                </h1>
+                <button
+                  type="button"
+                  className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
+                >
+                  <Settings
+                    size={20}
+                    className="text-neutral-900 dark:text-white"
+                  />
+                </button>
+              </div>
 
-            <motion.p
-              initial={{ y: 10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="text-gray-500 dark:text-gray-400 flex items-center gap-2 mb-1"
-            >
-              <User size={16} />
-              {userEmail}
-            </motion.p>
-
-            <motion.p
-              initial={{ y: 10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="text-sm text-gray-400 dark:text-gray-500"
-            >
-              Member since {accountCreationDate}
-            </motion.p>
-          </motion.div>
-        </div>
-      </motion.div>
-
-      <div className="container mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          {stats.map((stat, index) => (
-            <StatCard key={stat.label} {...stat} index={index} />
-          ))}
-        </div>
-
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 rounded-2xl" />
-          <div className="relative">
-            <MyPosts posts={data.posts} metaData={data._count} />
+              <div className="flex items-center gap-6 text-sm">
+                <div className="text-center">
+                  <span className="font-semibold text-neutral-900 dark:text-white">
+                    {posts}
+                  </span>
+                  <p className="text-neutral-500 dark:text-neutral-400">
+                    posts
+                  </p>
+                </div>
+                <div className="text-center">
+                  <span className="font-semibold text-neutral-900 dark:text-white">
+                    {likes}
+                  </span>
+                  <p className="text-neutral-500 dark:text-neutral-400">
+                    likes
+                  </p>
+                </div>
+                <div className="text-center">
+                  <span className="font-semibold text-neutral-900 dark:text-white">
+                    {comments}
+                  </span>
+                  <p className="text-neutral-500 dark:text-neutral-400">
+                    comments
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
+
+          <div className="mb-6">
+            <p className="font-semibold text-neutral-900 dark:text-white">
+              {userName}
+            </p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 flex items-center gap-1">
+              <User size={14} />
+              {userEmail}
+            </p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 flex items-center gap-1">
+              <Calendar size={14} />
+              Joined {accountCreationDate}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            className="w-full py-2 px-4 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white font-semibold text-sm rounded-lg transition-colors"
+          >
+            Edit profile
+          </button>
+        </div>
+
+        <div className="border-t border-neutral-200 dark:border-neutral-800">
+          <div className="flex">
+            <button
+              type="button"
+              className="flex-1 py-3 flex items-center justify-center gap-2 border-b-2 border-neutral-900 dark:border-white text-neutral-900 dark:text-white"
+            >
+              <Grid3X3 size={20} />
+              <span className="text-xs font-semibold uppercase">Posts</span>
+            </button>
+            <button
+              type="button"
+              className="flex-1 py-3 flex items-center justify-center gap-2 border-b-2 border-transparent text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+            >
+              <Heart size={20} />
+              <span className="text-xs font-semibold uppercase">Liked</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="py-4">
+          <MyPosts posts={data.posts} metaData={data._count} />
         </div>
       </div>
     </div>

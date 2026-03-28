@@ -1,20 +1,35 @@
-import { redirect } from "next/navigation";
-import UserSearch from "@/components/search/UserSearch";
-import { getAuthenticatedUserId } from "@/helpers/auth/user";
+"use client";
 
-export default async function Page() {
-  const userId = await getAuthenticatedUserId();
-  if (!userId) return redirect("/login");
+import { redirect } from "next/navigation";
+import { useEffect } from "react";
+import InstagramLayout from "@/components/InstagramLayout";
+import UserSearch from "@/components/search/UserSearch";
+import { useAppSelector } from "@/redux/hooks";
+
+export default function Page() {
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      redirect("/auth");
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
-    <main className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Find users</h1>
-      <p className="text-sm text-gray-600 mb-4">
-        Search for other users by their anonName. Only anonName is shown.
-      </p>
-      <div className="bg-white shadow rounded p-4">
+    <InstagramLayout>
+      <div className="px-4 py-6">
+        <h1 className="text-xl font-bold text-neutral-900 dark:text-white mb-1">
+          Search
+        </h1>
+        <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
+          Find other users by their anonymous name
+        </p>
         <UserSearch />
       </div>
-    </main>
+    </InstagramLayout>
   );
 }
