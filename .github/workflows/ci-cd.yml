@@ -15,7 +15,7 @@ jobs:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
       # Add more if needed:
-      # DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
       - name: Checkout code
