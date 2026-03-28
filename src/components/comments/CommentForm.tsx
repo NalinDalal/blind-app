@@ -11,12 +11,20 @@ interface CommentFormProps {
   postId: string;
   parentId?: string;
   onSuccess?: () => void;
+  placeholder?: string;
 }
 
-export function CommentForm({ postId, parentId, onSuccess }: CommentFormProps) {
+export function CommentForm({
+  postId,
+  parentId,
+  onSuccess,
+  placeholder,
+}: CommentFormProps) {
   const [content, setContent] = useState("");
   const { mutate: addComment, isPending } = useAddComment();
   const userId = useAppSelector((state) => state.auth.userId);
+
+  const defaultPlaceholder = parentId ? "Write a reply..." : "Add a comment...";
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,12 +46,12 @@ export function CommentForm({ postId, parentId, onSuccess }: CommentFormProps) {
       <Input
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        placeholder={parentId ? "Write a reply..." : "Add a comment..."}
+        placeholder={placeholder || defaultPlaceholder}
         disabled={isPending}
         className="flex-grow bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md"
       />
       <Button type="submit" disabled={isPending} size="sm">
-        {isPending ? "Adding comment" : "Post a comment"}
+        {isPending ? "Adding comment" : "Post"}
       </Button>
     </form>
   );

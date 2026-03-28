@@ -13,23 +13,8 @@ import { logoutUser } from "@/redux/slices/AuthSlice";
 import { cn } from "@/utils/ui";
 import { ThemeToggle } from "./ThemeToggle";
 
-/**
- * Navigation links used across desktop and mobile.
- */
 const NAV_LINKS = [{ href: "/", label: "Explore" }];
 
-/**
- * Header component with improved mobile drawer scrim + accessibility.
- *
- * Improvements:
- * - stronger, theme-aware scrim (`bg-slate-900/70` or `dark:bg-black/70`) for better contrast
- * - pointer-events disabled when overlay hidden to avoid accidental taps
- * - smooth transitions for overlay opacity + drawer translate
- * - rounded-left drawer and safe-area padding for better mobile UX
- * - focuses close button when drawer opens for keyboard users
- *
- * @returns {JSX.Element}
- */
 const Header = (): JSX.Element => {
   const pathname = usePathname();
   const { isAuthenticated, status } = useAppSelector((s) => s.auth);
@@ -38,7 +23,6 @@ const Header = (): JSX.Element => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
 
-  // Lock body scroll while drawer is open
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? "hidden" : "auto";
     return () => {
@@ -46,7 +30,6 @@ const Header = (): JSX.Element => {
     };
   }, [isMenuOpen]);
 
-  // Focus the close button when drawer opens (accessibility)
   useEffect(() => {
     if (isMenuOpen) {
       closeBtnRef.current?.focus();
@@ -68,9 +51,6 @@ const Header = (): JSX.Element => {
   const isActiveLink = (href: string) =>
     href === "/" ? pathname === href : pathname.startsWith(href);
 
-  /**
-   * Auth area — renders Login link or Logout button.
-   */
   const AuthButton = ({ isMobile = false }: { isMobile?: boolean }) => (
     <>
       {isAuthenticated ? (
@@ -80,7 +60,7 @@ const Header = (): JSX.Element => {
               variant="link-no-hover"
               size="sm"
               className={cn(
-                "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-50",
+                "text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-full px-4",
                 isMobile && "w-full justify-start text-base",
               )}
             >
@@ -93,7 +73,7 @@ const Header = (): JSX.Element => {
             size="sm"
             disabled={status === "loading"}
             className={cn(
-              "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-50",
+              "text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-full px-4",
               isMobile && "w-full justify-start text-base",
             )}
           >
@@ -108,9 +88,9 @@ const Header = (): JSX.Element => {
           href="/auth"
           onClick={() => setIsMenuOpen(false)}
           className={cn(
-            "font-medium transition-colors hover:text-gray-900 dark:hover:text-gray-50",
+            "font-medium transition-all duration-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-full px-4 py-2",
             isActiveLink("/auth")
-              ? "text-gray-900 dark:text-gray-50"
+              ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10"
               : "text-gray-600 dark:text-gray-400",
             isMobile && "text-base",
           )}
@@ -122,48 +102,51 @@ const Header = (): JSX.Element => {
   );
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-gray-200 bg-gray-50/95 backdrop-blur dark:border-gray-800 dark:bg-gray-900/95">
-      <div className="container mx-auto flex h-16 items-center justify-between px-6">
-        {/* Logo */}
+    <header className="sticky top-0 z-50 w-full">
+      <div className="absolute inset-0 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50" />
+
+      <div className="relative container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
         <Link
           href="/"
           onClick={() => setIsMenuOpen(false)}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 group"
         >
-          <Logo />
+          <div className="relative">
+            <Logo />
+            <span className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full opacity-0 group-hover:opacity-20 blur-md transition-opacity duration-300" />
+          </div>
         </Link>
 
-        {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-1">
           {NAV_LINKS.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
               className={cn(
-                "font-medium transition-colors hover:text-gray-900 dark:hover:text-gray-50",
+                "font-medium transition-all duration-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-full px-4 py-2",
                 isActiveLink(href)
-                  ? "text-gray-900 dark:text-gray-50"
+                  ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10"
                   : "text-gray-600 dark:text-gray-400",
               )}
             >
               {label}
             </Link>
           ))}
+          <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-2" />
           <AuthButton />
         </nav>
 
-        {/* Right side controls */}
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <Button
             onClick={() => setIsMenuOpen((p) => !p)}
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="md:hidden hover:bg-indigo-50 dark:hover:bg-indigo-500/20"
             aria-expanded={isMenuOpen}
             aria-controls="mobile-drawer"
           >
-            {isMenuOpen ? <X /> : <Menu />}
+            {isMenuOpen ? <X className="text-indigo-600" /> : <Menu />}
             <span className="sr-only">Toggle menu</span>
           </Button>
         </div>
@@ -173,13 +156,13 @@ const Header = (): JSX.Element => {
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
       >
-        <div className="flex items-center justify-between">
-          <span className="font-bold">Menu</span>
+        <div className="flex items-center justify-between mb-8">
+          <span className="font-bold text-lg">Menu</span>
           <Button
             onClick={() => setIsMenuOpen(false)}
             variant="ghost"
             size="icon"
-            ref={closeBtnRef} // accessibility focus ref
+            ref={closeBtnRef}
             aria-label="Close menu"
           >
             <X />
@@ -187,22 +170,24 @@ const Header = (): JSX.Element => {
           </Button>
         </div>
 
-        <nav className="mt-8 flex flex-col gap-6">
+        <nav className="flex flex-col gap-2">
           {NAV_LINKS.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
               onClick={() => setIsMenuOpen(false)}
               className={cn(
-                "text-lg font-medium",
+                "text-base font-medium py-3 px-4 rounded-xl transition-all duration-200",
                 isActiveLink(href)
-                  ? "text-blue-900 dark:text-blue-50"
-                  : "text-gray-600 dark:text-gray-400",
+                  ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10"
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800",
               )}
             >
               {label}
             </Link>
           ))}
+
+          <div className="w-full h-px bg-gray-200 dark:bg-gray-700 my-4" />
 
           <AuthButton isMobile />
         </nav>

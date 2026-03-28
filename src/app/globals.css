@@ -2,19 +2,12 @@
 
 @layer base {
   :root {
-    /* color params (L C h) — note no alpha here */
     --background-oklch: 0.98 0.01 240;
     --foreground-oklch: 0.08 0.01 240;
 
-    /* alpha defaults */
-    --bg-alpha: 1;
-    --fg-alpha: 1;
+    --color-background: oklch(var(--background-oklch));
+    --color-foreground: oklch(var(--foreground-oklch));
 
-    /* actual usable CSS colors */
-    --color-background: oklch(var(--background-oklch) / var(--bg-alpha));
-    --color-foreground: oklch(var(--foreground-oklch) / var(--fg-alpha));
-
-    /* font fallbacks and vars (ensure --font-geist-sans is defined from Next font or @font-face) */
     --font-sans: var(
       --font-geist-sans,
       system-ui,
@@ -23,16 +16,6 @@
       Roboto,
       "Helvetica Neue",
       Arial
-    );
-    --font-mono: var(
-      --font-geist-mono,
-      ui-monospace,
-      SFMono-Regular,
-      Menlo,
-      Monaco,
-      "Roboto Mono",
-      "Courier New",
-      monospace
     );
   }
 
@@ -43,40 +26,45 @@
 
   body {
     font-family: var(--font-sans);
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-  }
-
-  /*
-    ============================================
-    Enhanced Scrollbar Styles
-    ============================================
-    */
-  /* Firefox */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: oklch(var(--foreground-oklch) / 0.5)
-      oklch(var(--background-oklch) / 1);
-  }
-
-  /* Chrome, Edge, and Safari */
-  *::-webkit-scrollbar {
-    width: 12px;
-  }
-
-  *::-webkit-scrollbar-track {
-    background: var(--color-background);
-  }
-
-  *::-webkit-scrollbar-thumb {
-    background-color: oklch(var(--foreground-oklch) / 0.5);
-    border-radius: 20px;
-    border: 3px solid var(--color-background);
-  }
-
-  *::-webkit-scrollbar-thumb:hover {
-    background-color: oklch(var(--foreground-oklch) / 0.7);
+    @apply bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50;
   }
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+@layer utilities {
+  .bg-mesh {
+    @apply bg-neutral-50 dark:bg-neutral-950;
+    background-image:
+      radial-gradient(at 40% 20%, rgb(99 102 241 / 0.08) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, rgb(139 92 246 / 0.08) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, rgb(99 102 241 / 0.05) 0px, transparent 50%),
+      radial-gradient(at 80% 50%, rgb(139 92 246 / 0.05) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgb(99 102 241 / 0.08) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, rgb(139 92 246 / 0.08) 0px, transparent 50%);
+  }
+
+  .dark .bg-mesh {
+    background-image:
+      radial-gradient(at 40% 20%, rgb(165 180 252 / 0.08) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, rgb(196 181 253 / 0.08) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, rgb(165 180 252 / 0.05) 0px, transparent 50%),
+      radial-gradient(at 80% 50%, rgb(196 181 253 / 0.05) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgb(165 180 252 / 0.08) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, rgb(196 181 253 / 0.08) 0px, transparent 50%);
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}

@@ -14,13 +14,6 @@ import {
 } from "@/lib/tanstack/posts";
 import { useAppSelector } from "@/redux/hooks";
 
-/**
- * Render the home page, showing the post feed and a notifier that appears when newer posts are available.
- *
- * When activated, the notifier marks the latest posts as seen in the query cache, refetches the feed, and scrolls to the top.
- *
- * @returns The Home page React element
- */
 export default function Home() {
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAppSelector((state) => state.auth);
@@ -31,7 +24,6 @@ export default function Home() {
   >(null);
 
   React.useEffect(() => {
-    // Initialize the last seen post ID when the component first loads data
     if (newPostsData?.latestPostId && lastSeenLatestPostId === null) {
       setLastSeenLatestPostId(newPostsData.latestPostId);
     }
@@ -46,10 +38,8 @@ export default function Home() {
   const handleShowNewPosts = async () => {
     const currentLatestPostId = newPostsData?.latestPostId;
 
-    // Update state to hide the button immediately
     setLastSeenLatestPostId(currentLatestPostId ?? null);
 
-    // Update the query cache to reflect that the user has seen the latest posts
     queryClient.setQueryData<LatestPostQueryData>(
       LATEST_POST_QUERY_KEY,
       (oldData) => {
@@ -67,30 +57,33 @@ export default function Home() {
       },
     );
 
-    // Refetch the main posts query to get the new content
     await queryClient.invalidateQueries({ queryKey: POSTS_QUERY_KEY });
 
-    // Smoothly scroll the user to the top to see the new posts
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    // The main container is relative to position the notification button
-    <main className="relative">
-      {/* Animated Notification Section */}
+    <main className="relative min-h-screen">
+      <div className="fixed inset-0 bg-mesh -z-10" />
+
       <AnimatePresence>
         {shouldShowNewPostsButton && (
           <motion.div
-            className="fixed top-5 left-1/2 -translate-x-1/2 z-50"
-            initial={{ y: -100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -100, opacity: 0 }}
+            className="fixed top-20 left-1/2 -translate-x-1/2 z-50"
+            initial={{ y: -100, opacity: 0, scale: 0.8 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: -100, opacity: 0, scale: 0.8 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
           >
-            <Button
+            <button
               type="button"
               onClick={handleShowNewPosts}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full px-6 py-3 shadow-2xl transition-transform duration-200 ease-in-out hover:scale-105"
+              className="
+                flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 
+                hover:from-indigo-600 hover:to-purple-700 text-white font-semibold 
+                rounded-full px-6 py-3 shadow-2xl shadow-indigo-500/30
+                transition-all duration-200 ease-in-out hover:scale-105 active:scale-95
+              "
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -102,27 +95,30 @@ export default function Home() {
                 strokeWidth="3"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                role={"alert"}
+                role="alert"
+                aria-label="Show latest posts"
               >
                 <title>Show latest posts</title>
                 <path d="M12 5v14" />
                 <path d="m19 12-7-7-7 7" />
               </svg>
               New posts available
-            </Button>
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Main Content Section */}
-      <section
-        className="flex min-h-screen w-full flex-col items-center justify-start p-4 sm:p-6
-                 bg-gray-100
-                 dark:bg-gray-900"
-      >
-        <div className="w-full max-w-3xl mt-12 space-y-10">
-          {/* PostFeed is now wrapped in a container that controls its max-width for readability */}
-          {isAuthenticated && <AddPost />}
+      <section className="relative flex min-h-screen flex-col items-center justify-start py-8 px-4 sm:px-6">
+        <div className="w-full max-w-3xl space-y-8">
+          {isAuthenticated && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <AddPost />
+            </motion.div>
+          )}
           <PostFeed />
         </div>
       </section>
