@@ -17,10 +17,8 @@ RUN npm install --frozen-lockfile
 
 COPY . .
 
-RUN npx prisma generate
-
 # Build Next.js
-RUN npm run build || yarn build
+RUN npm run build
 
 # --------------------------
 # Runner stage
