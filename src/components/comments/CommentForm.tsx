@@ -22,8 +22,7 @@ export function CommentForm({
 }: CommentFormProps) {
   const [content, setContent] = useState("");
   const { mutate: addComment, isPending } = useAddComment();
-  const userId = useAppSelector((state) => state.auth.userId);
-  const { data: userData } = useAppSelector((state) => state.auth);
+  const { userId, anonName } = useAppSelector((state) => state.auth);
 
   const defaultPlaceholder = parentId ? "Write a reply..." : "Add a comment...";
 
@@ -45,7 +44,7 @@ export function CommentForm({
   return (
     <form onSubmit={handleSubmit} className="flex items-center gap-3 my-3">
       <Avatar
-        seed={userData?.anonName || "Anonymous"}
+        seed={anonName || "Anonymous"}
         className="h-8 w-8 flex-shrink-0"
       />
       <input
