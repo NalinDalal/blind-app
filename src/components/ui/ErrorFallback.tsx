@@ -1,19 +1,31 @@
 import type { FC } from "react";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 
 interface LoaderProps {
   errorMessage?: string;
 }
 
-const Loader: FC<LoaderProps> = ({ errorMessage }) => {
+const ErrorFallback: FC<LoaderProps> = ({ errorMessage }) => {
   return (
-    <div className="flex flex-col items-center justify-center p-10 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-lg">
-      <p className="text-lg font-semibold text-red-600 dark:text-red-400">
+    <div className="flex flex-col items-center justify-center p-8 mx-4 my-8 rounded-2xl bg-surface border border-subtle">
+      <div className="w-12 h-12 rounded-xl bg-[rgb(var(--destructive))]/10 flex items-center justify-center mb-4">
+        <AlertTriangle size={24} className="text-[rgb(var(--destructive))]" />
+      </div>
+      <p className="text-base font-semibold text-foreground mb-1">
         Something went wrong
       </p>
-      <p className="mt-1 text-sm text-red-500 dark:text-red-300">
+      <p className="text-sm text-muted text-center max-w-xs">
         {errorMessage || "Something went wrong. Please try again later."}
       </p>
+      <button
+        type="button"
+        onClick={() => window.location.reload()}
+        className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-elevated text-foreground font-medium text-sm hover:bg-border transition-colors"
+      >
+        <RefreshCw size={16} />
+        Retry
+      </button>
     </div>
   );
 };
-export default Loader;
+export default ErrorFallback;

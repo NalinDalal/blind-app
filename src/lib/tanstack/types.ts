@@ -63,7 +63,12 @@ export interface UserProfile {
   anonMapping: {
     anonName: string;
   } | null;
-  posts: Post[];
+  posts: (Post & {
+    _count: {
+      comments: number;
+      votes: number;
+    };
+  })[];
   comments: Comment[];
   commentLikes: CommentLike[];
   notifications: Notification[];

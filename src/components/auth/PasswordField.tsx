@@ -1,6 +1,8 @@
-// components/auth/PasswordField.tsx
+"use client";
 
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import type { Auth } from "@/Schema/Auth";
 
@@ -10,25 +12,34 @@ type Props = {
   mode: "register" | "login";
 };
 
-/**
- * Renders a password input field wired to react-hook-form with mode-specific autocomplete and an inline validation message.
- *
- * @param register - react-hook-form `register` function bound to the auth form schema for registering the `password` field
- * @param errors - form field errors for the auth form; `errors.password` message is shown when present
- * @param mode - either `"register"` or `"login"`; selects the input's `autoComplete` value (`"new-password"` vs `"current-password"`)
- * @returns A JSX element containing the password input and an optional error message
- */
 export function PasswordField({ register, errors, mode }: Props) {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <div>
-      <Input
-        {...register("password")}
-        type="password"
-        placeholder="Password"
-        autoComplete={mode === "register" ? "new-password" : "current-password"}
-      />
+      <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
+        Password
+      </label>
+      <div className="relative">
+        <Input
+          {...register("password")}
+          id="password"
+          type={showPassword ? "text" : "password"}
+          placeholder="Enter your password"
+          autoComplete={mode === "register" ? "new-password" : "current-password"}
+          className="w-full pr-12"
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted hover:text-foreground transition-colors"
+          aria-label={showPassword ? "Hide password" : "Show password"}
+        >
+          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
+      </div>
       {errors.password && (
-        <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+        <p className="text-[rgb(var(--destructive))] text-xs mt-2">{errors.password.message}</p>
       )}
     </div>
   );

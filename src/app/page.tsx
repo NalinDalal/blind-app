@@ -74,7 +74,7 @@ function HomeContent() {
             <button
               type="button"
               onClick={handleShowNewPosts}
-              className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black font-semibold rounded-full px-4 py-2 text-sm hover:opacity-90 transition-opacity"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full font-medium text-sm bg-foreground text-[rgb(var(--background))] hover:bg-foreground/90 transition-all shadow-lg animate-pulse-glow"
             >
               <svg
                 className="w-4 h-4"
@@ -99,9 +99,9 @@ function HomeContent() {
 
       <PostSearch />
 
-      <div className="px-4">
+      <div className="px-4 pt-4">
         {isAuthenticated && (
-          <div className="py-4">
+          <div className="pb-4">
             <AddPost />
           </div>
         )}

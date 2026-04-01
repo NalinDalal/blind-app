@@ -1,9 +1,8 @@
-// components/auth/AuthForm.tsx
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useState } from "react"; // <-- IMPORT useState
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
@@ -32,16 +31,6 @@ type AuthFormProps = {
   onModeChange: (mode: AuthMode) => void;
 };
 
-/**
- * Render an authentication form that supports register, login, OTP, anonymous name, and email verification modes.
- *
- * The form conditionally renders fields and actions based on `mode`, manages OTP resend state, and dispatches
- * authentication-related actions (register, login, request/verify OTP, set anonymous name, verify email).
- *
- * @param mode - Active form mode: "register" | "login" | "otp" | "anon" | "verifyEmail"
- * @param onModeChange - Callback invoked when the user switches authentication modes
- * @returns The authentication form component's JSX element
- */
 export function AuthForm({ mode, onModeChange }: AuthFormProps) {
   const dispatch = useAppDispatch();
   const {
@@ -50,7 +39,6 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
     email: authEmail,
   } = useAppSelector((state) => state.auth);
 
-  // --- ADDED: State for resend button loading ---
   const [isResending, setIsResending] = useState(false);
 
   const {
@@ -72,7 +60,6 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
   const otpValue = watch("otp");
   const isLoading = status === "loading";
 
-  // --- ADDED: Handler for resending OTP ---
   const handleResendOtp = async () => {
     if (!authEmail) {
       toast.error("Email address not found to resend OTP.");
@@ -83,9 +70,9 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
       await dispatch(
         requestOtpEmailVerification({ email: authEmail }),
       ).unwrap();
-      toast.success("A new OTP has been sent.");
+      toast.success("A new code has been sent.");
     } catch {
-      // Error toast is handled by the slice's `handleFailure` reducer
+      // Error toast is handled by the slice
     } finally {
       setIsResending(false);
     }
@@ -116,7 +103,7 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
 
         case "verifyEmail":
           if (!authEmail || !data.otp) {
-            toast.error("Email and OTP are required.");
+            toast.error("Code is required.");
             return;
           }
           await dispatch(
@@ -131,7 +118,7 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
             ).unwrap();
           } else {
             await dispatch(requestOtp({ email: data.email || "" })).unwrap();
-            toast.success("OTP for login sent to your email!");
+            toast.success("Login code sent to your email!");
           }
           break;
 
@@ -153,9 +140,9 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
     const texts: Record<AuthMode, string> = {
       register: "Create Account",
       login: "Sign In",
-      otp: otpValue ? "Verify OTP & Login" : "Send Login OTP",
-      verifyEmail: "Verify Your Email",
-      anon: "Set Anonymous Name & Finish",
+      otp: otpValue ? "Verify & Login" : "Send Login Code",
+      verifyEmail: "Verify Email",
+      anon: "Set Identity",
     };
     return texts[mode];
   };
@@ -166,7 +153,7 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
         <AuthToggle mode={mode} onModeChange={onModeChange} />
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
         {(mode === "login" || mode === "register" || mode === "otp") && (
           <EmailField register={register} errors={errors} />
         )}
@@ -179,19 +166,17 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
           <OtpField register={register} errors={errors} />
         )}
 
-        {/* --- ADDED: Resend OTP Button --- */}
         {mode === "verifyEmail" && (
           <div className="text-center text-sm">
-            Didn't receive the code?{" "}
-            <Button
+            <span className="text-muted">Didn't receive the code? </span>
+            <button
               type="button"
-              variant="link"
-              className="p-0 h-auto font-semibold disabled:opacity-50"
+              className="text-foreground font-semibold hover:text-[rgb(var(--accent))] transition-colors disabled:opacity-50"
               onClick={handleResendOtp}
               disabled={isLoading || isResending}
             >
-              {isResending ? "Sending..." : "Resend OTP"}
-            </Button>
+              {isResending ? "Sending..." : "Resend"}
+            </button>
           </div>
         )}
 
@@ -202,7 +187,7 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
         <Button
           type="submit"
           disabled={isLoading || isResending}
-          className="mt-2"
+          className="mt-2 h-12"
         >
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {getButtonText()}
@@ -211,7 +196,7 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
 
       {message && (
         <p
-          className={`mt-4 text-center text-sm font-medium ${message.type === AuthMessageType.ERROR ? "text-red-500" : "text-green-500"}`}
+          className={`mt-4 text-center text-sm font-medium ${message.type === AuthMessageType.ERROR ? "text-[rgb(var(--destructive))]" : "text-green-500"}`}
         >
           {message.text}
         </p>

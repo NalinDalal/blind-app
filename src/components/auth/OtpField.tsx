@@ -1,4 +1,4 @@
-// components/auth/OtpField.tsx
+"use client";
 
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
 import { Input } from "@/components/ui/input";
@@ -9,24 +9,22 @@ type Props = {
   errors: FieldErrors<Auth>;
 };
 
-/**
- * Renders an OTP input field wired to react-hook-form and shows a validation message when present.
- *
- * @param register - react-hook-form `register` function for registering the `otp` field
- * @param errors - Validation errors for the auth form; if `errors.otp` exists its `message` is displayed
- * @returns The OTP input UI, including the input and any validation message
- */
 export function OtpField({ register, errors }: Props) {
   return (
     <div>
+      <label htmlFor="otp" className="block text-sm font-medium text-foreground mb-2">
+        Verification Code
+      </label>
       <Input
         {...register("otp")}
-        placeholder="Enter 6-digit OTP"
+        id="otp"
+        placeholder="Enter 6-digit code"
         maxLength={6}
         autoComplete="one-time-code"
+        className="w-full text-center tracking-[0.5em] font-[family-name:var(--font-space-mono)] text-lg"
       />
       {errors.otp && (
-        <p className="text-red-500 text-xs mt-2">{errors.otp.message}</p>
+        <p className="text-[rgb(var(--destructive))] text-xs mt-2">{errors.otp.message}</p>
       )}
     </div>
   );

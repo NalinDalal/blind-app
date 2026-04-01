@@ -1,6 +1,5 @@
 import type React from "react";
 import type { Post } from "@/../generated/prisma/client";
-import PostCard from "./PostCard";
 
 interface UserMetaData {
   posts: number;
@@ -10,8 +9,15 @@ interface UserMetaData {
   loginLogs: number;
 }
 
+interface PostWithCount extends Post {
+  _count: {
+    comments: number;
+    votes: number;
+  };
+}
+
 interface MyPostsProps {
-  posts: Post[];
+  posts: PostWithCount[];
   metaData: UserMetaData;
 }
 
@@ -19,9 +25,9 @@ const MyPosts: React.FC<MyPostsProps> = ({ posts, metaData }) => {
   if (!posts || posts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="w-16 h-16 mb-4 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
+        <div className="w-16 h-16 mb-4 rounded-2xl bg-surface flex items-center justify-center">
           <svg
-            className="w-8 h-8 text-neutral-400"
+            className="w-8 h-8 text-muted"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -41,10 +47,10 @@ const MyPosts: React.FC<MyPostsProps> = ({ posts, metaData }) => {
             />
           </svg>
         </div>
-        <p className="text-neutral-900 dark:text-white font-semibold mb-1">
+        <p className="text-foreground font-semibold mb-1">
           No posts yet
         </p>
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="text-sm text-muted">
           Share your first post with the world!
         </p>
       </div>
@@ -56,23 +62,23 @@ const MyPosts: React.FC<MyPostsProps> = ({ posts, metaData }) => {
       {posts.map((post) => (
         <div
           key={post.id}
-          className="aspect-square bg-neutral-100 dark:bg-neutral-800 relative group cursor-pointer overflow-hidden"
+          className="aspect-square bg-surface relative group cursor-pointer overflow-hidden rounded-lg"
         >
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/50 transition-opacity">
-            <div className="flex items-center gap-4 text-white">
-              <span className="flex items-center gap-1 font-semibold">
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-void/80 backdrop-blur-sm transition-opacity">
+            <div className="flex items-center gap-4 text-foreground">
+              <span className="flex items-center gap-1 font-semibold font-[family-name:var(--font-space-mono)]">
                 <svg
                   className="w-5 h-5"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                   role="img"
-                  aria-label="Likes"
+                  aria-label="Votes"
                 >
                   <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                 </svg>
-                {Math.floor(Math.random() * 50)}
+                {post._count.votes}
               </span>
-              <span className="flex items-center gap-1 font-semibold">
+              <span className="flex items-center gap-1 font-semibold font-[family-name:var(--font-space-mono)]">
                 <svg
                   className="w-5 h-5"
                   fill="none"
@@ -88,16 +94,16 @@ const MyPosts: React.FC<MyPostsProps> = ({ posts, metaData }) => {
                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                   />
                 </svg>
-                {Math.floor(Math.random() * 20)}
+                {post._count.comments}
               </span>
             </div>
           </div>
           {post.content.length > 50 ? (
-            <p className="text-xs text-neutral-600 dark:text-neutral-400 p-2 truncate">
+            <p className="text-xs text-muted p-2 truncate">
               {post.content.substring(0, 50)}...
             </p>
           ) : (
-            <p className="text-xs text-neutral-600 dark:text-neutral-400 p-2">
+            <p className="text-xs text-muted p-2">
               {post.content}
             </p>
           )}

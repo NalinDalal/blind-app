@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Image as ImageIcon, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import TextareaAutosize from "react-textarea-autosize";
@@ -15,6 +15,7 @@ const AddPost = () => {
   const { data } = useUserProfile(userId || "");
   const { mutate: createPost, isPending } = useCreatePost(userId || "");
   const [postText, setPostText] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
 
   const handlePost = () => {
     try {
@@ -46,11 +47,13 @@ const AddPost = () => {
     }
   };
 
+  const isEmpty = !postText.trim();
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="border-b border-neutral-200 dark:border-neutral-800 pb-4 mb-4"
+      className="p-4 rounded-2xl bg-surface border border-subtle"
     >
       <div className="flex gap-3">
         <div className="flex-shrink-0 pt-1">
@@ -64,36 +67,41 @@ const AddPost = () => {
           <TextareaAutosize
             value={postText}
             onChange={(e) => setPostText(e.target.value)}
-            placeholder="Start a post..."
-            className="w-full text-base bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 leading-relaxed"
+            onFocus={() => setIsFocused(true)}
+            placeholder="Share something anonymously..."
+            className="w-full text-base bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-foreground placeholder:text-muted leading-relaxed"
             minRows={1}
             maxRows={10}
           />
 
-          {postText.trim() && (
-            <div className="flex items-center justify-between pt-2 border-t border-neutral-200 dark:border-neutral-700 mt-2">
-              <button
-                type="button"
-                className="p-2 text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors"
-              >
-                <ImageIcon size={20} />
-              </button>
+          {isFocused && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="flex items-center justify-between pt-3 mt-3 border-t border-subtle"
+            >
+              <span className="text-xs text-muted">
+                {postText.length > 0 && `${postText.length} characters`}
+              </span>
 
               <button
                 type="button"
                 onClick={handlePost}
-                disabled={!postText.trim() || isPending}
+                disabled={isEmpty || isPending}
                 className="
-                  flex items-center gap-2 px-4 py-1.5 rounded-full font-semibold text-sm
-                  bg-blue-500 hover:bg-blue-600 text-white
-                  disabled:opacity-50 disabled:cursor-not-allowed
-                  transition-colors
+                  flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm
+                  bg-foreground text-[rgb(var(--background))]
+                  hover:bg-foreground/90
+                  disabled:opacity-40 disabled:cursor-not-allowed
+                  transition-all duration-200
+                  active:scale-[0.98]
                 "
               >
                 <Send size={16} />
                 Post
               </button>
-            </div>
+            </motion.div>
           )}
         </div>
       </div>

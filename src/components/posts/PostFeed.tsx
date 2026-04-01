@@ -21,7 +21,7 @@ const PostFeed = () => {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   if (status === "pending") {
-    return <Loader text={"Loading posts..."} />;
+    return <Loader text={"Loading..."} />;
   }
 
   if (status === "error") {
@@ -31,7 +31,7 @@ const PostFeed = () => {
   }
 
   return (
-    <div className="px-4">
+    <div className="px-4 py-4">
       {data.pages.map((page, pageIndex) => (
         <React.Fragment
           key={`page-${pageIndex}-${page.posts[0]?.id || "empty"}`}
@@ -52,17 +52,23 @@ const PostFeed = () => {
             type="button"
             onClick={() => fetchNextPage()}
             disabled={isFetchingNextPage}
-            className="text-sm font-semibold text-blue-500 hover:text-blue-600 disabled:opacity-50 transition-colors"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-sm text-muted hover:text-foreground hover:bg-surface transition-colors disabled:opacity-50"
           >
             {isFetchingNextPage ? (
-              <span className="flex items-center gap-2">
+              <>
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Loading...
-              </span>
+              </>
             ) : (
               "Load more"
             )}
           </button>
+        </div>
+      )}
+
+      {data.pages[0]?.posts.length === 0 && (
+        <div className="text-center py-16">
+          <p className="text-muted text-sm">No posts yet. Be the first to share something.</p>
         </div>
       )}
     </div>

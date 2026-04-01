@@ -58,18 +58,18 @@ export const CommentItem: React.FC<CommentItemProps> = ({
       <div className="flex items-start gap-3">
         <Avatar
           seed={authorName}
-          className="h-9 w-9 mt-0.5 ring-2 ring-indigo-500/10"
+          className="h-8 w-8 flex-shrink-0"
         />
         <div className="flex-1 min-w-0">
-          <div className="bg-gray-100/80 dark:bg-gray-800/60 rounded-2xl px-4 py-3 backdrop-blur-sm">
+          <div className="bg-surface rounded-2xl px-4 py-3 border border-subtle">
             <div className="flex items-center gap-2 mb-1">
-              <p className="font-semibold text-sm text-gray-900 dark:text-gray-100">
+              <p className="font-semibold text-sm text-foreground">
                 {authorName}
               </p>
-              <span className="text-xs text-gray-400">·</span>
-              <span className="text-xs text-gray-400">{timeAgo}</span>
+              <span className="text-xs text-muted">·</span>
+              <span className="text-xs text-muted">{timeAgo}</span>
             </div>
-            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+            <p className="text-sm text-foreground/90 leading-relaxed">
               {comment.content}
             </p>
           </div>
@@ -80,16 +80,16 @@ export const CommentItem: React.FC<CommentItemProps> = ({
               onClick={handleLikeClick}
               disabled={isLikePending}
               className={cn(
-                "flex items-center gap-1.5 text-xs font-medium cursor-pointer transition-all duration-200 disabled:cursor-not-allowed hover:scale-105",
+                "flex items-center gap-1.5 text-xs font-medium cursor-pointer transition-all duration-200 disabled:cursor-not-allowed",
                 isLikedByMe
-                  ? "text-indigo-600 dark:text-indigo-400"
-                  : "text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400",
+                  ? "text-[rgb(var(--accent))]"
+                  : "text-muted hover:text-foreground",
               )}
             >
               <ThumbsUp
                 size={14}
                 className={cn(
-                  "transition-transform duration-200",
+                  "transition-all duration-200",
                   isLikedByMe ? "scale-110" : "",
                 )}
                 fill={isLikedByMe ? "currentColor" : "none"}
@@ -101,7 +101,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({
               <button
                 type="button"
                 onClick={() => setIsReplying(!isReplying)}
-                className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors hover:scale-105"
+                className="flex items-center gap-1.5 text-xs font-medium text-muted hover:text-foreground transition-colors"
               >
                 <Reply size={14} />
                 <span>Reply</span>
@@ -110,11 +110,12 @@ export const CommentItem: React.FC<CommentItemProps> = ({
           </div>
 
           {isReplying && (
-            <div className="mt-3 ml-2">
+            <div className="mt-2 ml-2">
               <CommentForm
                 postId={postId}
                 parentId={comment.id}
                 onSuccess={() => setIsReplying(false)}
+                placeholder="Write a reply..."
               />
             </div>
           )}
@@ -122,7 +123,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({
       </div>
 
       {comment.replies && comment.replies.length > 0 && (
-        <div className="pl-8 mt-4 ml-4 border-l-2 border-gray-200/60 dark:border-gray-700/40">
+        <div className="pl-8 mt-3 ml-4 border-l-2 border-subtle">
           <CommentList comments={comment.replies} postId={postId} />
         </div>
       )}

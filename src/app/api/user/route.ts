@@ -17,7 +17,16 @@ export const GET = async (req: NextRequest) => {
             anonName: true,
           },
         },
-        posts: true,
+        posts: {
+          include: {
+            _count: {
+              select: {
+                comments: true,
+                votes: true,
+              },
+            },
+          },
+        },
         comments: true,
         commentLikes: true,
         notifications: true,

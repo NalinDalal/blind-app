@@ -19,7 +19,7 @@ interface Notification {
 
 export default function NotificationsPage() {
   const router = useRouter();
-  const { isAuthenticated, userId } = useAppSelector((state) => state.auth);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -61,15 +61,15 @@ export default function NotificationsPage() {
     switch (type) {
       case "COMMENT_LIKE":
       case "FOLLOW_ACCEPTED":
-        return <Heart size={16} className="text-red-500" />;
+        return <Heart size={14} className="text-red-500" />;
       case "POST_COMMENT":
       case "COMMENT_REPLY":
-        return <MessageCircle size={16} className="text-blue-500" />;
+        return <MessageCircle size={14} className="text-[rgb(var(--accent))]" />;
       case "FOLLOW_REQUEST":
       case "CHAT_REQUEST":
-        return <User size={16} className="text-green-500" />;
+        return <User size={14} className="text-green-500" />;
       default:
-        return <Bell size={16} className="text-neutral-500" />;
+        return <Bell size={14} className="text-muted" />;
     }
   };
 
@@ -103,21 +103,24 @@ export default function NotificationsPage() {
   return (
     <InstagramLayout>
       <div className="px-4 py-6">
-        <h1 className="text-xl font-bold text-neutral-900 dark:text-white mb-4">
+        <h1 className="text-xl font-bold text-foreground mb-6">
           Notifications
         </h1>
 
         {loading ? (
           <div className="flex items-center justify-center py-10">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-subtle border-t-[rgb(var(--accent))]" />
           </div>
         ) : notifications.length === 0 ? (
-          <div className="text-center py-10">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
-              <Bell size={32} className="text-neutral-400" />
+          <div className="text-center py-12">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-surface flex items-center justify-center">
+              <Bell size={28} className="text-muted" />
             </div>
-            <p className="text-neutral-500 dark:text-neutral-400">
+            <p className="text-muted">
               No notifications yet
+            </p>
+            <p className="text-sm text-muted/60 mt-1">
+              When you get activity, it will show up here
             </p>
           </div>
         ) : (
@@ -128,11 +131,10 @@ export default function NotificationsPage() {
                 type="button"
                 onClick={() => handleNotificationClick(notification)}
                 className={`
-                  w-full flex items-center gap-3 p-3 rounded-lg transition-colors text-left
-                  ${
-                    notification.read
-                      ? "hover:bg-neutral-50 dark:hover:bg-neutral-800"
-                      : "bg-blue-50 dark:bg-blue-900/20"
+                  w-full flex items-center gap-3 p-4 rounded-xl transition-all text-left
+                  ${notification.read
+                    ? "hover:bg-surface"
+                    : "bg-surface border border-subtle"
                   }
                 `}
               >
@@ -141,22 +143,22 @@ export default function NotificationsPage() {
                     seed={notification.message.split(" ")[0] || "?"}
                     className="h-10 w-10"
                   />
-                  <div className="absolute -bottom-1 -right-1 bg-white dark:bg-black rounded-full p-0.5">
+                  <div className="absolute -bottom-1 -right-1 bg-surface rounded-full p-1">
                     {getIcon(notification.type)}
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
                   <p
-                    className={`text-sm ${notification.read ? "text-neutral-600 dark:text-neutral-400" : "text-neutral-900 dark:text-white"}`}
+                    className={`text-sm ${notification.read ? "text-muted" : "text-foreground"}`}
                   >
                     {notification.message}
                   </p>
-                  <p className="text-xs text-neutral-400 mt-0.5">
+                  <p className="text-xs text-muted/60 mt-0.5">
                     {formatTime(notification.createdAt)}
                   </p>
                 </div>
                 {!notification.read && (
-                  <span className="w-2 h-2 bg-blue-500 rounded-full" />
+                  <span className="w-2 h-2 bg-[rgb(var(--accent))] rounded-full animate-pulse" />
                 )}
               </button>
             ))}

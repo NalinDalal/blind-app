@@ -2,26 +2,49 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
-/**
- * Renders a circular button that toggles the application's color theme between light and dark.
- *
- * The button displays a Sun icon in light theme and a Moon icon in dark theme, and includes a visually hidden label "Toggle theme" for screen readers.
- *
- * @returns A React element representing the theme toggle button.
- */
 export function ThemeToggle() {
   const { setTheme, resolvedTheme: theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="w-9 h-9 flex items-center justify-center">
+        <div className="w-5 h-5 rounded-full bg-surface animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <button
-      type={"button"}
-      className="relative inline-flex h-9 w-9 items-center justify-center rounded-full text-sm font-medium transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer"
+      type="button"
+      className="relative p-2 rounded-lg hover:bg-surface transition-colors cursor-pointer group"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+      aria-label="Toggle theme"
     >
-      <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-      <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-      <span className="sr-only">Toggle theme</span>
+      <div className="relative w-5 h-5">
+        <Sun 
+          size={18} 
+          className={`
+            absolute inset-0 transition-all duration-300
+            ${theme === "dark" ? "opacity-0 rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"}
+            text-foreground
+          `} 
+        />
+        <Moon 
+          size={18} 
+          className={`
+            absolute inset-0 transition-all duration-300
+            ${theme === "light" ? "opacity-0 -rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"}
+            text-foreground
+          `} 
+        />
+      </div>
     </button>
   );
 }

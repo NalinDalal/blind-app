@@ -10,7 +10,6 @@ import {
   Heart,
   MessageCircle,
   MoreHorizontal,
-  Send,
   Share2,
 } from "lucide-react";
 import type React from "react";
@@ -84,7 +83,6 @@ export const PostItem: React.FC<PostItemProps> = ({
         setShareCount(data.shareCount);
         toast.success("Post shared!");
 
-        // Copy link to clipboard
         const shareUrl = `${window.location.origin}/post/${post.id}`;
         await navigator.clipboard.writeText(shareUrl);
       } else {
@@ -96,29 +94,30 @@ export const PostItem: React.FC<PostItemProps> = ({
   };
 
   return (
-    <article className="border-b border-neutral-200 dark:border-neutral-800 pb-4 mb-4">
+    <article className="p-4 rounded-2xl bg-surface border border-subtle mb-3">
       <div className="flex gap-3">
-        {/* Vote buttons */}
-        <div className="flex flex-col items-center gap-1 pt-1">
+        <div className="flex flex-col items-center gap-1">
           <button
             type="button"
             onClick={() => handleVote("UPVOTE")}
-            className={`p-1 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors ${
-              userVote === "UPVOTE" ? "text-orange-500" : "text-neutral-500"
+            className={`p-1.5 rounded-lg transition-all duration-200 ${
+              userVote === "UPVOTE" 
+                ? "text-[rgb(var(--accent))] bg-[rgb(var(--accent))]/10" 
+                : "text-muted hover:text-foreground hover:bg-surface-elevated"
             }`}
           >
             <ArrowBigUp
-              size={24}
+              size={22}
               className={userVote === "UPVOTE" ? "fill-current" : ""}
             />
           </button>
           <span
-            className={`text-sm font-semibold ${
+            className={`text-sm font-bold font-[family-name:var(--font-space-mono)] ${
               voteCount > 0
-                ? "text-orange-500"
+                ? "text-[rgb(var(--accent))]"
                 : voteCount < 0
                   ? "text-blue-500"
-                  : "text-neutral-500"
+                  : "text-muted"
             }`}
           >
             {voteCount || 0}
@@ -126,12 +125,14 @@ export const PostItem: React.FC<PostItemProps> = ({
           <button
             type="button"
             onClick={() => handleVote("DOWNVOTE")}
-            className={`p-1 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors ${
-              userVote === "DOWNVOTE" ? "text-blue-500" : "text-neutral-500"
+            className={`p-1.5 rounded-lg transition-all duration-200 ${
+              userVote === "DOWNVOTE" 
+                ? "text-blue-500 bg-blue-500/10" 
+                : "text-muted hover:text-foreground hover:bg-surface-elevated"
             }`}
           >
             <ArrowBigDown
-              size={24}
+              size={22}
               className={userVote === "DOWNVOTE" ? "fill-current" : ""}
             />
           </button>
@@ -143,97 +144,98 @@ export const PostItem: React.FC<PostItemProps> = ({
               <div className="relative">
                 <Avatar
                   seed={authorName}
-                  className="h-8 w-8 ring-2 ring-transparent hover:ring-pink-500 transition-all"
+                  className="h-9 w-9 ring-2 ring-subtle"
                 />
-                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white dark:border-black" />
               </div>
               <div className="flex flex-col">
-                <span className="font-semibold text-sm text-neutral-900 dark:text-white">
+                <span className="font-semibold text-sm text-foreground">
                   {authorName}
                 </span>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                <span className="text-xs text-muted">
                   {timeAgo}
                 </span>
               </div>
             </div>
             <button
               type="button"
-              className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
+              className="p-2 rounded-lg hover:bg-surface-elevated transition-colors"
             >
               <MoreHorizontal
-                size={20}
-                className="text-neutral-900 dark:text-white"
+                size={18}
+                className="text-muted"
               />
             </button>
           </div>
 
-          <div className="py-2">
-            <p className="text-sm text-neutral-900 dark:text-white whitespace-pre-wrap leading-relaxed">
+          <div className="py-1">
+            <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
               {post.content}
             </p>
           </div>
 
-          <div className="flex items-center justify-between mt-3">
+          <div className="flex items-center justify-between mt-3 pt-2 border-t border-subtle">
             <div className="flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => setIsLiked(!isLiked)}
-                className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-all active:scale-75"
+                className="p-2 rounded-lg hover:bg-surface-elevated transition-all duration-200 active:scale-90"
               >
                 <Heart
-                  size={24}
+                  size={20}
                   className={`transition-all duration-200 ${
                     isLiked
                       ? "fill-red-500 text-red-500 scale-110"
-                      : "text-neutral-900 dark:text-white"
+                      : "text-muted hover:text-red-500"
                   }`}
                 />
               </button>
               <button
                 type="button"
                 onClick={() => setShowComments(!showComments)}
-                className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
+                className="p-2 rounded-lg hover:bg-surface-elevated transition-colors"
               >
                 <MessageCircle
-                  size={24}
-                  className="text-neutral-900 dark:text-white"
+                  size={20}
+                  className={`transition-colors ${showComments ? "text-[rgb(var(--accent))]" : "text-muted"}`}
                 />
               </button>
               <button
                 type="button"
                 onClick={handleShare}
-                className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
+                className="p-2 rounded-lg hover:bg-surface-elevated transition-colors"
               >
                 <Share2
-                  size={22}
-                  className="text-neutral-900 dark:text-white"
+                  size={18}
+                  className="text-muted"
                 />
               </button>
             </div>
             <button
               type="button"
               onClick={() => setIsSaved(!isSaved)}
-              className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
+              className="p-2 rounded-lg hover:bg-surface-elevated transition-colors"
             >
               <Bookmark
-                size={24}
+                size={18}
                 className={`transition-colors ${
                   isSaved
-                    ? "fill-neutral-900 dark:fill-white text-neutral-900 dark:text-white"
-                    : "text-neutral-900 dark:text-white"
+                    ? "fill-foreground text-foreground"
+                    : "text-muted"
                 }`}
               />
             </button>
           </div>
 
-          <div className="mt-1 px-1 flex items-center gap-3">
-            <p className="text-sm font-semibold text-neutral-900 dark:text-white">
-              {isLiked
-                ? `${Math.floor(Math.random() * 100) + 1} likes`
-                : `${post._count.comments} comments`}
-            </p>
+          <div className="mt-2 px-1 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setShowComments(true)}
+              className="text-xs font-medium text-muted hover:text-foreground transition-colors"
+            >
+              {post._count.comments} comments
+            </button>
             {shareCount > 0 && (
-              <p className="text-sm text-neutral-500">{shareCount} shares</p>
+              <p className="text-xs text-muted">{shareCount} shares</p>
             )}
           </div>
         </div>
@@ -248,12 +250,12 @@ export const PostItem: React.FC<PostItemProps> = ({
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="pt-3 pl-11">
+            <div className="pt-4 mt-4 border-t border-subtle">
               {isAuthenticated ? (
                 <CommentForm postId={post.id} />
               ) : (
-                <p className="text-sm text-neutral-500 py-2">
-                  <a href="/auth" className="text-blue-500 font-semibold">
+                <p className="text-sm text-muted py-2">
+                  <a href="/auth" className="text-foreground font-semibold hover:text-[rgb(var(--accent))] transition-colors">
                     Sign in
                   </a>{" "}
                   to comment

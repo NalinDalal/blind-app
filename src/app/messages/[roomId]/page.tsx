@@ -51,7 +51,6 @@ export default function ChatRoomPage() {
           const data = await res.json();
           setMessages(data);
 
-          // Get other user from first message
           if (data.length > 0) {
             const other = data.find((m: Message) => m.senderId !== userId);
             if (other) {
@@ -71,7 +70,6 @@ export default function ChatRoomPage() {
 
     fetchMessages();
 
-    // Poll for new messages every 3 seconds
     const interval = setInterval(fetchMessages, 3000);
     return () => clearInterval(interval);
   }, [isAuthenticated, router, roomId, userId]);
@@ -145,18 +143,17 @@ export default function ChatRoomPage() {
 
   return (
     <InstagramLayout>
-      {/* Custom header for chat */}
-      <div className="fixed top-0 left-0 right-0 z-40 bg-white/90 dark:bg-black/90 backdrop-blur-xl border-b border-neutral-200 dark:border-neutral-800 h-14 px-4 flex items-center justify-between">
+      <div className="fixed top-0 left-0 right-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-subtle h-16 px-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link
             href="/messages"
-            className="p-2 -ml-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full"
+            className="p-2 -ml-2 rounded-lg hover:bg-surface-elevated transition-colors"
           >
-            <ArrowLeft size={24} className="text-neutral-900 dark:text-white" />
+            <ArrowLeft size={20} className="text-foreground" />
           </Link>
           <div className="flex items-center gap-2">
             <Avatar seed={otherUser?.anonName || "?"} className="h-8 w-8" />
-            <span className="font-semibold text-neutral-900 dark:text-white">
+            <span className="font-semibold text-foreground">
               {otherUser?.anonName || "Chat"}
             </span>
           </div>
@@ -164,27 +161,27 @@ export default function ChatRoomPage() {
         <div className="flex items-center gap-1">
           <button
             type="button"
-            className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full"
+            className="p-2 rounded-lg hover:bg-surface-elevated transition-colors"
           >
-            <Phone size={20} className="text-neutral-900 dark:text-white" />
+            <Phone size={18} className="text-foreground" />
           </button>
           <button
             type="button"
-            className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full"
+            className="p-2 rounded-lg hover:bg-surface-elevated transition-colors"
           >
-            <Video size={20} className="text-neutral-900 dark:text-white" />
+            <Video size={18} className="text-foreground" />
           </button>
         </div>
       </div>
 
-      <div className="pt-14 pb-20">
+      <div className="pt-16 pb-20">
         {loading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-subtle border-t-[rgb(var(--accent))]" />
           </div>
         ) : messages.length === 0 ? (
-          <div className="text-center py-10 px-4">
-            <p className="text-neutral-500">
+          <div className="text-center py-12 px-4">
+            <p className="text-muted">
               No messages yet. Start the conversation!
             </p>
           </div>
@@ -201,30 +198,30 @@ export default function ChatRoomPage() {
                   className={`flex ${isMe ? "justify-end" : "justify-start"}`}
                 >
                   {isRequest && !isMe ? (
-                    <div className="bg-neutral-100 dark:bg-neutral-800 rounded-2xl p-4 max-w-[80%]">
-                      <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-2">
+                    <div className="bg-surface rounded-2xl p-4 max-w-[80%] border border-subtle">
+                      <p className="text-sm text-muted mb-3">
                         {message.content}
                       </p>
                       <button
                         type="button"
                         onClick={handleAcceptRequest}
-                        className="text-sm text-blue-500 font-semibold hover:underline"
+                        className="text-sm font-medium text-foreground px-4 py-2 rounded-lg bg-[rgb(var(--accent))] hover:bg-[rgb(var(--accent))]/90 transition-colors"
                       >
                         Accept chat request
                       </button>
                     </div>
                   ) : (
                     <div
-                      className={`max-w-[75%] rounded-2xl px-4 py-2 ${
+                      className={`max-w-[75%] rounded-2xl px-4 py-3 ${
                         isMe
-                          ? "bg-blue-500 text-white"
-                          : "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white"
+                          ? "bg-[rgb(var(--accent))] text-foreground"
+                          : "bg-surface border border-subtle text-foreground"
                       }`}
                     >
                       <p className="text-sm">{message.content}</p>
                       <p
                         className={`text-xs mt-1 ${
-                          isMe ? "text-blue-100" : "text-neutral-400"
+                          isMe ? "text-foreground/60" : "text-muted"
                         }`}
                       >
                         {formatTime(message.createdAt)}
@@ -238,25 +235,24 @@ export default function ChatRoomPage() {
           </div>
         )}
 
-        {/* Chat input */}
         <form
           onSubmit={handleSend}
-          className="fixed bottom-16 left-0 right-0 bg-white dark:bg-black border-t border-neutral-200 dark:border-neutral-800 px-4 py-3"
+          className="fixed bottom-16 left-0 right-0 bg-surface/80 backdrop-blur-xl border-t border-subtle px-4 py-3"
         >
-          <div className="flex items-center gap-2 max-w-xl mx-auto">
+          <div className="flex items-center gap-2 max-w-lg mx-auto">
             <input
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Message..."
-              className="flex-1 h-10 px-4 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 h-11 px-4 rounded-xl bg-surface-elevated border border-default text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-[rgb(var(--accent))] focus:border-transparent transition-all"
             />
             <button
               type="submit"
               disabled={!newMessage.trim() || sending}
-              className="p-2 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 rounded-full text-white transition-colors"
+              className="p-3 bg-[rgb(var(--accent))] hover:bg-[rgb(var(--accent))]/90 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl text-foreground transition-all active:scale-95"
             >
-              <Send size={20} />
+              <Send size={18} />
             </button>
           </div>
         </form>

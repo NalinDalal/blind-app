@@ -3,31 +3,29 @@ import * as React from "react";
 
 import { cn } from "@/utils/ui";
 
-// Define all the button styles using class-variance-authority
 const buttonVariants = cva(
-  // Base classes applied to all variants
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-gray-950 dark:focus-visible:ring-gray-300 cursor-pointer",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium ring-offset-[rgb(var(--background))] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--accent))] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
   {
     variants: {
       variant: {
         default:
-          "bg-gray-900 text-gray-50 hover:bg-gray-900/90 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90",
+          "bg-[rgb(var(--foreground))] text-[rgb(var(--background))] hover:bg-[rgb(var(--foreground))]/90 active:scale-[0.98]",
         destructive:
-          "bg-red-500 text-gray-50 hover:bg-red-500/90 dark:bg-red-900 dark:text-gray-50 dark:hover:bg-red-900/90",
+          "bg-[rgb(var(--destructive))] text-foreground hover:bg-[rgb(var(--destructive))]/90",
         outline:
-          "border border-gray-200 bg-white hover:bg-gray-100 hover:text-gray-900 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50",
+          "border border-default bg-transparent hover:bg-surface text-foreground",
         secondary:
-          "bg-gray-100 text-gray-900 hover:bg-gray-100/80 dark:bg-gray-800 dark:text-gray-50 dark:hover:bg-gray-800/80",
+          "bg-surface text-foreground hover:bg-surface-elevated",
         ghost:
-          "hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-50",
-        link: "text-gray-900 underline-offset-4 hover:underline dark:text-gray-50",
-        "link-no-hover": "text-gray-900 underline-offset-4 dark:text-gray-50",
+          "hover:bg-surface text-foreground",
+        link: "text-foreground underline-offset-4 hover:underline",
+        "link-no-hover": "text-foreground",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        default: "h-11 px-6 py-2",
+        sm: "h-9 rounded-md px-4",
+        lg: "h-12 rounded-lg px-8",
+        icon: "h-11 w-11",
       },
     },
     defaultVariants: {
@@ -37,12 +35,10 @@ const buttonVariants = cva(
   },
 );
 
-// Define the props for the Button component
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {}
 
-// The Button component itself
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, ...props }, ref) => {
     return (
