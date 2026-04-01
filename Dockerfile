@@ -1,26 +1,22 @@
 # --------------------------
 # Builder stage
 # --------------------------
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Accept secrets as build args
 ARG JWT_SECRET
 ARG SENDGRID_API_KEY
 
-# Set env for build time
 ENV JWT_SECRET=$JWT_SECRET
 ENV SENDGRID_API_KEY=$SENDGRID_API_KEY
 
-# Install dependencies
 COPY package.json package-lock.json* yarn.lock* ./
-RUN npm install --frozen-lockfile || yarn install --frozen-lockfile
+COPY prisma ./prisma
+RUN npm install --frozen-lockfile
 
-# Copy source code
 COPY . .
 
-# Generate Prisma Client *before* building
 RUN npx prisma generate
 
 # Build Next.js
@@ -29,7 +25,7 @@ RUN npm run build || yarn build
 # --------------------------
 # Runner stage
 # --------------------------
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 
 WORKDIR /app
 ENV NODE_ENV=production
