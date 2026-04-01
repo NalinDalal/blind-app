@@ -66,9 +66,7 @@ const Profile = () => {
           <h1 className="text-2xl font-bold text-foreground mb-1">
             {userName}
           </h1>
-          <p className="text-sm text-muted">
-            {accountCreationDate}
-          </p>
+          <p className="text-sm text-muted">{accountCreationDate}</p>
         </div>
 
         <div className="flex justify-center gap-8 mb-6">
@@ -88,7 +86,9 @@ const Profile = () => {
             <p className="text-2xl font-bold font-[family-name:var(--font-space-mono)] text-foreground">
               {comments}
             </p>
-            <p className="text-xs text-muted uppercase tracking-wider">Comments</p>
+            <p className="text-xs text-muted uppercase tracking-wider">
+              Comments
+            </p>
           </div>
         </div>
 
@@ -99,7 +99,9 @@ const Profile = () => {
           </div>
           <div className="flex items-center gap-2">
             <Calendar size={14} className="text-muted" />
-            <span className="text-sm text-muted">Joined {accountCreationDate}</span>
+            <span className="text-sm text-muted">
+              Joined {accountCreationDate}
+            </span>
           </div>
         </div>
 
@@ -119,7 +121,9 @@ const Profile = () => {
             className="flex-1 py-4 flex items-center justify-center gap-2 border-b-2 border-[rgb(var(--accent))] text-foreground"
           >
             <Grid3X3 size={18} />
-            <span className="text-xs font-semibold uppercase tracking-wider">Posts</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">
+              Posts
+            </span>
           </button>
         </div>
       </div>
