@@ -82,7 +82,7 @@ paths:
         '500':
           description: Internal server error
 
-  /verify-otp:
+  /verifyOtp:
     post:
       summary: Verify OTP
       requestBody:

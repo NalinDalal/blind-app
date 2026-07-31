@@ -39,10 +39,10 @@ Like { id, commentId, userId, createdAt }
 
 ```mermaid
 flowchart TD
-    A[User enters email] --> B[POST /api/request-otp]
+    A[User enters email] --> B[POST /api/requestOtp]
     B --> C[OTP stored & emailed]
     C --> D[User enters OTP]
-    D --> E[POST /api/verify-otp]
+    D --> E[POST /api/verifyOtp]
     E --> F[OTP validated]
     F --> G[User marked verified]
     G --> H[User sets anonymous name]

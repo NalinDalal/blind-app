@@ -90,7 +90,7 @@ Authenticate user and receive JWT token.
 
 ### OTP Request
 
-`POST /api/request-otp`
+`POST /api/requestOtp`
 Request a 6-digit OTP via email (rate limited).
 
 **Request Body:**
@@ -117,7 +117,7 @@ Request a 6-digit OTP via email (rate limited).
 
 ### OTP Verification
 
-`POST /api/verify-otp`
+`POST /api/verifyOtp`
 Verify OTP and mark user as verified.
 
 **Request Body:**
@@ -169,7 +169,7 @@ Authorization: Bearer <jwt-token>
 
 - `POST /api/post`: Create/manage posts
 - `POST /api/comment`: Add comments
-- `POST /api/like-comment`: Like/unlike comments
+- `POST /api/likeComment`: Like/unlike comments
 - `GET /api/notification`: Retrieve notifications
 - `POST /api/token`: Refresh/validate JWT tokens
 

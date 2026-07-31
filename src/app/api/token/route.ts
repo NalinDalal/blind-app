@@ -7,12 +7,11 @@ import jwt from "jsonwebtoken";
 import { type NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-/**
- * JWT secret key for token signing.
- * Falls back to "devsecret" for development environments.
- * @constant {string}
- */
-const JWT_SECRET = process.env.JWT_SECRET || "devsecret";
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable must be set");
+}
 
 /**
  * POST endpoint to generate a JWT token for authenticated users.
@@ -66,7 +65,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const token = jwt.sign({ id, email }, JWT_SECRET, { expiresIn: "2h" });
+    const token = jwt.sign({ id, email }, JWT_SECRET!, { expiresIn: "2h" });
     return NextResponse.json({ token });
   } catch (err) {
     console.error(`Failed to generate token`, err);

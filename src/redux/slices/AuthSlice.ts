@@ -144,7 +144,7 @@ export const requestOtp = createAsyncThunk<
   { email: string }
 >("auth/requestOtp", async ({ email }, { dispatch, rejectWithValue }) => {
   try {
-    const response = await fetch("/api/request-otp", {
+    const response = await fetch("/api/requestOtp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -179,7 +179,7 @@ export const verifyOtp = createAsyncThunk<
   { email: string; otp: string }
 >("auth/verifyOtp", async ({ email, otp }, { dispatch, rejectWithValue }) => {
   try {
-    const response = await fetch("/api/verify-otp-and-login", {
+    const response = await fetch("/api/verifyOtp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, otp }),

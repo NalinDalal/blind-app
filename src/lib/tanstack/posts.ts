@@ -73,7 +73,7 @@ const addComment = async (newComment: NewCommentPayload) => {
 const toggleCommentLike = async (
   payload: LikeCommentPayload,
 ): Promise<LikeCommentResponse> => {
-  const res = await fetch(`/api/like-comment`, {
+  const res = await fetch(`/api/likeComment`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ commentId: payload.commentId }),
